@@ -1,0 +1,270 @@
+<div class="container-fluid py-4">
+  <!-- Botão Voltar -->
+  <div class="row mb-3">
+    <div class="col-12">
+      <button type="button" class="btn btn-outline-secondary btn-sm" (click)="voltar()">
+        <i class="fas fa-arrow-left me-2"></i>Voltar
+      </button>
+    </div>
+  </div>
+
+  <!-- Título da Página -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <h2 class="text-primary">
+        <i class="fas fa-id-card me-2"></i>
+        Impressão da Carteirinha de Agente Voluntário
+      </h2>
+      <hr class="border-primary">
+    </div>
+  </div>
+
+  <!-- Loading Geral -->
+  <div *ngIf="loading && !agente" class="row">
+    <div class="col-12 text-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Carregando...</span>
+      </div>
+      <p class="mt-2">Carregando dados do agente...</p>
+    </div>
+  </div>
+
+  <!-- Erro -->
+  <div *ngIf="error" class="row mb-4">
+    <div class="col-12">
+      <div class="alert alert-danger" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        {{ error }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Conteúdo Principal -->
+  <div *ngIf="agente && !loading" class="row">
+    
+    <!-- Dados do Agente -->
+    <div class="col-lg-8 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-user me-2"></i>
+            Dados do Agente Voluntário
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <!-- Foto -->
+            <div class="col-md-3 text-center mb-3">
+              <div class="foto-container">
+                <img 
+                  [src]="agente.fotoPath ? '/api/uploads/' + agente.fotoPath : '/assets/images/foto_padrao.png'" 
+                  [alt]="agente.nomeCompleto"
+                  class="img-thumbnail foto-agente"
+                  style="width: 120px; height: 150px; object-fit: cover;">
+              </div>
+            </div>
+            
+            <!-- Dados Pessoais -->
+            <div class="col-md-9">
+              <div class="row">
+                <div class="col-md-12 mb-2">
+                  <strong>Nome Completo:</strong>
+                  <span class="ms-2">{{ agente.nomeCompleto }}</span>
+                </div>
+                
+                <div class="col-md-6 mb-2">
+                  <strong>CPF:</strong>
+                  <span class="ms-2">{{ formatarCPF(agente.cpf) }}</span>
+                </div>
+                
+                <div class="col-md-6 mb-2">
+                  <strong>RG:</strong>
+                  <span class="ms-2">{{ agente.numeroCI || 'Não informado' }}</span>
+                </div>
+                
+                <div class="col-md-6 mb-2">
+                  <strong>Data de Nascimento:</strong>
+                  <span class="ms-2">{{ formatarData(agente.dataNascimento) }}</span>
+                </div>
+                
+                <div class="col-md-6 mb-2">
+                  <strong>Nacionalidade:</strong>
+                  <span class="ms-2">{{ agente.nacionalidade || 'Não informado' }}</span>
+                </div>
+                
+                <div class="col-md-6 mb-2">
+                  <strong>Naturalidade:</strong>
+                  <span class="ms-2">{{ agente.naturalidade || 'Não informado' }}</span>
+                </div>
+                
+                <div class="col-md-6 mb-2">
+                  <strong>UF:</strong>
+                  <span class="ms-2">{{ agente.uf || 'Não informado' }}</span>
+                </div>
+                
+                <div class="col-md-12 mb-2">
+                  <strong>Status:</strong>
+                  <span class="ms-2 badge" [ngClass]="getStatusClass()">
+                    {{ getStatusFormatado() }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Filiação -->
+          <div class="row mt-3" *ngIf="agente.filiacao_mae || agente.filiacao_pai">
+            <div class="col-12">
+              <h6 class="text-primary">Filiação:</h6>
+              <div *ngIf="agente.filiacao_mae" class="mb-1">
+                <strong>Mãe:</strong> {{ agente.filiacao_mae }}
+              </div>
+              <div *ngIf="agente.filiacao_pai">
+                <strong>Pai:</strong> {{ agente.filiacao_pai }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ações de Impressão -->
+    <div class="col-lg-4 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-header bg-success text-white">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-print me-2"></i>
+            Ações de Impressão
+          </h5>
+        </div>
+        <div class="card-body">
+          
+          <!-- Status da Verificação -->
+          <div class="mb-3">
+            <div *ngIf="verificandoStatus" class="text-center">
+              <div class="spinner-border spinner-border-sm text-primary" role="status">
+                <span class="visually-hidden">Verificando...</span>
+              </div>
+              <small class="d-block mt-1">Verificando status...</small>
+            </div>
+            
+            <div *ngIf="!verificandoStatus && podeGerar" class="alert alert-success">
+              <i class="fas fa-check-circle me-2"></i>
+              <strong>Agente apto</strong><br>
+              <small>Carteirinha pode ser gerada</small>
+            </div>
+            
+            <div *ngIf="!verificandoStatus && !podeGerar" class="alert alert-warning">
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              <strong>Agente não apto</strong><br>
+              <small>Verifique se está ativo e possui credencial válida</small>
+            </div>
+          </div>
+
+          <!-- Botões de Ação -->
+          <div class="d-grid gap-2">
+            
+            <!-- Preview -->
+            <button 
+              type="button" 
+              class="btn btn-outline-primary"
+              [disabled]="!podeGerar || loading"
+              (click)="gerarPreview()">
+              <i class="fas fa-eye me-2"></i>
+              <span *ngIf="!loading">Visualizar Preview</span>
+              <span *ngIf="loading">
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                Gerando...
+              </span>
+            </button>
+
+            <!-- Gerar Carteirinha -->
+            <button 
+              type="button" 
+              class="btn btn-primary"
+              [disabled]="!podeGerar || loading"
+              (click)="gerarCarteirinha()">
+              <i class="fas fa-download me-2"></i>
+              <span *ngIf="!loading">Gerar Carteirinha</span>
+              <span *ngIf="loading">
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                Gerando...
+              </span>
+            </button>
+
+            <!-- Editar Agente -->
+            <button 
+              type="button" 
+              class="btn btn-outline-secondary"
+              (click)="editarAgente()">
+              <i class="fas fa-edit me-2"></i>
+              Editar Dados
+            </button>
+
+          </div>
+
+          <!-- Informações Adicionais -->
+          <div class="mt-4">
+            <h6 class="text-muted">Informações:</h6>
+            <ul class="list-unstyled small text-muted">
+              <li><i class="fas fa-info-circle me-2"></i>A carteirinha será gerada em formato PDF</li>
+              <li><i class="fas fa-qrcode me-2"></i>Inclui QR Code para consulta pública</li>
+              <li><i class="fas fa-shield-alt me-2"></i>Documento oficial com elementos de segurança</li>
+              <li><i class="fas fa-clock me-2"></i>Validade: Tempo indeterminado</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Informações sobre a Carteirinha -->
+  <div *ngIf="agente && !loading" class="row">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-info text-white">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-info-circle me-2"></i>
+            Sobre a Carteirinha de Agente Voluntário
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <h6 class="text-primary">Frente da Carteirinha:</h6>
+              <ul class="list-unstyled">
+                <li><i class="fas fa-check text-success me-2"></i>Brasão do Poder Judiciário de MG</li>
+                <li><i class="fas fa-check text-success me-2"></i>Nome completo do agente</li>
+                <li><i class="fas fa-check text-success me-2"></i>Comarca de atuação</li>
+                <li><i class="fas fa-check text-success me-2"></i>Fotografia 2x2.5cm</li>
+                <li><i class="fas fa-check text-success me-2"></i>Código de controle e versão</li>
+                <li><i class="fas fa-check text-success me-2"></i>Assinatura do Juiz de Direito</li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <h6 class="text-primary">Verso da Carteirinha:</h6>
+              <ul class="list-unstyled">
+                <li><i class="fas fa-check text-success me-2"></i>Carteira de Identidade e UF</li>
+                <li><i class="fas fa-check text-success me-2"></i>CPF formatado</li>
+                <li><i class="fas fa-check text-success me-2"></i>Nacionalidade e naturalidade</li>
+                <li><i class="fas fa-check text-success me-2"></i>Data de nascimento</li>
+                <li><i class="fas fa-check text-success me-2"></i>Filiação (pai e mãe)</li>
+                <li><i class="fas fa-check text-success me-2"></i>QR Code para consulta</li>
+                <li><i class="fas fa-check text-success me-2"></i>Espaço para assinatura</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="alert alert-light mt-3">
+            <i class="fas fa-gavel me-2"></i>
+            <strong>Base Legal:</strong> Conforme o disposto no art. 362, §1º do Provimento nº 355/2018
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+

@@ -1,0 +1,72 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm fixed-top">
+  <div class="container-fluid">
+    <!-- Logo e título -->
+    <a class="navbar-brand d-flex align-items-center" href="#">
+      <img src="assets/logotjmg.jpg" alt="TJMG Logo" style="height: 40px; margin-right: 10px;">
+      <span>Sistema de Agentes Voluntários</span>
+    </a>
+
+    <!-- Botão para mobile -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Menu de navegação -->
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item" *ngIf="isLoggedIn">
+          <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">
+            <i class="fas fa-tachometer-alt me-1"></i>
+            Dashboard
+          </a>
+        </li>
+        <li class="nav-item" *ngIf="isLoggedIn">
+          <a class="nav-link" routerLink="/agentes" routerLinkActive="active">
+            <i class="fas fa-users me-1"></i>
+            Agentes
+          </a>
+        </li>
+        <li class="nav-item" *ngIf="isLoggedIn">
+          <a class="nav-link" routerLink="/credenciais" routerLinkActive="active">
+            <i class="fas fa-id-card me-1"></i>
+            Credenciais
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/consulta-publica" routerLinkActive="active">
+            <i class="fas fa-search me-1"></i>
+            Consulta Pública
+          </a>
+        </li>
+      </ul>
+
+      <!-- Menu do usuário -->
+      <ul class="navbar-nav">
+        <li class="nav-item dropdown" *ngIf="isLoggedIn; else loginButton">
+          <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" 
+             role="button" data-bs-toggle="dropdown">
+            <i class="fas fa-user-circle me-2"></i>
+            {{ currentUser?.nome || 'Usuário' }}
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Perfil</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#" (click)="logout()">
+              <i class="fas fa-sign-out-alt me-2"></i>Sair
+            </a></li>
+          </ul>
+        </li>
+        
+        <ng-template #loginButton>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/login">
+              <i class="fas fa-sign-in-alt me-1"></i>
+              Entrar
+            </a>
+          </li>
+        </ng-template>
+      </ul>
+    </div>
+  </div>
+</nav>
+

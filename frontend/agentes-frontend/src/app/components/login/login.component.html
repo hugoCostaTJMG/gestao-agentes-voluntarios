@@ -1,0 +1,77 @@
+<div class="container-fluid py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow">
+        <div class="card-header text-center">
+          <div class="d-flex justify-content-center align-items-center mb-2">
+            <img src="assets/logotjmg.jpg" alt="TJMG Logo" style="height: 50px; margin-right: 15px;">
+            <h4 class="mb-0">Sistema de Agentes Voluntários</h4>
+          </div>
+          <p class="mb-0 mt-2">Faça login para acessar o sistema</p>
+        </div>
+        <div class="card-body p-4">
+          
+          <!-- Opções de Login -->
+          <div class="row">
+            <!-- Login Administrativo -->
+            <div class="col-md-6 mb-3">
+              <div class="card h-100 border-primary">
+                <div class="card-body text-center">
+                  <i class="fas fa-user-shield fa-3x text-primary mb-3"></i>
+                  <h5>Acesso Administrativo</h5>
+                  <p class="text-muted">Para usuários da Corregedoria e COFIJ</p>
+                  <button class="btn btn-primary w-100" (click)="loginKeycloak()">
+                    <i class="fas fa-key me-2"></i>
+                    Entrar com Keycloak
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Login gov.br -->
+            <div class="col-md-6 mb-3">
+              <div class="card h-100 border-success">
+                <div class="card-body text-center">
+                  <i class="fas fa-id-card fa-3x text-success mb-3"></i>
+                  <h5>Agente Voluntário</h5>
+                  <p class="text-muted">Para agentes cadastrados no sistema</p>
+                  <button class="btn btn-success w-100" (click)="loginGovBr()" [disabled]="loading">
+                    <i class="fas fa-government me-2"></i>
+                    <span *ngIf="!loading">Entrar com gov.br</span>
+                    <span *ngIf="loading">
+                      <i class="fas fa-spinner fa-spin me-2"></i>
+                      Carregando...
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Alertas -->
+          <div class="alert alert-info mt-3" *ngIf="showInfo">
+            <i class="fas fa-info-circle me-2"></i>
+            {{ infoMessage }}
+          </div>
+
+          <div class="alert alert-danger mt-3" *ngIf="showError">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            {{ errorMessage }}
+          </div>
+
+          <!-- Informações sobre o sistema -->
+          <div class="mt-4 pt-3 border-top">
+            <h6 class="text-muted">Sobre o Sistema</h6>
+            <ul class="list-unstyled small text-muted">
+              <li><i class="fas fa-check text-success me-2"></i>Cadastro e gestão de agentes voluntários</li>
+              <li><i class="fas fa-check text-success me-2"></i>Emissão de credenciais com QR Code</li>
+              <li><i class="fas fa-check text-success me-2"></i>Consulta pública de credenciais</li>
+              <li><i class="fas fa-check text-success me-2"></i>Controle de situação cadastral</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

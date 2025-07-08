@@ -1,0 +1,5 @@
+Sistema de Gestão de Agentes Voluntários v2.1
+Node.js: 22.13.0
+Angular: 18.2.13
+Data de Build: Tue Jul  8 07:53:49 EDT 2025
+Compatível com Oracle Cloud Infrastructure (OCI)

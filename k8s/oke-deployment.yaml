@@ -1,0 +1,442 @@
+# Configuração para Oracle Kubernetes Engine (OKE)
+# Sistema de Gestão de Agentes Voluntários v2.0
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: agentes-voluntarios
+  labels:
+    name: agentes-voluntarios
+    environment: production
+
+---
+# ConfigMap para configurações da aplicação
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: agentes-config
+  namespace: agentes-voluntarios
+data:
+  # Configurações do banco Oracle
+  ORACLE_DB_HOST: "oracle-db.tjmg.local"
+  ORACLE_DB_PORT: "1521"
+  ORACLE_DB_SERVICE: "AGENTES_PDB"
+  ORACLE_DB_SCHEMA: "agentes_user"
+  
+  # Configurações da aplicação
+  APP_ENVIRONMENT: "production"
+  APP_BASE_URL: "https://agentes.tjmg.jus.br"
+  
+  # Configurações OCI
+  OCI_REGION: "sa-saopaulo-1"
+  OCI_BUCKET_NAME: "agentes-anexos"
+  
+  # Configurações de logs
+  LOG_LEVEL: "INFO"
+  SECURITY_LOG_LEVEL: "WARN"
+  ORACLE_LOG_LEVEL: "WARN"
+  
+  # Configurações de pool de conexão
+  DB_POOL_MAX_SIZE: "20"
+  DB_POOL_MIN_IDLE: "5"
+  DB_CONNECTION_TIMEOUT: "30000"
+  DB_IDLE_TIMEOUT: "600000"
+  DB_MAX_LIFETIME: "1800000"
+  
+  # Configurações de upload
+  MAX_FILE_SIZE: "10MB"
+  MAX_REQUEST_SIZE: "10MB"
+  
+  # Configurações de sessão
+  SESSION_TIMEOUT: "15m"
+  
+  # CORS
+  CORS_ALLOWED_ORIGINS: "https://agentes.tjmg.jus.br"
+
+---
+# Secret para credenciais sensíveis
+apiVersion: v1
+kind: Secret
+metadata:
+  name: agentes-secrets
+  namespace: agentes-voluntarios
+type: Opaque
+data:
+  # Base64 encoded values - substituir pelos valores reais
+  ORACLE_DB_USER: YWdlbnRlc191c2Vy  # agentes_user
+  ORACLE_DB_PASSWORD: YWdlbnRlc19wYXNz  # agentes_pass
+  GOVBR_CLIENT_ID: c2V1LWNsaWVudC1pZA==  # seu-client-id
+  GOVBR_CLIENT_SECRET: c2V1LWNsaWVudC1zZWNyZXQ=  # seu-client-secret
+
+---
+# PersistentVolumeClaim para logs
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: agentes-logs-pvc
+  namespace: agentes-voluntarios
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: oci-bv
+
+---
+# Deployment do Backend
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agentes-backend
+  namespace: agentes-voluntarios
+  labels:
+    app: agentes-backend
+    tier: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: agentes-backend
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: agentes-backend
+        tier: backend
+    spec:
+      containers:
+      - name: agentes-backend
+        image: agentes-voluntarios/backend:2.0
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        # Configurações do ConfigMap
+        - name: ORACLE_DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: agentes-config
+              key: ORACLE_DB_HOST
+        - name: ORACLE_DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: agentes-config
+              key: ORACLE_DB_PORT
+        - name: ORACLE_DB_SERVICE
+          valueFrom:
+            configMapKeyRef:
+              name: agentes-config
+              key: ORACLE_DB_SERVICE
+        - name: ORACLE_DB_SCHEMA
+          valueFrom:
+            configMapKeyRef:
+              name: agentes-config
+              key: ORACLE_DB_SCHEMA
+        - name: APP_ENVIRONMENT
+          valueFrom:
+            configMapKeyRef:
+              name: agentes-config
+              key: APP_ENVIRONMENT
+        - name: APP_BASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: agentes-config
+              key: APP_BASE_URL
+        - name: OCI_REGION
+          valueFrom:
+            configMapKeyRef:
+              name: agentes-config
+              key: OCI_REGION
+        - name: OCI_BUCKET_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: agentes-config
+              key: OCI_BUCKET_NAME
+        
+        # Credenciais do Secret
+        - name: ORACLE_DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: agentes-secrets
+              key: ORACLE_DB_USER
+        - name: ORACLE_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: agentes-secrets
+              key: ORACLE_DB_PASSWORD
+        - name: GOVBR_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: agentes-secrets
+              key: GOVBR_CLIENT_ID
+        - name: GOVBR_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: agentes-secrets
+              key: GOVBR_CLIENT_SECRET
+        
+        # Health checks
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        
+        # Recursos
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        
+        # Volume para logs
+        volumeMounts:
+        - name: logs-volume
+          mountPath: /app/logs
+        
+        # Configuração OCI
+        - name: oci-config
+          mountPath: /app/.oci
+          readOnly: true
+      
+      volumes:
+      - name: logs-volume
+        persistentVolumeClaim:
+          claimName: agentes-logs-pvc
+      - name: oci-config
+        secret:
+          secretName: oci-config-secret
+
+---
+# Service para o Backend
+apiVersion: v1
+kind: Service
+metadata:
+  name: agentes-backend-service
+  namespace: agentes-voluntarios
+  labels:
+    app: agentes-backend
+spec:
+  selector:
+    app: agentes-backend
+    tier: backend
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  type: ClusterIP
+
+---
+# Deployment do Frontend
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agentes-frontend
+  namespace: agentes-voluntarios
+  labels:
+    app: agentes-frontend
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: agentes-frontend
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: agentes-frontend
+        tier: frontend
+    spec:
+      containers:
+      - name: agentes-frontend
+        image: agentes-voluntarios/frontend:2.0
+        ports:
+        - containerPort: 80
+          name: http
+        
+        # Health checks
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        
+        # Recursos
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "200m"
+
+---
+# Service para o Frontend
+apiVersion: v1
+kind: Service
+metadata:
+  name: agentes-frontend-service
+  namespace: agentes-voluntarios
+  labels:
+    app: agentes-frontend
+spec:
+  selector:
+    app: agentes-frontend
+    tier: frontend
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+    name: http
+  type: ClusterIP
+
+---
+# Ingress para exposição externa
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: agentes-ingress
+  namespace: agentes-voluntarios
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+spec:
+  tls:
+  - hosts:
+    - agentes.tjmg.jus.br
+    secretName: agentes-tls-secret
+  rules:
+  - host: agentes.tjmg.jus.br
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: agentes-backend-service
+            port:
+              number: 8080
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: agentes-frontend-service
+            port:
+              number: 80
+
+---
+# HorizontalPodAutoscaler para Backend
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: agentes-backend-hpa
+  namespace: agentes-voluntarios
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: agentes-backend
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+
+---
+# HorizontalPodAutoscaler para Frontend
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: agentes-frontend-hpa
+  namespace: agentes-voluntarios
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: agentes-frontend
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+
+---
+# NetworkPolicy para segurança
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: agentes-network-policy
+  namespace: agentes-voluntarios
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+  - from:
+    - podSelector:
+        matchLabels:
+          app: agentes-frontend
+    ports:
+    - protocol: TCP
+      port: 8080
+  egress:
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 1521  # Oracle Database
+    - protocol: TCP
+      port: 443   # HTTPS
+    - protocol: TCP
+      port: 53    # DNS
+    - protocol: UDP
+      port: 53    # DNS
+
