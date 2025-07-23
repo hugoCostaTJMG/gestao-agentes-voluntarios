@@ -23,39 +23,6 @@ services:
       timeout: 10s
       retries: 5
 
-  # Keycloak para autenticação
-  keycloak:
-    image: quay.io/keycloak/keycloak:22.0
-    container_name: agentes-keycloak
-    environment:
-      - KEYCLOAK_ADMIN=admin
-      - KEYCLOAK_ADMIN_PASSWORD=admin123
-      - KC_DB=postgres
-      - KC_DB_URL=jdbc:postgresql://keycloak-db:5432/keycloak
-      - KC_DB_USERNAME=keycloak
-      - KC_DB_PASSWORD=keycloak123
-    ports:
-      - "8180:8080"
-    depends_on:
-      - keycloak-db
-    networks:
-      - agentes-network
-    restart: unless-stopped
-    command: start-dev
-
-  # Banco do Keycloak
-  keycloak-db:
-    image: postgres:15
-    container_name: agentes-keycloak-db
-    environment:
-      - POSTGRES_DB=keycloak
-      - POSTGRES_USER=keycloak
-      - POSTGRES_PASSWORD=keycloak123
-    volumes:
-      - keycloak_data:/var/lib/postgresql/data
-    networks:
-      - agentes-network
-    restart: unless-stopped
 
   # Backend Spring Boot
   backend:
@@ -68,7 +35,6 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle-db:1521:XE
       - SPRING_DATASOURCE_USERNAME=agentes_user
       - SPRING_DATASOURCE_PASSWORD=agentes_pass
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak:8080/realms/agentes-voluntarios
       - GOVBR_CLIENT_ID=${GOVBR_CLIENT_ID}
       - GOVBR_CLIENT_SECRET=${GOVBR_CLIENT_SECRET}
       - GOVBR_REDIRECT_URI=${GOVBR_REDIRECT_URI}
@@ -76,7 +42,6 @@ services:
       - "8080:8080"
     depends_on:
       - oracle-db
-      - keycloak
     networks:
       - agentes-network
     restart: unless-stopped
@@ -108,7 +73,6 @@ services:
 
 volumes:
   oracle_data:
-  keycloak_data:
 
 networks:
   agentes-network:
