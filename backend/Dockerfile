@@ -45,7 +45,7 @@ RUN mkdir -p /app/logs /app/.oci /app/uploads && \
 WORKDIR /app
 
 # Copiar JAR da aplicação do estágio de build
-COPY --from=builder /app/target/agentes-voluntarios-*.jar app.jar
+COPY --from=builder /app/target/sistema-agentes-voluntarios-2.0.0.jar sistema-agentes-voluntarios-2.0.0.jar
 
 # Copiar script de inicialização
 COPY docker-entrypoint.sh /app/docker-entrypoint.sh
@@ -71,5 +71,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
 
 # Comando de inicialização
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
-CMD ["java", "-jar", "app.jar"]
+CMD ["java", "-jar", "sistema-agentes-voluntarios-2.0.0.jar"]
 

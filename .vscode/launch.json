@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-SistemaAgentesVoluntariosApplication<sistema-agentes-voluntarios>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "br.gov.corregedoria.agentes.SistemaAgentesVoluntariosApplication",
+            "projectName": "sistema-agentes-voluntarios",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

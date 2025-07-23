@@ -34,7 +34,7 @@ wait_for_database() {
     attempt=1
     
     while [ $attempt -le $max_attempts ]; do
-        if java -cp app.jar org.springframework.boot.loader.JarLauncher \
+        if java -jar sistema-agentes-voluntarios-2.0.0.jar \
            --spring.datasource.url="jdbc:oracle:thin:@//${ORACLE_DB_HOST:-localhost}:${ORACLE_DB_PORT:-1521}/${ORACLE_DB_SERVICE:-ORCL}" \
            --spring.datasource.username="${ORACLE_DB_USER}" \
            --spring.datasource.password="${ORACLE_DB_PASSWORD}" \
@@ -42,7 +42,7 @@ wait_for_database() {
            --spring.jpa.hibernate.ddl-auto=validate \
            --logging.level.root=ERROR \
            --spring.main.web-application-type=none \
-           --spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration 2>/dev/null; then
+           --spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration 2>&1 | tee -a /tmp/db-check.log; then
             log "Banco de dados Oracle está disponível!"
             return 0
         fi
@@ -51,10 +51,11 @@ wait_for_database() {
         sleep 10
         attempt=$((attempt + 1))
     done
-    
+
     log "ERRO: Não foi possível conectar ao banco de dados após $max_attempts tentativas"
     exit 1
 }
+
 
 # Configurar OCI se credenciais estiverem disponíveis
 setup_oci() {
