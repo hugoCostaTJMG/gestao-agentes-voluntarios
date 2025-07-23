@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Repository para operações de banco de dados da entidade AutoInfracao
@@ -31,7 +32,7 @@ public interface AutoInfracaoRepository extends JpaRepository<AutoInfracao, Stri
      * Busca autos de infração por comarca
      * Usado para supervisores consultarem autos da sua comarca
      */
-    Page<AutoInfracao> findByComarca_CodigoComarcaOrderByDataCadastroDesc(Integer codigoComarca, Pageable pageable);
+    Page<AutoInfracao> findByComarca_IdOrderByDataCadastroDesc(UUID codigoComarca, Pageable pageable);
     
     /**
      * Busca autos de infração por status
@@ -64,7 +65,7 @@ public interface AutoInfracaoRepository extends JpaRepository<AutoInfracao, Stri
            "(:dataFim IS NULL OR a.dataInfracao <= :dataFim) AND " +
            "(:nomeAutuado IS NULL OR LOWER(a.nomeAutuado) LIKE LOWER(CONCAT('%', :nomeAutuado, '%'))) AND " +
            "(:cpfCnpjAutuado IS NULL OR a.cpfCnpjAutuado = :cpfCnpjAutuado) AND " +
-           "(:codigoComarca IS NULL OR a.comarca.codigoComarca = :codigoComarca) AND " +
+           "(:codigoComarca IS NULL OR a.comarca.id = :codigoComarca) AND " +
            "(:baseLegal IS NULL OR LOWER(a.baseLegal) LIKE LOWER(CONCAT('%', :baseLegal, '%'))) " +
            "ORDER BY a.dataCadastro DESC")
     Page<AutoInfracao> findWithFilters(
@@ -74,7 +75,7 @@ public interface AutoInfracaoRepository extends JpaRepository<AutoInfracao, Stri
         @Param("dataFim") LocalDate dataFim,
         @Param("nomeAutuado") String nomeAutuado,
         @Param("cpfCnpjAutuado") String cpfCnpjAutuado,
-        @Param("codigoComarca") Integer codigoComarca,
+        @Param("codigoComarca") UUID codigoComarca,
         @Param("baseLegal") String baseLegal,
         Pageable pageable
     );
@@ -83,7 +84,7 @@ public interface AutoInfracaoRepository extends JpaRepository<AutoInfracao, Stri
      * Consulta para supervisores - filtra por comarca do supervisor
      */
     @Query("SELECT a FROM AutoInfracao a WHERE " +
-           "a.comarca.codigoComarca = :codigoComarca AND " +
+           "a.comarca.id = :codigoComarca AND " +
            "(:status IS NULL OR a.status = :status) AND " +
            "(:dataInicio IS NULL OR a.dataInfracao >= :dataInicio) AND " +
            "(:dataFim IS NULL OR a.dataInfracao <= :dataFim) AND " +
@@ -93,7 +94,7 @@ public interface AutoInfracaoRepository extends JpaRepository<AutoInfracao, Stri
            "(:baseLegal IS NULL OR LOWER(a.baseLegal) LIKE LOWER(CONCAT('%', :baseLegal, '%'))) " +
            "ORDER BY a.dataCadastro DESC")
     Page<AutoInfracao> findForSupervisor(
-        @Param("codigoComarca") Integer codigoComarca,
+        @Param("codigoComarca") UUID codigoComarca,
         @Param("status") StatusAutoInfracao status,
         @Param("dataInicio") LocalDate dataInicio,
         @Param("dataFim") LocalDate dataFim,
@@ -133,8 +134,8 @@ public interface AutoInfracaoRepository extends JpaRepository<AutoInfracao, Stri
     /**
      * Busca auto de infração por ID com validação de acesso por comarca
      */
-    @Query("SELECT a FROM AutoInfracao a WHERE a.id = :id AND a.comarca.codigoComarca = :codigoComarca")
-    Optional<AutoInfracao> findByIdAndComarca(@Param("id") String id, @Param("codigoComarca") Integer codigoComarca);
+    @Query("SELECT a FROM AutoInfracao a WHERE a.id = :id AND a.comarca.id = :codigoComarca")
+    Optional<AutoInfracao> findByIdAndComarca(@Param("id") String id, @Param("codigoComarca") UUID codigoComarca);
     
     /**
      * Conta autos de infração por status
@@ -149,7 +150,7 @@ public interface AutoInfracaoRepository extends JpaRepository<AutoInfracao, Stri
     /**
      * Conta autos de infração por comarca
      */
-    long countByComarca_CodigoComarca(Integer codigoComarca);
+    long countByComarca_Id(UUID codigoComarca);
     
     /**
      * Busca autos de infração criados em um período
