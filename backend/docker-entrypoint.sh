@@ -15,14 +15,11 @@ log "Iniciando Sistema de Gestão de Agentes Voluntários v2.0"
 
 # Verificar variáveis de ambiente obrigatórias
 check_required_env() {
-    local required_vars=(
-        "ORACLE_DB_HOST"
-        "ORACLE_DB_USER"
-        "ORACLE_DB_PASSWORD"
-    )
-    
-    for var in "${required_vars[@]}"; do
-        if [ -z "${!var}" ]; then
+    required_vars="ORACLE_DB_HOST ORACLE_DB_USER ORACLE_DB_PASSWORD"
+
+    for var in $required_vars; do
+        eval value="\${$var}"
+        if [ -z "$value" ]; then
             log "ERRO: Variável de ambiente $var não definida"
             exit 1
         fi
@@ -32,9 +29,9 @@ check_required_env() {
 # Aguardar banco de dados ficar disponível
 wait_for_database() {
     log "Aguardando banco de dados Oracle ficar disponível..."
-    
-    local max_attempts=30
-    local attempt=1
+
+    max_attempts=30
+    attempt=1
     
     while [ $attempt -le $max_attempts ]; do
         if java -cp app.jar org.springframework.boot.loader.JarLauncher \
