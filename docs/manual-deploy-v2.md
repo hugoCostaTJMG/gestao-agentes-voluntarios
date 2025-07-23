@@ -11,7 +11,6 @@ Este manual contém as instruções completas para deploy do Sistema de Gestão 
 - **Frontend:** Angular 16+ 
 - **Banco de Dados:** PostgreSQL 14+
 - **Autenticação:** Keycloak + Login gov.br
-- **Monitoramento:** Prometheus + Grafana
 - **Containerização:** Docker + Docker Compose
 
 ## 📦 Pré-requisitos
@@ -95,9 +94,6 @@ SSL_ENABLED=true
 SSL_CERT_PATH=/etc/ssl/certs/agentes.crt
 SSL_KEY_PATH=/etc/ssl/private/agentes.key
 
-# Monitoramento
-PROMETHEUS_ENABLED=true
-GRAFANA_ADMIN_PASSWORD=AdminSeguro123!
 ```
 
 ### 3. Configuração SSL/TLS
@@ -220,16 +216,6 @@ sudo crontab -e
 0 2 * * * /opt/agentes-voluntarios/scripts/backup.sh
 ```
 
-### 3. Monitoramento
-
-```bash
-# Acessar Grafana
-https://seu-servidor:3000
-# Login: admin / AdminSeguro123!
-
-# Importar dashboards
-# Arquivos em: monitoring/grafana/dashboards/
-```
 
 ## 📊 Funcionalidades da Versão 2.0
 

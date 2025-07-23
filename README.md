@@ -51,7 +51,6 @@ Sistema completo para gestão de agentes voluntários e registro de autos de inf
 ### Infraestrutura
 - **Docker** + Docker Compose
 - **Nginx** como proxy reverso
-- **Prometheus** + Grafana para monitoramento
 - **SSL/TLS** para segurança
 
 ## 📦 Estrutura do Projeto
@@ -80,9 +79,6 @@ sistema-agentes-voluntarios/
 │   ├── deploy.sh            # Script de deploy
 │   ├── backup.sh            # Script de backup
 │   └── restore.sh           # Script de restore
-├── monitoring/               # Configurações de monitoramento
-│   ├── prometheus.yml       # Configuração Prometheus
-│   └── grafana/             # Dashboards Grafana
 ├── docker-compose.yml        # Orquestração de containers
 ├── .env.example             # Exemplo de variáveis de ambiente
 └── README.md                # Este arquivo
@@ -140,7 +136,7 @@ https://localhost
 - **Responsividade** mobile completa
 - **Performance** otimizada
 - **Segurança** aprimorada
-- **Monitoramento** com Prometheus/Grafana
+- **Monitoramento** integrado
 - **Backup automático** configurado
 - **Scripts de deploy** automatizados
 
