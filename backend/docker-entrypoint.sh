@@ -38,7 +38,7 @@ wait_for_database() {
     
     while [ $attempt -le $max_attempts ]; do
         if java -cp app.jar org.springframework.boot.loader.JarLauncher \
-           --spring.datasource.url="jdbc:oracle:thin:@${ORACLE_DB_HOST}:${ORACLE_DB_PORT:-1521}:${ORACLE_DB_SERVICE:-ORCL}" \
+           --spring.datasource.url="jdbc:oracle:thin:@//${ORACLE_DB_HOST:${default_host}}:${ORACLE_DB_PORT:-1521}/${ORACLE_DB_SERVICE:-ORCL}" \
            --spring.datasource.username="${ORACLE_DB_USER}" \
            --spring.datasource.password="${ORACLE_DB_PASSWORD}" \
            --spring.datasource.driver-class-name=oracle.jdbc.OracleDriver \
