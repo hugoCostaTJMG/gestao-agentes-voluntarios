@@ -32,7 +32,7 @@ services:
     container_name: agentes-backend
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle-db:1521/XE
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle-db:1521/XEPDB1
       - SPRING_DATASOURCE_USERNAME=agentes_user
       - SPRING_DATASOURCE_PASSWORD=agentes_pass
       - GOVBR_CLIENT_ID=${GOVBR_CLIENT_ID}
