@@ -13,7 +13,7 @@ Este manual contém as instruções completas para deploy do Sistema de Gestão 
 - **Storage:** OCI Object Storage para anexos
 - **Security:** OCI Vault para secrets
 - **Networking:** Load Balancer e VCN
-- **Monitoring:** OCI Monitoring + Prometheus/Grafana
+- **Monitoring:** OCI Monitoring
 
 ## 📦 Pré-requisitos OCI
 
@@ -366,7 +366,6 @@ oci lb backend-health get --load-balancer-id <lb-id> --backend-set-name <backend
 - **OCI Console:** https://cloud.oracle.com
 - **OCI CLI Reference:** https://docs.oracle.com/en-us/iaas/tools/oci-cli/
 - **Kubernetes Dashboard:** kubectl proxy
-- **Grafana:** https://agentes.tjmg.jus.br/grafana
 
 ---
 

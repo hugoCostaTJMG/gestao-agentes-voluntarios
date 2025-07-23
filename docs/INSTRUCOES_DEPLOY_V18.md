@@ -276,20 +276,6 @@ spec:
         image: fluent/fluentd-kubernetes-daemonset:v1-debian-elasticsearch
 ```
 
-### **2. Métricas com Prometheus:**
-```yaml
-# Prometheus para métricas
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: prometheus
-spec:
-  template:
-    spec:
-      containers:
-      - name: prometheus
-        image: prom/prometheus:latest
-```
 
 ---
 

@@ -106,40 +106,9 @@ services:
       timeout: 10s
       retries: 3
 
-  # Prometheus para monitoramento
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: agentes-prometheus
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
-    networks:
-      - agentes-network
-    restart: unless-stopped
-
-  # Grafana para dashboards
-  grafana:
-    image: grafana/grafana:latest
-    container_name: agentes-grafana
-    ports:
-      - "3000:3000"
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin123
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
-      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
-    networks:
-      - agentes-network
-    restart: unless-stopped
-
 volumes:
   oracle_data:
   keycloak_data:
-  prometheus_data:
-  grafana_data:
 
 networks:
   agentes-network:

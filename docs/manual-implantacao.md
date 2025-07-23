@@ -43,7 +43,6 @@ O sistema tem como principais objetivos:
 - **Frontend:** Angular 17, Bootstrap 5, TypeScript
 - **Banco de Dados:** Oracle Database 21c
 - **Autenticação:** Keycloak (administrativo) e gov.br (agentes)
-- **Monitoramento:** Prometheus e Grafana
 - **Containerização:** Docker e Docker Compose
 - **Infraestrutura:** Oracle Cloud Infrastructure (OCI)
 
@@ -100,8 +99,6 @@ Para um ambiente de produção que suporte até 1.000 usuários simultâneos, re
 - 8080: Backend API
 - 1521: Oracle Database
 - 8180: Keycloak
-- 9090: Prometheus
-- 3000: Grafana
 
 **Conectividade Externa:**
 - Acesso à internet para integração com gov.br
@@ -140,10 +137,6 @@ O sistema utiliza uma arquitetura de microsserviços containerizada, com os segu
                        │   (Dados)       │
                        └─────────────────┘
 
-┌─────────────────┐    ┌─────────────────┐
-│   Prometheus    │◄──►│    Grafana      │
-│ (Monitoramento) │    │  (Dashboards)   │
-└─────────────────┘    └─────────────────┘
 ```
 
 ### 3.2 Componentes do Sistema
@@ -173,8 +166,6 @@ O sistema utiliza uma arquitetura de microsserviços containerizada, com os segu
 - Políticas de segurança configuráveis
 
 **Monitoramento:**
-- Prometheus para coleta de métricas
-- Grafana para visualização e alertas
 - Logs centralizados com ELK Stack (opcional)
 
 ### 3.3 Fluxo de Dados
@@ -187,7 +178,7 @@ O fluxo típico de dados no sistema segue o padrão:
 4. **Persistência:** Dados são armazenados no Oracle Database
 5. **Auditoria:** Operações são registradas automaticamente
 6. **Resposta:** Resultado é retornado ao frontend
-7. **Monitoramento:** Métricas são coletadas pelo Prometheus
+7. **Monitoramento:** Métricas são coletadas pelo sistema de observabilidade
 
 ---
 
@@ -270,8 +261,6 @@ ORACLE_CHARACTERSET=AL32UTF8
 KEYCLOAK_ADMIN=admin
 KEYCLOAK_ADMIN_PASSWORD=SenhaAdmin123!
 
-# Configurações do Grafana
-GF_SECURITY_ADMIN_PASSWORD=SenhaGrafana123!
 
 # Configurações do PostgreSQL (Keycloak)
 POSTGRES_DB=keycloak

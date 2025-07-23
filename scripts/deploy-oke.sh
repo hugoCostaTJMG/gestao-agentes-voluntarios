@@ -210,31 +210,6 @@ check_health() {
     kubectl get ingress -n $NAMESPACE
 }
 
-# Configurar monitoramento
-setup_monitoring() {
-    log "Configurando monitoramento..."
-    
-    # ServiceMonitor para Prometheus (se disponível)
-    cat <<EOF | kubectl apply -f -
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  name: agentes-backend-monitor
-  namespace: $NAMESPACE
-  labels:
-    app: agentes-backend
-spec:
-  selector:
-    matchLabels:
-      app: agentes-backend
-  endpoints:
-  - port: http
-    path: /actuator/prometheus
-    interval: 30s
-EOF
-    
-    log "Monitoramento configurado!"
-}
 
 # Função principal
 main() {
@@ -258,7 +233,6 @@ main() {
     create_secrets
     deploy_application
     check_health
-    setup_monitoring
     
     log "🎉 Deploy concluído com sucesso!"
     log ""
