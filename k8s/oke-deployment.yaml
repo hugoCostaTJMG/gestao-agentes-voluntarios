@@ -123,16 +123,18 @@ spec:
             configMapKeyRef:
               name: agentes-config
               key: ORACLE_DB_PORT
-        - name: ORACLE_DB_SERVICE
-          valueFrom:
-            configMapKeyRef:
-              name: agentes-config
-              key: ORACLE_DB_SERVICE
-        - name: ORACLE_DB_SCHEMA
-          valueFrom:
-            configMapKeyRef:
-              name: agentes-config
-              key: ORACLE_DB_SCHEMA
+          - name: ORACLE_DB_SERVICE
+            valueFrom:
+              configMapKeyRef:
+                name: agentes-config
+                key: ORACLE_DB_SERVICE
+          - name: SPRING_DATASOURCE_URL
+            value: "jdbc:oracle:thin:@//oracle-db.tjmg.local:1521/AGENTES_PDB"
+          - name: ORACLE_DB_SCHEMA
+            valueFrom:
+              configMapKeyRef:
+                name: agentes-config
+                key: ORACLE_DB_SCHEMA
         - name: APP_ENVIRONMENT
           valueFrom:
             configMapKeyRef:
