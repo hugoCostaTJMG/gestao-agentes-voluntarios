@@ -41,6 +41,13 @@ public class Comarca {
         this.id = id;
     }
 
+    public UUID getCodigoComarca() {
+    return this.id;
+}
+public void setCodigoComarca(UUID codigoComarca) {
+    this.id = codigoComarca;
+}
+
     public String getNomeComarca() {
         return nomeComarca;
     }

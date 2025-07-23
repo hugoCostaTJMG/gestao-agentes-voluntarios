@@ -134,7 +134,7 @@ public interface AutoInfracaoRepository extends JpaRepository<AutoInfracao, Stri
      * Busca auto de infração por ID com validação de acesso por comarca
      */
     @Query("SELECT a FROM AutoInfracao a WHERE a.id = :id AND a.comarca.codigoComarca = :codigoComarca")
-    Optional<AutoInfracao> findByIdAndComarca(@Param("id") String id, @Param("codigoComarca") String codigoComarca);
+    Optional<AutoInfracao> findByIdAndComarca(@Param("id") String id, @Param("codigoComarca") Integer codigoComarca);
     
     /**
      * Conta autos de infração por status
