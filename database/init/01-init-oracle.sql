@@ -7,14 +7,14 @@ SET PAGESIZE 0;
 SET FEEDBACK OFF;
 SET ECHO ON;
 
-CREATE USER agentes_user IDENTIFIED BY "SecurePassword123!";
+CREATE USER agentes_user IDENTIFIED BY agentes_pass;
 GRANT CONNECT, RESOURCE, CREATE SESSION, CREATE TABLE, CREATE VIEW,
       CREATE PROCEDURE, CREATE TRIGGER, CREATE SYNONYM TO agentes_user;
 ALTER USER agentes_user QUOTA UNLIMITED ON DATA;
 GRANT CREATE JOB TO agentes_user;
 GRANT MANAGE SCHEDULER TO agentes_user;
 
--- CONNECT agentes_user/"SecurePassword123!"@agentes-db_high;
+-- CONNECT agentes_user/agentes_pass@agentes-db_high;
 
 CREATE TABLE comarca (
     id_comarca        VARCHAR2(36) PRIMARY KEY,
