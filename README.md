@@ -102,6 +102,7 @@ cd sistema-agentes-voluntarios
 
 # Configurar variáveis de ambiente
 cp .env.example .env
+# Edite o arquivo `.env` e ajuste ORACLE_DB_HOST, ORACLE_DB_SERVICE e credenciais
 nano .env
 
 # Executar deploy
