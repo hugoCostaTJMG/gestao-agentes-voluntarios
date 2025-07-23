@@ -77,29 +77,6 @@ else
     echo "❌ Frontend não está respondendo"
 fi
 
-# Keycloak
-echo "🔍 Verificando Keycloak..."
-if curl -f http://localhost:8180 > /dev/null 2>&1; then
-    echo "✅ Keycloak está funcionando"
-else
-    echo "❌ Keycloak não está respondendo"
-fi
-
-# Prometheus
-echo "🔍 Verificando Prometheus..."
-if curl -f http://localhost:9090 > /dev/null 2>&1; then
-    echo "✅ Prometheus está funcionando"
-else
-    echo "❌ Prometheus não está respondendo"
-fi
-
-# Grafana
-echo "🔍 Verificando Grafana..."
-if curl -f http://localhost:3000 > /dev/null 2>&1; then
-    echo "✅ Grafana está funcionando"
-else
-    echo "❌ Grafana não está respondendo"
-fi
 
 echo ""
 echo "🎉 Deploy concluído!"
@@ -107,12 +84,8 @@ echo ""
 echo "📋 URLs dos serviços:"
 echo "   Frontend:    http://localhost:80"
 echo "   Backend:     http://localhost:8080"
-echo "   Keycloak:    http://localhost:8180"
-echo "   Prometheus:  http://localhost:9090"
-echo "   Grafana:     http://localhost:3000"
 echo ""
 echo "🔑 Credenciais padrão:"
-echo "   Keycloak Admin: admin / admin123"
 echo "   Grafana Admin:  admin / admin123"
 echo "   Oracle DB:      system / OraclePassword123"
 echo ""
