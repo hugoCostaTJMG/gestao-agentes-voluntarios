@@ -2,7 +2,8 @@
 -- Sistema de Gestão de Agentes Voluntários v2.0
 -- Compatível com Oracle Cloud Infrastructure (OCI)
 
-ALTER SESSION SET CONTAINER = CDB$ROOT;
+-- Garantir que os objetos sejam criados no PDB XEPDB1
+ALTER SESSION SET CONTAINER = XEPDB1;
 SET PAGESIZE 0;
 SET FEEDBACK OFF;
 SET ECHO ON;
