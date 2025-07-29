@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
+import { AuthService } from './auth.service';
 import { 
   AgenteVoluntario, 
   AgenteVoluntarioDTO, 
@@ -21,23 +22,15 @@ import {
 })
 export class ApiService {
   private baseUrl = 'http://localhost:8080';
-  private currentUserSubject = new BehaviorSubject<Usuario | null>(null);
-  public currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private http: HttpClient) {
-    // Verificar se há usuário logado no localStorage
-    const savedUser = localStorage.getItem('currentUser');
-    if (savedUser) {
-      this.currentUserSubject.next(JSON.parse(savedUser));
-    }
-  }
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
   // Headers com autenticação
   private getAuthHeaders(): HttpHeaders {
-    const user = this.currentUserSubject.value;
-    if (user && user.token) {
+    const token = this.authService.getToken();
+    if (token) {
       return new HttpHeaders({
-        'Authorization': `Bearer ${user.token}`,
+        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       });
     }
@@ -69,8 +62,7 @@ export class ApiService {
   }
 
   logout(): void {
-    localStorage.removeItem('currentUser');
-    this.currentUserSubject.next(null);
+    this.authService.logout();
   }
 
   // ===== AGENTES VOLUNTÁRIOS =====
@@ -283,16 +275,15 @@ export class ApiService {
   // ===== UTILITÁRIOS =====
 
   getCurrentUser(): Usuario | null {
-    return this.currentUserSubject.value;
+    return this.authService.getCurrentUser();
   }
 
   setCurrentUser(user: Usuario): void {
-    localStorage.setItem('currentUser', JSON.stringify(user));
-    this.currentUserSubject.next(user);
+    this.authService.setCurrentUser(user);
   }
 
   isLoggedIn(): boolean {
-    return this.currentUserSubject.value !== null;
+    return this.authService.isLoggedIn();
   }
 }
 

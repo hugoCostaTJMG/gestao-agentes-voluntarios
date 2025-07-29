@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 import { Usuario } from '../../models/interfaces';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -17,19 +17,19 @@ export class HeaderComponent implements OnInit {
   isLoggedIn = false;
 
   constructor(
-    private apiService: ApiService,
+    private authService: AuthService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.apiService.currentUser$.subscribe(user => {
+    this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
       this.isLoggedIn = !!user;
     });
   }
 
   logout(): void {
-    this.apiService.logout();
+    this.authService.logout();
     this.router.navigate(['/login']);
   }
 }
