@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 import { Usuario } from '../../models/interfaces';
 import { CommonModule } from '@angular/common';
 
@@ -20,13 +21,14 @@ export class LoginComponent implements OnInit {
 
   constructor(
     private apiService: ApiService,
+    private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
     // Verificar se já está logado
-    if (this.apiService.isLoggedIn()) {
+    if (this.authService.isLoggedIn()) {
       this.router.navigate(['/agentes']);
       return;
     }
@@ -54,7 +56,7 @@ export class LoginComponent implements OnInit {
         token: 'mock-admin-token'
       };
       
-      this.apiService.setCurrentUser(adminUser);
+      this.authService.setCurrentUser(adminUser);
       this.router.navigate(['/agentes']);
     }, 2000);
   }
@@ -108,7 +110,7 @@ export class LoginComponent implements OnInit {
               token: tokenResponse.accessToken
             };
 
-            this.apiService.setCurrentUser(user);
+            this.authService.setCurrentUser(user);
             this.router.navigate(['/meu-perfil']);
           },
           error: (error) => {
