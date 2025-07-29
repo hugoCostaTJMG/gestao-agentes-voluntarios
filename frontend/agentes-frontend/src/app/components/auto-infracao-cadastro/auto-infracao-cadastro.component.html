@@ -1,0 +1,76 @@
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">
+            <i class="fas fa-file-alt me-2"></i>
+            Novo Auto de Infração
+          </h5>
+          <button class="btn btn-outline-secondary" (click)="cancelar()">
+            <i class="fas fa-arrow-left me-2"></i>
+            Voltar
+          </button>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="form" (ngSubmit)="salvar()" novalidate>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Nome do Autuado</label>
+                <input class="form-control" formControlName="nomeAutuado">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">CPF/CNPJ</label>
+                <input class="form-control" formControlName="cpfCnpjAutuado">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Endereço</label>
+                <input class="form-control" formControlName="enderecoAutuado">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Contato</label>
+                <input class="form-control" formControlName="contatoAutuado">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Comarca</label>
+                <select class="form-select" formControlName="comarcaId">
+                  <option value="" disabled selected>Selecione</option>
+                  <option *ngFor="let c of comarcas" [value]="c.id">{{c.nomeComarca}}</option>
+                </select>
+              </div>
+              <div class="col-md-8">
+                <label class="form-label">Base Legal</label>
+                <input class="form-control" formControlName="baseLegal">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Data</label>
+                <input type="date" class="form-control" formControlName="dataInfracao">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Hora</label>
+                <input type="time" class="form-control" formControlName="horaInfracao">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Local</label>
+                <input class="form-control" formControlName="localInfracao">
+              </div>
+              <div class="col-12">
+                <label class="form-label">Descrição da Conduta</label>
+                <textarea class="form-control" rows="3" formControlName="descricaoConduta"></textarea>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Anexo</label>
+                <input type="file" class="form-control" (change)="onFileChange($event)">
+              </div>
+            </div>
+            <div class="mt-4 d-flex justify-content-end">
+              <button type="submit" class="btn btn-primary" [disabled]="loading">
+                Salvar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

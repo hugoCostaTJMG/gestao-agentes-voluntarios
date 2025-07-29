@@ -112,3 +112,57 @@ export interface PaginatedResponse<T> {
   number: number;
 }
 
+// ===== AUTOS DE INFRAÇÃO =====
+
+export enum StatusAutoInfracao {
+  RASCUNHO = 'RASCUNHO',
+  REGISTRADO = 'REGISTRADO',
+  CONCLUIDO = 'CONCLUIDO',
+  CANCELADO = 'CANCELADO'
+}
+
+export interface AnexoAutoInfracao {
+  id?: number;
+  autoInfracaoId: string;
+  nomeArquivo: string;
+  nomeOriginal: string;
+  tipoArquivo: string;
+  tamanhoArquivo: number;
+  caminhoArquivo: string;
+  descricao?: string;
+  dataUpload?: string;
+  usuarioUpload?: string;
+}
+
+export interface AutoInfracao {
+  id?: string;
+  nomeAutuado: string;
+  cpfCnpjAutuado: string;
+  enderecoAutuado: string;
+  contatoAutuado: string;
+  agenteId?: string;
+  nomeAgente?: string;
+  matriculaAgente?: string;
+  comarcaId: string;
+  baseLegal: string;
+  dataInfracao: string;
+  horaInfracao: string;
+  localInfracao: string;
+  descricaoConduta: string;
+  iniciaisCrianca?: string;
+  idadeCrianca?: number;
+  sexoCrianca?: string;
+  nomeTestemunha?: string;
+  cpfTestemunha?: string;
+  assinaturaAutuado?: boolean;
+  status?: StatusAutoInfracao;
+  dataCadastro?: string;
+  dataAtualizacao?: string;
+  usuarioCadastro?: string;
+  usuarioAtualizacao?: string;
+  dataCancelamento?: string;
+  usuarioCancelamento?: string;
+  justificativaCancelamento?: string;
+  anexos?: AnexoAutoInfracao[];
+}
+
