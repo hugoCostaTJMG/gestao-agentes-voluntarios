@@ -7,11 +7,13 @@ import {
   AgenteVoluntarioDTO, 
   Comarca, 
   AreaAtuacao, 
-  Credencial, 
+  Credencial,
   ConsultaPublica,
   LoginGovBr,
   Usuario,
-  PaginatedResponse
+  PaginatedResponse,
+  AutoInfracao,
+  AnexoAutoInfracao
 } from '../models/interfaces';
 
 @Injectable({
@@ -191,6 +193,89 @@ export class ApiService {
 
   cadastrarAreaAtuacao(area: AreaAtuacao): Observable<AreaAtuacao> {
     return this.http.post<AreaAtuacao>(`${this.baseUrl}/api/areas-atuacao`, area, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  // ===== AUTOS DE INFRAÇÃO =====
+
+  listarAutos(page: number = 0, size: number = 10, filtros?: any): Observable<PaginatedResponse<AutoInfracao>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    if (filtros) {
+      Object.keys(filtros).forEach(key => {
+        if (filtros[key] !== undefined && filtros[key] !== '') {
+          params = params.set(key, filtros[key]);
+        }
+      });
+    }
+
+    return this.http.get<PaginatedResponse<AutoInfracao>>(`${this.baseUrl}/api/autos`, {
+      headers: this.getAuthHeaders(),
+      params
+    });
+  }
+
+  buscarAutoPorId(id: string): Observable<AutoInfracao> {
+    return this.http.get<AutoInfracao>(`${this.baseUrl}/api/autos/${id}`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  cadastrarAuto(auto: AutoInfracao): Observable<AutoInfracao> {
+    return this.http.post<AutoInfracao>(`${this.baseUrl}/api/autos`, auto, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  atualizarAuto(id: string, auto: AutoInfracao): Observable<AutoInfracao> {
+    return this.http.put<AutoInfracao>(`${this.baseUrl}/api/autos/${id}`, auto, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  cancelarAuto(id: string, justificativa: string): Observable<AutoInfracao> {
+    const body = { justificativa };
+    return this.http.patch<AutoInfracao>(`${this.baseUrl}/api/autos/${id}/cancelar`, body, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  excluirAuto(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/api/autos/${id}`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  listarAnexos(autoId: string): Observable<AnexoAutoInfracao[]> {
+    return this.http.get<AnexoAutoInfracao[]>(`${this.baseUrl}/api/autos/${autoId}/anexos`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  uploadAnexo(autoId: string, arquivo: File, descricao?: string): Observable<AnexoAutoInfracao> {
+    const formData = new FormData();
+    formData.append('arquivo', arquivo);
+    if (descricao) {
+      formData.append('descricao', descricao);
+    }
+
+    return this.http.post<AnexoAutoInfracao>(`${this.baseUrl}/api/autos/${autoId}/anexos`, formData, {
+      headers: this.getAuthHeaders().delete('Content-Type')
+    });
+  }
+
+  downloadAnexo(anexoId: number): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/api/anexos/${anexoId}/download`, {
+      headers: this.getAuthHeaders(),
+      responseType: 'blob'
+    });
+  }
+
+  excluirAnexo(anexoId: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/api/anexos/${anexoId}`, {
       headers: this.getAuthHeaders()
     });
   }

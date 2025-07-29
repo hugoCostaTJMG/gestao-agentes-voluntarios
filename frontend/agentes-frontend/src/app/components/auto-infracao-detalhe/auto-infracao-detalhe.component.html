@@ -1,0 +1,39 @@
+<div class="container-fluid py-4" *ngIf="auto">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">
+            <i class="fas fa-file-alt me-2"></i>
+            Detalhe do Auto
+          </h5>
+          <a class="btn btn-outline-secondary" routerLink="/autos">
+            <i class="fas fa-arrow-left me-1"></i> Voltar
+          </a>
+        </div>
+        <div class="card-body">
+          <dl class="row">
+            <dt class="col-sm-3">Autuado</dt>
+            <dd class="col-sm-9">{{auto?.nomeAutuado}}</dd>
+            <dt class="col-sm-3">Status</dt>
+            <dd class="col-sm-9">{{auto?.status}}</dd>
+            <dt class="col-sm-3">Data</dt>
+            <dd class="col-sm-9">{{auto?.dataInfracao | date}}</dd>
+          </dl>
+          <h6>Anexos</h6>
+          <ul class="list-unstyled">
+            <li *ngFor="let a of anexos" class="mb-1">
+              {{a.nomeOriginal}}
+              <button class="btn btn-link btn-sm" (click)="download(a.id!)">Download</button>
+            </li>
+          </ul>
+          <div class="mt-3" *ngIf="auto.status !== 'CANCELADO'">
+            <label class="form-label">Justificativa Cancelamento</label>
+            <textarea class="form-control" [(ngModel)]="justificativa"></textarea>
+            <button class="btn btn-danger mt-2" (click)="cancelarAuto()">Cancelar Auto</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
