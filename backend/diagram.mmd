@@ -1,0 +1,32 @@
+erDiagram
+
+    AGENTE_VOLUNTARIO ||--o{ CARTEIRINHA : possui
+
+    AGENTE_VOLUNTARIO {
+        number ID_AGENTE PK
+        string NOME_COMPLETO "150"
+        date DATA_NASCIMENTO "DDmmYYYY"
+        string CPF "11"
+        string TELEFONE "15"
+        string EMAIL "100"
+        string NACIONALIDADE "50"
+        string NATURALIDADE "50"
+        string FILIACAO_MAE "100"
+        string FILIACAO_PAI "100"
+        string DISPONIBILIDADE "50"
+        string STATUS "20"
+        string USUARIO_CADASTRO "50"
+        date DATA_CADASTRO
+        binary FOTO
+        string ID_GOVBR "50"
+    }
+
+    CARTEIRINHA {
+        number ID_CARTEIRINHA PK
+        number ID_AGENTE FK
+        string NUMERO_CARTEIRA_IDENTIDADE "20"
+        string UF "2"
+        date DATA_EXPEDICAO_CI
+        date DATA_EMISSAO
+        binary QR_CODE
+    }
