@@ -1,0 +1,60 @@
+@import '../../shared/general/colors/colors';
+
+.app-sidebar {
+  width: 250px;
+  min-height: 100vh;
+  background: #fff;
+  border-right: 1px solid $neutral-200;
+
+  .sidebar-header {
+    padding: 8px 12px;
+
+    .btn-close-sidebar {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: $neutral-900;
+
+      &:hover {
+        color: $red-800;
+      }
+    }
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border-radius: 6px;
+    margin: 4px 8px;
+    color: $neutral-900 !important;
+    transition: all 0.2s ease;
+
+    i {
+      width: 20px;
+      text-align: center;
+      color: $neutral-900 !important;
+    }
+
+    &:hover {
+      background: $neutral-100;
+      color: $red-800;
+
+      i {
+        color: $red-800;
+      }
+    }
+
+    &.active {
+      background: $red-100;
+      color: $red-800;
+
+      i {
+        color: $red-800;
+      }
+    }
+  }
+}

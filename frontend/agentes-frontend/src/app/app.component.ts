@@ -6,6 +6,7 @@ import { AgenteCadastroComponent } from './components/agente-cadastro/agente-cad
 import { AgenteListaComponent } from './components/agente-lista/agente-lista.component';
 import { CredencialEmissaoComponent } from './components/credencial-emissao/credencial-emissao.component';
 import { ConsultaPublicaComponent } from './components/consulta-publica/consulta-publica.component';
+import { SidebarComponent } from './components/sidebar/sidebar.component';
 
 @Component({
   selector: 'app-root',
@@ -14,29 +15,25 @@ import { ConsultaPublicaComponent } from './components/consulta-publica/consulta
     RouterOutlet,
     RouterLink,
     HeaderComponent,
+    SidebarComponent,
     LoginComponent,
     AgenteCadastroComponent,
     AgenteListaComponent,
     CredencialEmissaoComponent,
     ConsultaPublicaComponent
   ],
-  template: `
-    <app-header></app-header>
-    <main>
-      <router-outlet></router-outlet>
-    </main>
-    <footer class="footer mt-auto">
-      <div class="container text-center">
-        <span class="text-muted">
-          © 2025 Corregedoria - Sistema de Gestão de Agentes Voluntários
-        </span>
-      </div>
-    </footer>
-  `,
+  templateUrl: './app.component.html', // agora usa arquivo separado
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
   title = 'Sistema de Agentes Voluntários';
+  toggleSidebar() {
+    document.body.classList.toggle('sidebar-open');
+  }
+
+  closeSidebar() {
+    document.body.classList.remove('sidebar-open');
+  }
 }
 
 

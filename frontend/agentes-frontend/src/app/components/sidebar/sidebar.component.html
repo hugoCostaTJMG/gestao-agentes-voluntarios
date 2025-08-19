@@ -1,0 +1,63 @@
+<nav class="app-sidebar d-flex flex-column p-3" >
+  <!-- Cabeçalho do Sidebar -->
+  <div class="sidebar-header d-flex justify-content-between align-items-center mb-3 d-lg-none">
+    <app-logo variant="color" width="120px"></app-logo>
+    <button class="btn-close-sidebar" (click)="closeSidebar()">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <!-- Links de navegação -->
+  <ul class="nav flex-column">
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">
+        <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/agentes" routerLinkActive="active">
+        <i class="fas fa-users me-2"></i> Agentes Voluntários
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/cadastrar-agente" routerLinkActive="active">
+        <i class="fas fa-user-plus me-2"></i> Cadastrar Agente
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/credenciais" routerLinkActive="active">
+        <i class="fas fa-id-card me-2"></i> Emissão de Credencial
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/carteirinhas" routerLinkActive="active">
+        <i class="fas fa-print me-2"></i> Impressão Carteirinhas
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/autos" routerLinkActive="active">
+        <i class="fas fa-file-alt me-2"></i> Autos de Infração
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/atualizacao-situacao" routerLinkActive="active">
+        <i class="fas fa-sync-alt me-2"></i> Atualização Situação
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/consulta-publica" routerLinkActive="active">
+        <i class="fas fa-search me-2"></i> Consulta Pública
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/relatorios" routerLinkActive="active">
+        <i class="fas fa-chart-bar me-2"></i> Relatórios
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/configuracoes" routerLinkActive="active">
+        <i class="fas fa-cog me-2"></i> Configurações
+      </a>
+    </li>
+  </ul>
+</nav>

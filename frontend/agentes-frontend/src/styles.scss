@@ -2,16 +2,19 @@
 @import 'bootstrap/dist/css/bootstrap.min.css';
 @import '@fortawesome/fontawesome-free/css/all.min.css';
 
-/* Variáveis de cores do sistema */
+/* Importações do Design System */
+@import 'app/shared/general/colors/colors';
+
+/* Variáveis de cores do sistema usando tokens SCSS */
 :root {
-  --primary-color: #dc3545; /* Vermelho para combinar com o logo TJMG */
-  --secondary-color: #f8f9fa;
-  --success-color: #28a745;
-  --danger-color: #dc3545;
-  --warning-color: #ffc107;
-  --info-color: #17a2b8;
-  --light-color: #f8f9fa;
-  --dark-color: #343a40;
+  --primary-color: #{$red-800};      /* Vermelho institucional */
+  --secondary-color: #{$neutral-50};
+  --success-color: #{$green-500};
+  --danger-color: #{$red-600};
+  --warning-color: #{$yellow-500};
+  --info-color: #{$blue-alt-500};
+  --light-color: #{$neutral-50};
+  --dark-color: #{$neutral-900};
 }
 
 /* Reset e estilos globais */
@@ -23,31 +26,28 @@
 
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f5f5f5;
-  color: #333;
+  background-color: $neutral-50;
+  color: $neutral-800;
   line-height: 1.6;
 }
 
-/* Estilos para o header */
+/* Header */
 .navbar-brand {
   font-weight: bold;
-  color: white !important;
+  color: $neutral-50 ;
 }
 
 .navbar-dark .navbar-nav .nav-link {
-  color: rgba(255, 255, 255, 0.9) !important;
+  color: rgba(255, 255, 255, 0.9) ;
 }
 
-.navbar-dark .navbar-nav .nav-link:hover {
-  color: white !important;
-}
-
+.navbar-dark .navbar-nav .nav-link:hover,
 .navbar-dark .navbar-nav .nav-link.active {
-  color: white !important;
+  color: $neutral-50 ;
   font-weight: 600;
 }
 
-/* Estilos para cards */
+/* Cards */
 .card {
   border: none;
   border-radius: 8px;
@@ -57,73 +57,55 @@ body {
 
 .card-header {
   background-color: var(--primary-color);
-  color: white;
-  border-radius: 8px 8px 0 0 !important;
+  color: $neutral-50;
+  border-radius: 8px 8px 0 0;
   font-weight: 600;
 }
 
-/* Estilos para botões */
+/* Botões */
 .btn-primary {
   background-color: var(--primary-color);
   border-color: var(--primary-color);
 }
-
 .btn-primary:hover {
-  background-color: #b02a37;
-  border-color: #b02a37;
+  background-color: $red-900;
+  border-color: $red-900;
 }
 
-/* Estilos para formulários */
+/* Formulários */
 .form-control:focus {
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+  box-shadow: 0 0 0 0.2rem rgba($red-800, 0.25);
 }
 
 .form-label {
   font-weight: 600;
-  color: #495057;
+  color: $neutral-700;
 }
 
-/* Estilos para status */
-.status-ativo {
-  color: var(--success-color);
-  font-weight: bold;
-}
+/* Status */
+.status-ativo { color: var(--success-color); font-weight: bold; }
+.status-inativo { color: var(--danger-color); font-weight: bold; }
+.status-em-analise { color: var(--warning-color); font-weight: bold; }
+.status-quadro-reserva { color: var(--info-color); font-weight: bold; }
 
-.status-inativo {
-  color: var(--danger-color);
-  font-weight: bold;
-}
-
-.status-em-analise {
-  color: var(--warning-color);
-  font-weight: bold;
-}
-
-.status-quadro-reserva {
-  color: var(--info-color);
-  font-weight: bold;
-}
-
-/* Estilos para tabelas */
+/* Tabelas */
 .table {
-  background-color: white;
+  background-color: $neutral-50;
   border-radius: 8px;
   overflow: hidden;
 }
-
 .table thead th {
   background-color: var(--primary-color);
-  color: white;
+  color: $neutral-50;
   border: none;
   font-weight: 600;
 }
-
 .table tbody tr:hover {
-  background-color: rgba(220, 53, 69, 0.05);
+  background-color: rgba($red-800, 0.05);
 }
 
-/* Estilos para loading */
+/* Loading */
 .loading-spinner {
   display: flex;
   justify-content: center;
@@ -131,61 +113,47 @@ body {
   height: 200px;
 }
 
-/* Estilos para alertas */
+/* Alertas */
 .alert {
   border-radius: 8px;
   border: none;
 }
 
-/* Estilos responsivos */
+/* Responsivo */
 @media (max-width: 768px) {
-  .container-fluid {
-    padding: 10px;
-  }
-  
-  .card {
-    margin-bottom: 15px;
-  }
-  
-  .table-responsive {
-    font-size: 0.9rem;
-  }
+  .container-fluid { padding: 10px; }
+  .card { margin-bottom: 15px; }
+  .table-responsive { font-size: 0.9rem; }
 }
 
-/* Estilos para o footer */
+/* Footer */
 .footer {
   background-color: var(--dark-color);
-  color: white;
+  color: $neutral-50;
   padding: 20px 0;
   margin-top: 50px;
 }
 
-/* Estilos para navegação */
+/* Navegação */
 .nav-link {
-  color: rgba(255, 255, 255, 0.9) !important;
   font-weight: 500;
 }
-
-.nav-link:hover {
-  color: white !important;
-}
-
+.nav-link:hover,
 .nav-link.active {
-  color: white !important;
+  color: $neutral-50 ;
   font-weight: 600;
 }
 
-/* Estilos para modais */
+/* Modais */
 .modal-header {
   background-color: var(--primary-color);
-  color: white;
+  color: $neutral-50;
 }
-
 .modal-header .btn-close {
   filter: invert(1);
 }
 
-/* Estilos para badges */
+/* Badges */
 .badge {
   font-size: 0.8rem;
   padding: 0.5em 0.75em;
@@ -195,29 +163,79 @@ body {
 .fade-in {
   animation: fadeIn 0.3s ease-in;
 }
-
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* Estilos para QR Code */
+/* QR Code */
 .qr-code-container {
   text-align: center;
   padding: 20px;
 }
-
 .qr-code-container img {
   max-width: 200px;
   border: 2px solid var(--primary-color);
   border-radius: 8px;
   padding: 10px;
-  background-color: white;
+  background-color: $neutral-50;
 }
 
+/* Sidebar comportamento mobile */
+.app-sidebar {
+  width: 250px; /* largura fixa */
+  max-width: 80%; /* ocupa até 80% da tela */
+  background: #fff;
+  border-right: 1px solid #ddd;
+  position: fixed;
+  top: 0px; /* altura do header */
+  left: 0;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-in-out;
+  z-index: 1050;
+  height: calc(100% - 56px);
+
+  @media (min-width: 992px) {
+    transform: translateX(0); /* sempre visível no desktop */
+    position: static; 
+    height: auto;
+    width: 250px;
+    max-width: none;
+  }
+}
+
+/* Sidebar aberto no mobile */
+body.sidebar-open .app-sidebar {
+  transform: translateX(0);
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Overlay escuro */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1040;
+}
+
+body.sidebar-open .sidebar-overlay {
+  display: block;
+}
+
+/* Conteúdo principal deve respeitar o sidebar fixo no desktop */
+.app-content {
+  transition: margin-left 0.3s ease-in-out;
+
+  @media (max-width: 991px) {
+    margin-left: 0;
+  }
+}
+@media (max-width: 991px) {   /* até lg (mobile/tablet) */
+  main {
+    width: -webkit-fill-available;   /* Safari/Chrome */
+    width: -moz-available;           /* Firefox */
+    flex-grow: 1;
+    min-width: 0;
+  }
+}

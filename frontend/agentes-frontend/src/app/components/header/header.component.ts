@@ -4,11 +4,13 @@ import { AuthService } from '../../services/auth.service';
 import { Usuario } from '../../models/interfaces';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { LogoComponent } from '../../shared/general/logo/logo.component';
+import { MarcaComponent } from '../../shared/general/marca/marca.component';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, LogoComponent, MarcaComponent],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })
@@ -26,6 +28,9 @@ export class HeaderComponent implements OnInit {
       this.currentUser = user;
       this.isLoggedIn = !!user;
     });
+  }
+  toggleSidebar() {
+    document.body.classList.toggle('sidebar-open');
   }
 
   logout(): void {
