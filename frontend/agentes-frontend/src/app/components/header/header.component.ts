@@ -6,11 +6,12 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { LogoComponent } from '../../shared/general/logo/logo.component';
 import { MarcaComponent } from '../../shared/general/marca/marca.component';
+import { ButtonComponent } from '../../shared/components/buttons/button/button.component';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterModule, LogoComponent, MarcaComponent],
+  imports: [CommonModule, RouterModule, LogoComponent, MarcaComponent, ButtonComponent],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })

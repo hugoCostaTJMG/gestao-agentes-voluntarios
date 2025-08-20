@@ -4,9 +4,7 @@
     <!-- 🔹 Esquerda: Hambúrguer (mobile) + Marca (desktop) -->
     <div class="d-flex align-items-center">
       <!-- Botão hamburguer (mobile) -->
-      <button class="btn d-lg-none me-2" (click)="toggleSidebar()">
-        <i class="fas fa-bars fa-lg"></i>
-      </button>
+      <app-button type="ghost" size="sm" iconLeft="fas fa-bars fa-lg" (clicked)="toggleSidebar()"></app-button>
 
       <!-- Marca (desktop) -->
       <div class="d-none d-lg-flex align-items-center">
