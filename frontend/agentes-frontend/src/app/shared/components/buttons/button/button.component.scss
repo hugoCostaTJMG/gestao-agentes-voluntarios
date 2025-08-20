@@ -1,0 +1,113 @@
+@import "../../../general/colors/colors.scss";
+
+button {
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-align: center;
+  width: fit-content;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+/* Sizes */
+button.sm {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.75rem;
+}
+
+button.md {
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+}
+
+button.lg {
+  font-size: 1rem;
+  padding: 0.75rem 1.25rem;
+}
+
+/* Types */
+button.primary {
+  background: $red-800;
+  color: #fff;
+}
+
+button.primary:hover:not(:disabled) {
+  background: $red-700;
+}
+
+button.primary:active:not(:disabled) {
+  background: $red-900;
+}
+
+button.primary:disabled {
+  background: $neutral-300;
+  color: #fff;
+}
+
+button.secondary {
+  background: $neutral-700;
+  color: #fff;
+}
+
+button.secondary:hover:not(:disabled) {
+  background: $neutral-600;
+}
+
+button.secondary:active:not(:disabled) {
+  background: $neutral-800;
+}
+
+button.secondary:disabled {
+  background: $neutral-300;
+  color: #fff;
+}
+
+button.danger {
+  background: $red-600;
+  color: #fff;
+}
+
+button.danger:hover:not(:disabled) {
+  background: $red-500;
+}
+
+button.danger:active:not(:disabled) {
+  background: $red-700;
+}
+
+button.danger:disabled {
+  background: $neutral-300;
+  color: #fff;
+}
+
+button.ghost {
+  background: transparent;
+  border: 1px solid $red-800;
+  color: $red-800;
+}
+
+button.ghost:hover:not(:disabled) {
+  background: $red-50;
+}
+
+button.ghost:active:not(:disabled) {
+  background: $red-100;
+}
+
+button.ghost:disabled {
+  border-color: $neutral-300;
+  color: $neutral-300;
+}
+
+@media (max-width: 480px) {
+  button {
+    width: 100%;
+  }
+}

@@ -1,1 +1,14 @@
-<p>button works!</p>
+<button
+  type="button"
+  [ngClass]="[type, size]"
+  [disabled]="disabled"
+  (click)="onClick($event)"
+>
+  <ng-container *ngIf="iconLeft">
+    <i [ngClass]="iconLeft"></i>
+  </ng-container>
+  <span *ngIf="label" class="label">{{ label }}</span>
+  <ng-container *ngIf="iconRight">
+    <i [ngClass]="iconRight"></i>
+  </ng-container>
+</button>
