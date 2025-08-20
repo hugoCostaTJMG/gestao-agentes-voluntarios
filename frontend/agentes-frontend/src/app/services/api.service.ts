@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
 import { 
   AgenteVoluntario, 
@@ -21,7 +21,7 @@ import {
   providedIn: 'root'
 })
 export class ApiService {
-  private baseUrl = 'http://localhost:8080';
+  private baseUrl = environment.apiUrl;
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
