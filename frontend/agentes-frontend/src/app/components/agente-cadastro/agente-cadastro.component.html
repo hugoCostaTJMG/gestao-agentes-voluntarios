@@ -7,10 +7,12 @@
             <i class="fas fa-user-plus me-2"></i>
             Cadastrar Agente Voluntário
           </h5>
-          <button class="btn btn-outline-secondary" (click)="voltar()">
-            <i class="fas fa-arrow-left me-2"></i>
-            Voltar
-          </button>
+          <app-button
+            label="Voltar"
+            type="secondary"
+            iconLeft="fas fa-arrow-left"
+            (clicked)="voltar()"
+          ></app-button>
         </div>
         <div class="card-body">
           
@@ -214,20 +216,19 @@
             <div class="row">
               <div class="col-12">
                 <div class="d-flex justify-content-end gap-2">
-                  <button type="button" class="btn btn-outline-secondary" (click)="limparFormulario()">
-                    <i class="fas fa-eraser me-2"></i>
-                    Limpar
-                  </button>
-                  <button type="submit" class="btn btn-primary" [disabled]="agenteForm.invalid || loading">
-                    <span *ngIf="!loading">
-                      <i class="fas fa-save me-2"></i>
-                      Cadastrar Agente
-                    </span>
-                    <span *ngIf="loading">
-                      <i class="fas fa-spinner fa-spin me-2"></i>
-                      Salvando...
-                    </span>
-                  </button>
+                  <app-button
+                    label="Limpar"
+                    type="secondary"
+                    iconLeft="fas fa-eraser"
+                    (clicked)="limparFormulario()"
+                  ></app-button>
+                  <app-button
+                    [label]="loading ? 'Salvando...' : 'Cadastrar Agente'"
+                    type="primary"
+                    buttonType="submit"
+                    [disabled]="agenteForm.invalid || loading"
+                    [iconLeft]="loading ? 'fas fa-spinner fa-spin' : 'fas fa-save'"
+                  ></app-button>
                 </div>
               </div>
             </div>

@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { Comarca, AreaAtuacao, AgenteVoluntarioDTO } from '../../models/interfaces';
 import { CommonModule } from '@angular/common';
+import { ButtonComponent } from '../../shared/components/buttons/button/button.component';
 
 interface Estado {
   sigla: string;
@@ -13,7 +14,7 @@ interface Estado {
 @Component({
   selector: 'app-agente-cadastro',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, ButtonComponent],
   templateUrl: './agente-cadastro.component.html',
   styleUrls: ['./agente-cadastro.component.scss']
 })
