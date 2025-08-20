@@ -2,13 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NgIf } from '@angular/common';
 import { LogoComponent } from '../../shared/general/logo/logo.component';
+import { ButtonComponent } from '../../shared/components/buttons/button/button.component';
 import { Usuario } from '../../models/interfaces';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [LogoComponent, RouterLink, RouterLinkActive, NgIf], // 👈 aqui
+  imports: [LogoComponent, RouterLink, RouterLinkActive, NgIf, ButtonComponent], // 👈 aqui
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss']
 })
