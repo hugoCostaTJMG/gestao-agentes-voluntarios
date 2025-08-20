@@ -4,11 +4,12 @@ import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { Usuario } from '../../models/interfaces';
 import { CommonModule } from '@angular/common';
+import { ButtonComponent } from '../../shared/components/buttons/button/button.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ButtonComponent],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
