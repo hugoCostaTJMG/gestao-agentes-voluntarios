@@ -1,0 +1,164 @@
+@import "../../general/colors/colors.scss";
+
+.accordion-item {
+  border: 1px solid $neutral-200;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.accordion-header {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  transition: background 0.3s ease;
+}
+
+.accordion-header.disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.arrow {
+  transition: transform 0.3s ease;
+}
+
+.arrow.rotated {
+  transform: rotate(180deg);
+}
+
+.accordion-content {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.3s ease;
+  padding: 0 1rem;
+}
+
+.accordion-item.expanded .accordion-content {
+  max-height: 500px;
+  padding: 1rem;
+}
+
+/* Types */
+.accordion-item.primary {
+  border-color: $red-800;
+}
+
+.accordion-item.primary .accordion-header {
+  background: $red-800;
+  color: #fff;
+}
+
+.accordion-item.primary .accordion-header:hover {
+  background: $red-700;
+}
+
+.accordion-item.primary.expanded .accordion-header {
+  background: $red-900;
+}
+
+.accordion-item.secondary {
+  border-color: $neutral-700;
+}
+
+.accordion-item.secondary .accordion-header {
+  background: $neutral-700;
+  color: #fff;
+}
+
+.accordion-item.secondary .accordion-header:hover {
+  background: $neutral-600;
+}
+
+.accordion-item.secondary.expanded .accordion-header {
+  background: $neutral-800;
+}
+
+.accordion-item.danger {
+  border-color: $red-600;
+}
+
+.accordion-item.danger .accordion-header {
+  background: $red-600;
+  color: #fff;
+}
+
+.accordion-item.danger .accordion-header:hover {
+  background: $red-500;
+}
+
+.accordion-item.danger.expanded .accordion-header {
+  background: $red-700;
+}
+
+.accordion-item.ghost {
+  border-color: $red-800;
+}
+
+.accordion-item.ghost .accordion-header {
+  background: transparent;
+  color: $red-800;
+}
+
+.accordion-item.ghost .accordion-header:hover {
+  background: $red-50;
+}
+
+.accordion-item.ghost.expanded .accordion-header {
+  background: $red-100;
+}
+
+.accordion-item.ghost.disabled {
+  border-color: $neutral-300;
+}
+
+.accordion-item.ghost.disabled .accordion-header {
+  color: $neutral-300;
+}
+
+/* Sizes */
+.accordion-item.sm .accordion-header {
+  font-size: 0.75rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.accordion-item.md .accordion-header {
+  font-size: 0.875rem;
+  padding: 0.75rem 1rem;
+}
+
+.accordion-item.lg .accordion-header {
+  font-size: 1rem;
+  padding: 1rem 1.25rem;
+}
+
+/* Skeleton */
+.skeleton-title {
+  background: $neutral-200;
+  height: 1rem;
+  width: 50%;
+  border-radius: 4px;
+}
+
+.skeleton-content {
+  background: $neutral-200;
+  height: 0.75rem;
+  width: 80%;
+  margin: 0.5rem 0;
+  border-radius: 4px;
+}
+
+@media (max-width: 480px) {
+  .accordion-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .accordion-item,
+  .accordion-content {
+    width: 100%;
+  }
+}
+

@@ -1,0 +1,41 @@
+<div class="accordion">
+  <ng-container *ngIf="!loading; else skeleton">
+    <div
+      class="accordion-item"
+      *ngFor="let item of items; let i = index"
+      [ngClass]="[type, size, { disabled: item.disabled, expanded: expandedIndex === i }]"
+    >
+      <div
+        class="accordion-header"
+        (click)="toggleItem(i)"
+        [ngClass]="{ disabled: item.disabled }"
+        [attr.aria-expanded]="expandedIndex === i"
+        [attr.aria-controls]="'accordion-content-' + i"
+        [attr.aria-disabled]="item.disabled"
+      >
+        <ng-container *ngIf="iconLeft">
+          <i [ngClass]="iconLeft"></i>
+        </ng-container>
+        <span class="accordion-title">{{ item.title }}</span>
+        <ng-container *ngIf="iconRight">
+          <i [ngClass]="iconRight"></i>
+        </ng-container>
+        <i class="fa fa-chevron-down arrow" [ngClass]="{ rotated: expandedIndex === i }"></i>
+      </div>
+      <div class="accordion-content" [id]="'accordion-content-' + i">
+        <p>{{ item.content }}</p>
+      </div>
+    </div>
+  </ng-container>
+</div>
+
+<ng-template #skeleton>
+  <div class="accordion-item" *ngFor="let _ of skeletonItems">
+    <div class="accordion-header">
+      <div class="skeleton-title"></div>
+    </div>
+    <div class="accordion-content">
+      <div class="skeleton-content"></div>
+    </div>
+  </div>
+</ng-template>
