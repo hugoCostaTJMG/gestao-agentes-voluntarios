@@ -1,4 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { RouterLink } from '@angular/router';
+import { By } from '@angular/platform-browser';
 
 import { ButtonComponent } from './button.component';
 
@@ -8,7 +11,7 @@ describe('ButtonComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ButtonComponent]
+      imports: [ButtonComponent, RouterTestingModule]
     })
     .compileComponents();
 
@@ -26,5 +29,20 @@ describe('ButtonComponent', () => {
     const button = fixture.nativeElement.querySelector('button');
     button.click();
     expect(component.clicked.emit).toHaveBeenCalled();
+  });
+
+  it('should set button type attribute based on buttonType input', () => {
+    component.buttonType = 'submit';
+    fixture.detectChanges();
+    const button = fixture.nativeElement.querySelector('button');
+    expect(button.getAttribute('type')).toBe('submit');
+  });
+
+  it('should bind routerLink to the button', () => {
+    component.routerLink = '/home';
+    fixture.detectChanges();
+    const debugEl = fixture.debugElement.query(By.directive(RouterLink));
+    const routerLinkInstance = debugEl.injector.get(RouterLink);
+    expect(routerLinkInstance.routerLink).toBe('/home');
   });
 });

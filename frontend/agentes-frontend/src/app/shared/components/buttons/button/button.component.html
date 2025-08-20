@@ -1,5 +1,6 @@
 <button
-  type="button"
+  [attr.type]="buttonType"
+  [routerLink]="routerLink"
   [ngClass]="[type, size]"
   [disabled]="disabled"
   (click)="onClick($event)"
