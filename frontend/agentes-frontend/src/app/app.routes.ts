@@ -8,6 +8,7 @@ import { ConsultaPublicaComponent } from './components/consulta-publica/consulta
 import { AutoInfracaoCadastroComponent } from './components/auto-infracao-cadastro/auto-infracao-cadastro.component';
 import { AutoInfracaoListaComponent } from './components/auto-infracao-lista/auto-infracao-lista.component';
 import { AutoInfracaoDetalheComponent } from './components/auto-infracao-detalhe/auto-infracao-detalhe.component';
+import { ImpressaoCarteirinhaComponent } from './components/impressao-carteirinha/impressao-carteirinha.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -15,6 +16,7 @@ export const routes: Routes = [
   { path: 'dashboard', component: PainelAgentesComponent },
   { path: 'agentes', component: AgenteListaComponent },
   { path: 'agentes/cadastro', component: AgenteCadastroComponent },
+  { path: 'carteirinhas', component: ImpressaoCarteirinhaComponent },
   { path: 'credenciais', component: CredencialEmissaoComponent },
   { path: 'consulta-publica', component: ConsultaPublicaComponent },
   { path: 'autos', component: AutoInfracaoListaComponent },
