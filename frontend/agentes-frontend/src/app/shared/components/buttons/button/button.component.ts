@@ -1,10 +1,11 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { NgClass } from '@angular/common';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-button',
   standalone: true,
-  imports: [NgClass],
+  imports: [NgClass, RouterLink],
   templateUrl: './button.component.html',
   styleUrls: ['./button.component.scss']
 })
@@ -15,6 +16,8 @@ export class ButtonComponent {
   @Input() disabled: boolean = false;
   @Input() iconLeft?: string;
   @Input() iconRight?: string;
+  @Input() buttonType: 'button' | 'submit' | 'reset' = 'button';
+  @Input() routerLink?: string | any[];
 
   @Output() clicked = new EventEmitter<Event>();
 
