@@ -20,4 +20,11 @@ describe('ButtonComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should emit clicked event when button is pressed', () => {
+    spyOn(component.clicked, 'emit');
+    const button = fixture.nativeElement.querySelector('button');
+    button.click();
+    expect(component.clicked.emit).toHaveBeenCalled();
+  });
 });
