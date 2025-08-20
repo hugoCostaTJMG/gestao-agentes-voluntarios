@@ -4,12 +4,15 @@
   [ngClass]="[type, size]"
   [disabled]="disabled"
   (click)="onClick($event)"
+  [attr.aria-label]="ariaLabel"
 >
   <ng-container *ngIf="iconLeft">
-    <i [ngClass]="iconLeft"></i>
+    <i class="{{ iconLeft }}"></i>
   </ng-container>
-  {{ label }}
+
+  <span *ngIf="label">{{ label }}</span>
+
   <ng-container *ngIf="iconRight">
-    <i [ngClass]="iconRight"></i>
+    <i class="{{ iconRight }}"></i>
   </ng-container>
 </button>

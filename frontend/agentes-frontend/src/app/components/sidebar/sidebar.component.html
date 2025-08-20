@@ -3,9 +3,7 @@
   <!-- Cabeçalho do Sidebar -->
   <div class="sidebar-header d-flex justify-content-between align-items-center mb-3 d-lg-none">
     <app-logo variant="color" width="120px"></app-logo>
-    <button class="btn-close-sidebar" (click)="closeSidebar()">
-      <i class="fas fa-times"></i>
-    </button>
+    <app-button type="ghost" size="sm" iconLeft="fas fa-times" (clicked)="closeSidebar()"></app-button>
   </div>
 
   <!-- Links de navegação -->
@@ -21,7 +19,7 @@
       </a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" routerLink="/cadastrar-agente" routerLinkActive="active">
+      <a class="nav-link" routerLink="/agentes/cadastro" routerLinkActive="active">
         <i class="fas fa-user-plus me-2"></i> Cadastrar Agente
       </a>
     </li>

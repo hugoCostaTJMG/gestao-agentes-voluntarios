@@ -10,6 +10,11 @@ button {
   gap: 0.5rem;
   text-align: center;
   width: fit-content;
+  
+  i {
+    font-size: 1.1rem;   // deixa visível
+    line-height: 1;
+  }
 }
 
 button:disabled {
@@ -105,6 +110,17 @@ button.ghost:disabled {
   border-color: $neutral-300;
   color: $neutral-300;
 }
+button.ghost {
+  background: transparent;
+  border: 1px solid $red-800;
+  color: $red-800;
+  padding: 0.4rem; // menos padding que texto
+
+  i {
+    font-size: 1.2rem;
+  }
+}
+
 
 @media (max-width: 480px) {
   button {
