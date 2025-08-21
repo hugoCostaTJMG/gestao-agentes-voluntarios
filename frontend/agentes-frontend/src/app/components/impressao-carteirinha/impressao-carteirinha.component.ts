@@ -2,9 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
+import { take } from 'rxjs/operators';
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-impressao-carteirinha',
+  standalone: true,
+  imports: [NgIf],
   templateUrl: './impressao-carteirinha.component.html',
   styleUrls: ['./impressao-carteirinha.component.scss']
 })
@@ -24,20 +28,18 @@ export class ImpressaoCarteirinhaComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Verificar permissão de acesso
     if (!this.temPermissaoImpressao()) {
       this.router.navigate(['/dashboard']);
       return;
     }
 
-    // Obter ID do agente da rota
     this.agenteId = this.route.snapshot.paramMap.get('id') || '';
     
     if (this.agenteId) {
       this.carregarDadosAgente();
       this.verificarStatusCarteirinha();
     } else {
-      this.error = 'ID do agente não informado';
+      this.mostrarErro('ID do agente não informado');
     }
   }
 
@@ -46,7 +48,7 @@ export class ImpressaoCarteirinhaComponent implements OnInit {
    */
   temPermissaoImpressao(): boolean {
     const perfil = this.authService.getUserProfile();
-    return ['CORREGEDORIA', 'COFIJ', 'ADMINISTRADOR'].includes(perfil);
+    return perfil && ['CORREGEDORIA', 'COFIJ', 'ADMINISTRADOR'].includes(perfil);
   }
 
   /**
@@ -56,14 +58,13 @@ export class ImpressaoCarteirinhaComponent implements OnInit {
     this.loading = true;
     this.error = '';
 
-    this.apiService.get(`/agentes/${this.agenteId}`).subscribe({
+    this.apiService.buscarAgentePorId(this.agenteId).pipe(take(1)).subscribe({
       next: (response) => {
         this.agente = response;
         this.loading = false;
       },
       error: (error) => {
-        this.error = 'Erro ao carregar dados do agente';
-        this.loading = false;
+        this.mostrarErro('Erro ao carregar dados do agente');
         console.error('Erro ao carregar agente:', error);
       }
     });
@@ -75,58 +76,44 @@ export class ImpressaoCarteirinhaComponent implements OnInit {
   verificarStatusCarteirinha(): void {
     this.verificandoStatus = true;
 
-    this.apiService.get(`/carteirinha/verificar/${this.agenteId}`).subscribe({
+    this.apiService.verificarStatusCarteirinha(this.agenteId).pipe(take(1)).subscribe({
       next: (response) => {
         this.podeGerar = response.podeGerar;
         this.verificandoStatus = false;
         
         if (!this.podeGerar) {
-          this.error = response.mensagem || 'Agente não está apto para geração de carteirinha';
+          this.mostrarErro(response.mensagem || 'Agente não está apto para geração de carteirinha');
         }
       },
       error: (error) => {
         this.verificandoStatus = false;
-        this.error = 'Erro ao verificar status do agente';
+        this.mostrarErro('Erro ao verificar status do agente');
         console.error('Erro ao verificar status:', error);
       }
     });
   }
 
   /**
-   * Gera preview da carteirinha
+   * Gera preview da carteirinha em nova aba
    */
   gerarPreview(): void {
-    if (!this.podeGerar) {
-      return;
-    }
+  alert('Gerando preview da carteirinha...');
+    if (!this.podeGerar) return;
 
     this.loading = true;
     this.error = '';
 
-    // Abrir preview em nova aba
-    const url = `${this.apiService.getBaseUrl()}/carteirinha/preview/${this.agenteId}`;
-    const headers = this.apiService.getAuthHeaders();
-    
-    // Fazer requisição com headers de autenticação
-    fetch(url, {
-      method: 'GET',
-      headers: headers
-    })
-    .then(response => {
-      if (response.ok) {
-        return response.blob();
+    this.apiService.download(`/carteirinha/preview/${this.agenteId}`).pipe(take(1)).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        this.loading = false;
+      },
+      error: (err) => {
+        this.mostrarErro('Erro ao gerar preview da carteirinha');
+        console.error('Erro no preview:', err);
+        this.loading = false;
       }
-      throw new Error('Erro ao gerar preview');
-    })
-    .then(blob => {
-      const url = window.URL.createObjectURL(blob);
-      window.open(url, '_blank');
-      this.loading = false;
-    })
-    .catch(error => {
-      this.error = 'Erro ao gerar preview da carteirinha';
-      this.loading = false;
-      console.error('Erro no preview:', error);
     });
   }
 
@@ -134,97 +121,69 @@ export class ImpressaoCarteirinhaComponent implements OnInit {
    * Gera e baixa a carteirinha em PDF
    */
   gerarCarteirinha(): void {
-    if (!this.podeGerar) {
-      return;
-    }
+    if (!this.podeGerar) return;
 
     this.loading = true;
     this.error = '';
 
-    const url = `${this.apiService.getBaseUrl()}/carteirinha/gerar/${this.agenteId}`;
-    const headers = this.apiService.getAuthHeaders();
+    this.apiService.download(`/carteirinha/gerar/${this.agenteId}`).pipe(take(1)).subscribe({
+      next: (blob) => {
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = `carteirinha_${this.agente?.nomeCompleto?.replace(/\s+/g, '_')}_${new Date().getTime()}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(downloadUrl);
 
-    fetch(url, {
-      method: 'GET',
-      headers: headers
-    })
-    .then(response => {
-      if (response.ok) {
-        return response.blob();
+        this.mostrarSucesso('Carteirinha gerada com sucesso!');
+        this.loading = false;
+      },
+      error: (err) => {
+        this.mostrarErro('Erro ao gerar carteirinha');
+        console.error('Erro na geração:', err);
+        this.loading = false;
       }
-      throw new Error('Erro ao gerar carteirinha');
-    })
-    .then(blob => {
-      // Criar link para download
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `carteirinha_${this.agente?.nomeCompleto?.replace(/\s+/g, '_')}_${new Date().getTime()}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-      
-      this.loading = false;
-      
-      // Mostrar mensagem de sucesso
-      this.mostrarSucesso('Carteirinha gerada com sucesso!');
-    })
-    .catch(error => {
-      this.error = 'Erro ao gerar carteirinha';
-      this.loading = false;
-      console.error('Erro na geração:', error);
     });
+  }
+
+  /**
+   * Mostra mensagem de erro
+   */
+  mostrarErro(mensagem: string): void {
+    this.error = mensagem;
   }
 
   /**
    * Mostra mensagem de sucesso
    */
   mostrarSucesso(mensagem: string): void {
-    // Implementar toast ou alert de sucesso
-    alert(mensagem); // Temporário - substituir por toast
+    alert(mensagem); // TODO: substituir por toast
   }
 
-  /**
-   * Volta para a tela anterior
-   */
   voltar(): void {
     this.router.navigate(['/agentes', this.agenteId]);
   }
 
-  /**
-   * Navega para edição do agente
-   */
   editarAgente(): void {
     this.router.navigate(['/agentes', this.agenteId, 'editar']);
   }
 
-  /**
-   * Formata CPF para exibição
-   */
   formatarCPF(cpf: string): string {
-    if (!cpf || cpf.length !== 11) {
-      return cpf;
-    }
+    if (!cpf || cpf.length !== 11) return cpf;
     return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
   }
 
-  /**
-   * Formata data para exibição
-   */
   formatarData(data: string): string {
     if (!data) return '';
-    const date = new Date(data);
-    return date.toLocaleDateString('pt-BR');
+    return new Date(data).toLocaleDateString('pt-BR');
   }
 
-  /**
-   * Obtém o status formatado do agente
-   */
   getStatusFormatado(): string {
     if (!this.agente?.status) return '';
     
-    const statusMap: { [key: string]: string } = {
+    const statusMap: Record<string, string> = {
       'ATIVO': 'Ativo',
       'INATIVO': 'Inativo',
       'EM_ANALISE': 'Em Análise',
@@ -234,13 +193,10 @@ export class ImpressaoCarteirinhaComponent implements OnInit {
     return statusMap[this.agente.status] || this.agente.status;
   }
 
-  /**
-   * Obtém a classe CSS para o status
-   */
   getStatusClass(): string {
     if (!this.agente?.status) return '';
     
-    const classMap: { [key: string]: string } = {
+    const classMap: Record<string, string> = {
       'ATIVO': 'badge-success',
       'INATIVO': 'badge-secondary',
       'EM_ANALISE': 'badge-warning',
@@ -250,4 +206,3 @@ export class ImpressaoCarteirinhaComponent implements OnInit {
     return classMap[this.agente.status] || 'badge-secondary';
   }
 }
-

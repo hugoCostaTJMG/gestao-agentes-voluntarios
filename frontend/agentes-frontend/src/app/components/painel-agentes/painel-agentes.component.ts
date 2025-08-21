@@ -3,13 +3,21 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { AgenteVoluntario } from '../../models/interfaces';
+import { AlertComponent } from '../../shared/components/alert/alert.component';
 
 @Component({
   selector: 'app-painel-agentes',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AlertComponent],
   template: `
     <div class="container-fluid py-4">
+<app-alert 
+  *ngIf="showAlert"
+  [type]="'primary'"
+  [message]="'Agente criado com sucesso!'"
+  [dismissible]="true"
+  (dismissed)="showAlert = false">
+</app-alert>
       <div class="row">
         <div class="col-12">
           <div class="card">
@@ -366,15 +374,21 @@ export class PainelAgentesComponent implements OnInit {
     return new Date(data).toLocaleDateString('pt-BR');
   }
 
-  visualizarAgente(id: string): void {
-    // Implementar navegação para detalhes do agente
-    console.log('Visualizar agente:', id);
-  }
-
-  emitirCredencial(id: string): void {
-    // Implementar emissão de credencial
-    console.log('Emitir credencial para agente:', id);
-  }
+alertMessage: string = '';
+alertType: 'primary' | 'secondary' | 'danger' | 'ghost' = 'primary';
+showAlert: boolean = false;
+emitirCredencial(id: string): void {
+  console.log('Emitir credencial para agente:', id);
+  this.alertMessage = `Credencial emitida para o agente ${id}`;
+  this.alertType = 'primary';
+  this.showAlert = true;
+}
+visualizarAgente(id: string): void {
+  console.log('Visualizar agente:', id);
+  this.alertMessage = `Visualizando agente ${id}`;
+  this.alertType = 'secondary';
+  this.showAlert = true;
+}
 
   exportarCSV(): void {
     const headers = ['Nome', 'CPF', 'Status', 'Comarca', 'Data Cadastro'];

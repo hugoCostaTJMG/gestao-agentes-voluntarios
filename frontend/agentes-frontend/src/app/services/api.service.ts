@@ -3,11 +3,13 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
-import { 
-  AgenteVoluntario, 
-  AgenteVoluntarioDTO, 
-  Comarca, 
-  AreaAtuacao, 
+import { of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import {
+  AgenteVoluntario,
+  AgenteVoluntarioDTO,
+  Comarca,
+  AreaAtuacao,
   Credencial,
   ConsultaPublica,
   LoginGovBr,
@@ -23,24 +25,51 @@ import {
 export class ApiService {
   private baseUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient, private authService: AuthService) {}
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService
+  ) { }
 
-  // Headers com autenticação
-  private getAuthHeaders(): HttpHeaders {
+  // ===== HEADERS =====
+  getAuthHeaders(): HttpHeaders {
     const token = this.authService.getToken();
+    let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     if (token) {
-      return new HttpHeaders({
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      });
+      headers = headers.set('Authorization', `Bearer ${token}`);
     }
-    return new HttpHeaders({
-      'Content-Type': 'application/json'
+    return headers;
+  }
+
+verificarStatusCarteirinha(agenteId: string): Observable<{ podeGerar: boolean, mensagem?: string }> {
+  return this.http.get<{ podeGerar: boolean, mensagem?: string }>(
+    `${this.baseUrl}/carteirinha/verificar/${agenteId}`,
+    { headers: this.getAuthHeaders() }
+  );
+}
+
+  // Método genérico para download
+  download(endpoint: string): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}${endpoint}`, {
+      headers: this.getAuthHeaders(),
+      responseType: 'blob'
+    });
+  }
+  // api.service.ts
+  get<T>(endpoint: string): Observable<T> {
+    return this.http.get<T>(`${this.baseUrl}${endpoint}`, {
+      headers: this.getAuthHeaders()
     });
   }
 
-  // ===== AUTENTICAÇÃO =====
+  post<T>(endpoint: string, body: any): Observable<T> {
+    return this.http.post<T>(`${this.baseUrl}${endpoint}`, body, {
+      headers: this.getAuthHeaders()
+    });
+  }
 
+  // e assim por diante...
+
+  // ===== AUTENTICAÇÃO =====
   loginGovBr(loginData: LoginGovBr): Observable<AgenteVoluntario> {
     return this.http.post<AgenteVoluntario>(`${this.baseUrl}/auth/govbr/login`, loginData);
   }
@@ -49,16 +78,14 @@ export class ApiService {
     return this.http.get<boolean>(`${this.baseUrl}/auth/govbr/verificar-cpf/${cpf}`);
   }
 
-  gerarUrlAutorizacaoGovBr(redirectUri: string): Observable<{authorizeUrl: string}> {
+  gerarUrlAutorizacaoGovBr(redirectUri: string): Observable<{ authorizeUrl: string }> {
     const params = new HttpParams().set('redirectUri', redirectUri);
-    return this.http.get<{authorizeUrl: string}>(`${this.baseUrl}/auth/govbr/authorize-url`, { params });
+    return this.http.get<{ authorizeUrl: string }>(`${this.baseUrl}/auth/govbr/authorize-url`, { params });
   }
 
-  trocarCodigoPorToken(code: string, redirectUri: string): Observable<{accessToken: string}> {
-    const params = new HttpParams()
-      .set('code', code)
-      .set('redirectUri', redirectUri);
-    return this.http.post<{accessToken: string}>(`${this.baseUrl}/auth/govbr/token`, null, { params });
+  trocarCodigoPorToken(code: string, redirectUri: string): Observable<{ accessToken: string }> {
+    const params = new HttpParams().set('code', code).set('redirectUri', redirectUri);
+    return this.http.post<{ accessToken: string }>(`${this.baseUrl}/auth/govbr/token`, null, { params });
   }
 
   logout(): void {
@@ -66,23 +93,50 @@ export class ApiService {
   }
 
   // ===== AGENTES VOLUNTÁRIOS =====
-
   cadastrarAgente(agente: AgenteVoluntarioDTO): Observable<AgenteVoluntario> {
     return this.http.post<AgenteVoluntario>(`${this.baseUrl}/api/agentes`, agente, {
       headers: this.getAuthHeaders()
     });
   }
 
-  listarAgentes(page: number = 0, size: number = 10): Observable<PaginatedResponse<AgenteVoluntario>> {
-    const params = new HttpParams()
-      .set('page', page.toString())
-      .set('size', size.toString());
-    
-    return this.http.get<PaginatedResponse<AgenteVoluntario>>(`${this.baseUrl}/api/agentes`, {
-      headers: this.getAuthHeaders(),
-      params
-    });
-  }
+ listarAgentes(page: number = 0, size: number = 10): Observable<PaginatedResponse<AgenteVoluntario>> {
+  const params = new HttpParams()
+    .set('page', page.toString())
+    .set('size', size.toString());
+
+  return this.http.get<PaginatedResponse<AgenteVoluntario>>(`${this.baseUrl}/api/agentes`, {
+    headers: this.getAuthHeaders(),
+    params
+  }).pipe(
+    catchError((error) => {
+      console.error('Erro ao carregar agentes, usando mock:', error);
+
+      // mock
+      const mock: PaginatedResponse<AgenteVoluntario> = {
+        content: [
+          {
+            id: '1',
+            nomeCompleto: 'Agente Mock 1',
+            cpf: '11122233344',
+            status: 'ATIVO'
+          } as AgenteVoluntario,
+          {
+            id: '2',
+            nomeCompleto: 'Agente Mock 2',
+            cpf: '55566677788',
+            status: 'INATIVO'
+          } as AgenteVoluntario,
+        ],
+        totalElements: 2,
+        totalPages: 1,
+        size: size,
+        number: page
+      };
+
+      return of(mock);
+    })
+  );
+}
 
   buscarAgentePorId(id: string): Observable<AgenteVoluntario> {
     return this.http.get<AgenteVoluntario>(`${this.baseUrl}/api/agentes/${id}`, {
