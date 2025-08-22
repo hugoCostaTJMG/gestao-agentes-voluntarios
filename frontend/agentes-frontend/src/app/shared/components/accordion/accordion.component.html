@@ -3,7 +3,7 @@
     <div
       class="accordion-item"
       *ngFor="let item of items; let i = index"
-      [ngClass]="[type, size, { disabled: item.disabled, expanded: expandedIndex === i }]"
+      [ngClass]="[type, size, expandedIndex === i ? 'expanded' : '', item.disabled ? 'disabled' : '']"
     >
       <div
         class="accordion-header"
