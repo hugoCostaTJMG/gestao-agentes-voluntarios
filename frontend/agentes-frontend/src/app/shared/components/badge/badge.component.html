@@ -1,0 +1,61 @@
+<ng-template #content>
+  <span *ngIf="dot" class="badge-dot" aria-hidden="true"></span>
+  <i *ngIf="iconLeft" class="{{ iconLeft }} badge-icon-left" aria-hidden="true"></i>
+  <span *ngIf="text" class="badge-text">{{ text }}</span>
+  <span *ngIf="count !== undefined" class="badge-count">{{ count }}</span>
+  <i *ngIf="iconRight" class="{{ iconRight }} badge-icon-right" aria-hidden="true"></i>
+  <button
+    *ngIf="closable"
+    type="button"
+    class="badge-close"
+    aria-label="Fechar badge"
+    (click)="onClose($event)"
+    (keydown)="onCloseKeydown($event)"
+  >&times;</button>
+</ng-template>
+
+<ng-container [ngSwitch]="elementType">
+  <a
+    *ngSwitchCase="'a'"
+    class="badge"
+    [ngClass]="badgeClasses"
+    [attr.href]="href"
+    [routerLink]="routerLink"
+    [attr.role]="role"
+    [attr.aria-label]="ariaLabel || null"
+    [attr.aria-disabled]="disabled"
+    [attr.tabindex]="tabIndexOverride ?? null"
+    (click)="onClick($event)"
+    (keydown)="onKeydown($event)"
+  >
+    <ng-container *ngTemplateOutlet="content"></ng-container>
+  </a>
+
+  <button
+    *ngSwitchCase="'button'"
+    type="button"
+    class="badge"
+    [ngClass]="badgeClasses"
+    [attr.role]="role"
+    [attr.aria-label]="ariaLabel || null"
+    [attr.aria-disabled]="disabled"
+    [attr.tabindex]="tabIndexOverride ?? null"
+    (click)="onClick($event)"
+    (keydown)="onKeydown($event)"
+  >
+    <ng-container *ngTemplateOutlet="content"></ng-container>
+  </button>
+
+  <span
+    *ngSwitchDefault
+    class="badge"
+    [ngClass]="badgeClasses"
+    [attr.role]="role"
+    [attr.aria-label]="ariaLabel || null"
+    [attr.aria-disabled]="disabled"
+    [attr.tabindex]="tabIndexOverride ?? null"
+    (keydown)="onKeydown($event)"
+  >
+    <ng-container *ngTemplateOutlet="content"></ng-container>
+  </span>
+</ng-container>
