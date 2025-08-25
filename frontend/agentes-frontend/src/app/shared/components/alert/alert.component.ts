@@ -1,11 +1,11 @@
-import { CommonModule, NgClass, NgIf } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-alert',
   standalone: true,
-  imports: [CommonModule, NgClass, NgIf],
+  imports: [CommonModule],
   templateUrl: './alert.component.html',
   styleUrls: ['./alert.component.scss'],
   animations: [
@@ -16,11 +16,23 @@ import { trigger, transition, style, animate } from '@angular/animations';
   ],
 })
 export class AlertComponent {
-  @Input() type: 'primary' | 'secondary' | 'danger' | 'ghost' = 'primary';
+  // Variantes ampliadas para o layout da imagem
+  @Input() type:
+    | 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'danger' | 'neutral' | 'ghost' = 'primary';
+
   @Input() size: 'sm' | 'md' | 'lg' = 'md';
+
+  /** Título grande (ex.: "Well done!") */
+  @Input() title?: string;
+
+  /** Mensagem; suporta quebras de linha com \n */
   @Input() message: string = '';
+
+  /** Ícones opcionais (classes FontAwesome) */
   @Input() iconLeft?: string;
   @Input() iconRight?: string;
+
+  /** Mostra botão de fechar (X) */
   @Input() dismissible: boolean = false;
 
   @Output() dismissed = new EventEmitter<void>();
@@ -32,4 +44,3 @@ export class AlertComponent {
     this.dismissed.emit();
   }
 }
-
