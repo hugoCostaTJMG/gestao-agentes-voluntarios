@@ -1,11 +1,11 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { NgClass, NgIf, NgTemplateOutlet } from '@angular/common';
+import { NgClass, NgIf, NgSwitch, NgSwitchCase, NgSwitchDefault, NgTemplateOutlet } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-badge',
   standalone: true,
-  imports: [NgClass, RouterLink, NgIf, NgTemplateOutlet],
+    imports: [NgClass, NgIf, NgTemplateOutlet, NgSwitch, NgSwitchCase, NgSwitchDefault, RouterLink],
   templateUrl: './badge.component.html',
   styleUrls: ['./badge.component.scss']
 })
