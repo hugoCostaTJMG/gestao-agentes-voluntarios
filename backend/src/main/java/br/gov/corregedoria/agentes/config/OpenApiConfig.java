@@ -35,13 +35,16 @@ public class OpenApiConfig {
                 .servers(List.of(
                         new Server().url(baseUrl).description("Servidor de Produção"),
                         new Server().url("http://localhost:8080").description("Servidor de Desenvolvimento")))
-                .addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
+                .addSecurityItem(new SecurityRequirement()
+                        .addList("Bearer Authentication"))
                 .components(new io.swagger.v3.oas.models.Components()
                         .addSecuritySchemes("Bearer Authentication",
                                 new SecurityScheme()
+                                        .description("Insira um bearer token valido para prosseguir")
                                         .type(SecurityScheme.Type.HTTP)
                                         .scheme("bearer")
                                         .bearerFormat("JWT")
+                                        .name("security")
                                         .description("Token JWT obtido via Keycloak")));
     }
 }
