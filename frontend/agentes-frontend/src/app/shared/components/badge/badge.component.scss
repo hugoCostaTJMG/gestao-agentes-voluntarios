@@ -1,0 +1,188 @@
+@import "../../general/colors/colors.scss";
+
+$badge-variants: (
+  primary: (
+    solid: (bg: $blue-600, text: $neutral-50, border: $blue-700),
+    soft: (bg: $blue-50, text: $blue-700, border: $blue-100),
+    outline: (bg: transparent, text: $blue-600, border: $blue-600)
+  ),
+  secondary: (
+    solid: (bg: $neutral-600, text: $neutral-50, border: $neutral-700),
+    soft: (bg: $neutral-100, text: $neutral-700, border: $neutral-200),
+    outline: (bg: transparent, text: $neutral-600, border: $neutral-600)
+  ),
+  success: (
+    solid: (bg: $green-600, text: $neutral-50, border: $green-700),
+    soft: (bg: $green-50, text: $green-700, border: $green-100),
+    outline: (bg: transparent, text: $green-600, border: $green-600)
+  ),
+  danger: (
+    solid: (bg: $red-600, text: $neutral-50, border: $red-700),
+    soft: (bg: $red-50, text: $red-700, border: $red-100),
+    outline: (bg: transparent, text: $red-600, border: $red-600)
+  ),
+  warning: (
+    solid: (bg: $yellow-600, text: $neutral-900, border: $yellow-700),
+    soft: (bg: $yellow-50, text: $yellow-700, border: $yellow-100),
+    outline: (bg: transparent, text: $yellow-600, border: $yellow-600)
+  ),
+  info: (
+    solid: (bg: $blue-alt-600, text: $neutral-50, border: $blue-alt-700),
+    soft: (bg: $blue-alt-50, text: $blue-alt-700, border: $blue-alt-100),
+    outline: (bg: transparent, text: $blue-alt-600, border: $blue-alt-600)
+  ),
+  neutral: (
+    solid: (bg: $neutral-500, text: $neutral-50, border: $neutral-600),
+    soft: (bg: $neutral-50, text: $neutral-700, border: $neutral-100),
+    outline: (bg: transparent, text: $neutral-600, border: $neutral-600)
+  ),
+  dark: (
+    solid: (bg: $neutral-900, text: $neutral-50, border: $neutral-900),
+    soft: (bg: $neutral-200, text: $neutral-900, border: $neutral-300),
+    outline: (bg: transparent, text: $neutral-900, border: $neutral-900)
+  )
+);
+
+$size-map: (
+  xs: (font: 0.625rem, height: 1.125rem, pad: 0.375rem),
+  sm: (font: 0.75rem, height: 1.375rem, pad: 0.5rem),
+  md: (font: 0.875rem, height: 1.75rem, pad: 0.625rem),
+  lg: (font: 1rem, height: 2.25rem, pad: 0.75rem),
+  xl: (font: 1.125rem, height: 2.75rem, pad: 1rem)
+);
+
+$dot-sizes: (
+  xs: 6px,
+  sm: 8px,
+  md: 10px,
+  lg: 12px,
+  xl: 14px
+);
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: 1px solid transparent;
+  font-weight: 500;
+  line-height: 1;
+  min-width: 0;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: filter 0.15s ease, transform 0.15s ease;
+  cursor: default;
+
+  &.clickable:not(.disabled) {
+    cursor: pointer;
+  }
+
+  &:hover:not(.disabled) {
+    filter: brightness(0.97);
+  }
+
+  &:active:not(.disabled) {
+    transform: translateY(1px);
+    filter: brightness(0.94);
+  }
+
+  &:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+
+  &.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  &.pill {
+    border-radius: 999px;
+  }
+
+  &.rounded {
+    border-radius: 12px;
+  }
+
+  @each $name, $conf in $size-map {
+    &.#{$name} {
+      font-size: map-get($conf, font);
+      height: map-get($conf, height);
+      padding: 0 map-get($conf, pad);
+    }
+  }
+
+  .badge-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .badge-icon-left,
+  .badge-icon-right {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .badge-icon-left {
+    margin-right: 0.25rem;
+  }
+
+  .badge-icon-right {
+    margin-left: 0.25rem;
+  }
+
+  .badge-count {
+    margin-left: 0.25rem;
+    font-size: 0.75em;
+    font-weight: 700;
+  }
+
+  .badge-close {
+    background: none;
+    border: none;
+    margin-left: 0.25rem;
+    cursor: pointer;
+    line-height: 1;
+    font-size: 0.875em;
+  }
+
+  .badge-dot {
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+}
+
+@each $size, $dot in $dot-sizes {
+  .badge.#{$size} .badge-dot {
+    width: $dot;
+    height: $dot;
+  }
+}
+
+@each $variant, $tones in $badge-variants {
+  .badge.#{$variant} {
+    @each $tone, $vals in $tones {
+      &.#{$tone} {
+        background-color: map-get($vals, bg);
+        color: map-get($vals, text);
+        border-color: map-get($vals, border);
+
+        &:focus-visible {
+          outline-color: map-get($vals, border);
+        }
+      }
+    }
+
+    .badge-dot {
+      background-color: map-get(map-get($tones, solid), bg);
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .badge {
+    flex-wrap: wrap;
+  }
+}
