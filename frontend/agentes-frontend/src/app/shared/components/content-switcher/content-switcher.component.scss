@@ -1,0 +1,70 @@
+@import "../../general/colors/colors.scss";
+
+.content-switcher {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+
+  button {
+    border: 1px solid $neutral-200;
+    background: transparent;
+    color: $neutral-800;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    transition: background 0.2s ease, color 0.2s ease;
+
+    &.selected {
+      background: $red-800;
+      border-color: $red-800;
+      color: #fff;
+    }
+
+    &:hover:not(.disabled):not(.selected) {
+      background: $neutral-100;
+    }
+
+    &.disabled {
+      background: $neutral-100;
+      color: $neutral-400;
+      cursor: not-allowed;
+    }
+
+    &:focus-visible {
+      outline: 2px solid $blue-600;
+      outline-offset: 2px;
+    }
+  }
+
+  &.with-icons button i {
+    margin-right: 0.25rem;
+  }
+
+  &.sm button {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  &.md button {
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+  }
+
+  &.lg button {
+    font-size: 1rem;
+    padding: 0.75rem 1.25rem;
+  }
+
+  &.vertical {
+    flex-direction: column;
+  }
+
+  &.horizontal,
+  &.default,
+  &.with-icons {
+    flex-direction: row;
+  }
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+  }
+}
