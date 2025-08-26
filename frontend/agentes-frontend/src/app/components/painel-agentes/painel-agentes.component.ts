@@ -378,13 +378,11 @@ alertMessage: string = '';
 alertType: 'primary' | 'secondary' | 'danger' | 'ghost' = 'primary';
 showAlert: boolean = false;
 emitirCredencial(id: string): void {
-  console.log('Emitir credencial para agente:', id);
   this.alertMessage = `Credencial emitida para o agente ${id}`;
   this.alertType = 'primary';
   this.showAlert = true;
 }
 visualizarAgente(id: string): void {
-  console.log('Visualizar agente:', id);
   this.alertMessage = `Visualizando agente ${id}`;
   this.alertType = 'secondary';
   this.showAlert = true;

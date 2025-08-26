@@ -1,0 +1,265 @@
+<div
+  class="data-table size-{{ size }}"
+  [attr.aria-label]="ariaLabel"
+  tabindex="0"
+  (keydown)="onWrapperKeydown($event)"
+  role="table"
+>
+  <!-- Toolbar -->
+  <div *ngIf="showToolbar" class="dt-toolbar">
+    <div class="dt-toolbar-left">
+      <h2>{{ toolbarTitle }}</h2>
+      <p>{{ toolbarDescription }}</p>
+    </div>
+    <div class="dt-toolbar-right">
+      <div *ngIf="showSearch" class="search">
+        <input
+          #searchInput
+          type="text"
+          [placeholder]="searchPlaceholder"
+          role="searchbox"
+          aria-label="Pesquisar"
+          (input)="onSearchInput(searchInput.value)"
+          (keydown.escape)="clearSearch(searchInput)"
+        />
+        <i class="fa fa-search"></i>
+      </div>
+      <ng-content select="[table-actions]"></ng-content>
+    </div>
+  </div>
+
+  <!-- Batch actions -->
+  <div
+    *ngIf="selected.length && selectable !== 'none'"
+    class="batch-bar"
+    role="region"
+    aria-live="polite"
+  >
+    <div class="batch-left">{{ selected.length }} item(s) selected</div>
+    <div class="batch-right">
+      <button
+        *ngFor="let action of batchActions"
+        type="button"
+        (click)="runBatch(action)"
+        [ngClass]="{ danger: action.danger }"
+      >
+        <i *ngIf="action.icon" class="{{ action.icon }}"></i>
+        {{ action.label }}
+      </button>
+      <button type="button" class="cancel" (click)="cancelBatch()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-container" role="region">
+    <table>
+      <thead [class.sticky]="stickyHeader" role="rowgroup">
+        <tr role="row">
+          <th
+            *ngIf="selectable !== 'none'"
+            class="select-cell"
+            role="columnheader"
+          >
+            <input
+              *ngIf="selectable === 'multi'"
+              type="checkbox"
+              [checked]="allSelected"
+              (change)="toggleAll($event.target.checked)"
+              role="checkbox"
+              [attr.aria-checked]="allSelected"
+            />
+          </th>
+          <th *ngIf="expandable" class="expand-cell" role="columnheader"></th>
+          <th
+            *ngFor="let col of columns; trackBy: trackByCol"
+            [style.width]="col.width"
+            [ngClass]="col.align"
+            [class.sortable]="col.sortable"
+            (click)="col.sortable && toggleSort(col)"
+            role="columnheader"
+            [attr.aria-sort]="getAriaSort(col)"
+          >
+            <ng-container *ngIf="!col.headerTemplate; else headerTemplate">
+              {{ col.header }}
+            </ng-container>
+            <ng-template #headerTemplate>
+              <ng-container
+                *ngTemplateOutlet="col.headerTemplate"
+              ></ng-container>
+            </ng-template>
+            <span class="sort-icons" *ngIf="col.sortable">
+              <i
+                *ngIf="
+                  sortState?.columnId === col.id &&
+                  sortState?.direction === 'asc'
+                "
+                class="fa fa-arrow-up"
+              ></i>
+              <i
+                *ngIf="
+                  sortState?.columnId === col.id &&
+                  sortState?.direction === 'desc'
+                "
+                class="fa fa-arrow-down"
+              ></i>
+            </span>
+          </th>
+        </tr>
+      </thead>
+      <tbody role="rowgroup">
+        <!-- Skeleton -->
+        <ng-container *ngIf="loading">
+          <tr
+            *ngFor="let sr of skeletonRows; let srIndex = index"
+            class="skeleton-row"
+            role="row"
+          >
+            <td
+              *ngIf="selectable !== 'none'"
+              class="select-cell"
+              role="cell"
+            >
+              <div class="skeleton"></div>
+            </td>
+            <td *ngIf="expandable" class="expand-cell" role="cell">
+              <div class="skeleton"></div>
+            </td>
+            <td
+              *ngFor="let col of columns; trackBy: trackByCol"
+              role="cell"
+            >
+              <div class="skeleton"></div>
+            </td>
+          </tr>
+        </ng-container>
+
+        <!-- Error -->
+        <tr *ngIf="!loading && errorMessage" class="error-row" role="row">
+          <td
+            [attr.colspan]="columns.length + extraColumns"
+            role="cell"
+          >
+            {{ errorMessage }}
+          </td>
+        </tr>
+
+        <!-- Empty -->
+        <tr
+          *ngIf="!loading && !errorMessage && displayedRows.length === 0"
+          class="empty-row"
+          role="row"
+        >
+          <td
+            [attr.colspan]="columns.length + extraColumns"
+            role="cell"
+            class="empty-cell"
+          >
+            <ng-content select="[empty-state]"></ng-content>
+          </td>
+        </tr>
+
+        <!-- Data rows -->
+        <ng-container *ngIf="!loading">
+          <ng-container
+            *ngFor="
+              let row of displayedRows;
+              let rowIndex = index;
+              trackBy: trackByRow
+            "
+          >
+            <tr
+              role="row"
+              (click)="onRowClick(row)"
+              [ngClass]="{
+                zebra: zebra && rowIndex % 2 === 1,
+                selected: isRowSelected(row),
+                focused: rowIndex === focusedRowIndex
+              }"
+            >
+              <td
+                *ngIf="selectable !== 'none'"
+                class="select-cell"
+                role="cell"
+              >
+                <input
+                  type="checkbox"
+                  (click)="$event.stopPropagation()"
+                  [checked]="isRowSelected(row)"
+                  (change)="toggleRow(row, $event.target.checked, rowIndex)"
+                  role="checkbox"
+                  [attr.aria-checked]="isRowSelected(row)"
+                />
+              </td>
+              <td *ngIf="expandable" class="expand-cell" role="cell">
+                <button
+                  type="button"
+                  (click)="toggleExpand(row); $event.stopPropagation()"
+                  [attr.aria-expanded]="expanded.has(row)"
+                >
+                  <i
+                    class="fa fa-chevron-right"
+                    [class.expanded]="expanded.has(row)"
+                  ></i>
+                </button>
+              </td>
+              <td
+                *ngFor="let col of columns; trackBy: trackByCol"
+                [ngClass]="col.align"
+                role="cell"
+              >
+                <ng-container *ngIf="!col.cellTemplate; else cellTpl">
+                  {{ col.field ? row[col.field] : '' }}
+                </ng-container>
+                <ng-template #cellTpl>
+                  <ng-container
+                    *ngTemplateOutlet="
+                      col.cellTemplate;
+                      context: { $implicit: row[col.field || ''], row: row, col: col }
+                    "
+                  ></ng-container>
+                </ng-template>
+              </td>
+            </tr>
+            <tr
+              *ngIf="expandable && expanded.has(row)"
+              class="expanded-row"
+              role="row"
+            >
+              <td
+                [attr.colspan]="columns.length + extraColumns"
+                role="cell"
+              >
+                <ng-container
+                  *ngTemplateOutlet="
+                    expandedRowTemplate;
+                    context: { $implicit: row }
+                  "
+                ></ng-container>
+              </td>
+            </tr>
+          </ng-container>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination" *ngIf="computedTotal > pageSize">
+    <button type="button" (click)="prevPage()" [disabled]="pageIndex === 0">
+      Anterior
+    </button>
+    <span>{{ pageIndex + 1 }} / {{ totalPages }}</span>
+    <button
+      type="button"
+      (click)="nextPage()"
+      [disabled]="pageIndex + 1 >= totalPages"
+    >
+      Próximo
+    </button>
+    <select (change)="onPageSizeChange($event.target.value)" [value]="pageSize">
+      <option [value]="10">10</option>
+      <option [value]="20">20</option>
+      <option [value]="50">50</option>
+    </select>
+  </div>
+</div>

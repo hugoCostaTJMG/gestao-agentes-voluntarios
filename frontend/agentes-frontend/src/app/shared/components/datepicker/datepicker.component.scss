@@ -1,0 +1,203 @@
+@import '../../general/colors/colors.scss';
+
+.datepicker-wrapper {
+  position: relative;
+  display: inline-block;
+
+  &.sm {
+    font-size: 0.75rem;
+  }
+  &.md {
+    font-size: 0.875rem;
+  }
+  &.lg {
+    font-size: 1rem;
+  }
+
+  .datepicker-label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-weight: 400;
+  }
+
+  .date-input-wrapper {
+    display: flex;
+    align-items: center;
+    position: relative;
+
+    input {
+      flex: 1;
+      padding: 0.5rem;
+      border: 1px solid $neutral-200;
+      border-radius: 4px;
+      font: inherit;
+      background: #fff;
+
+      &.has-error {
+        border-color: $red-800;
+      }
+      &.has-warning {
+        border-color: $yellow-600;
+      }
+      &.is-disabled {
+        color: $neutral-400;
+        background: $neutral-50;
+      }
+
+      &:hover {
+        background: $neutral-100;
+      }
+
+      &:focus {
+        outline: none;
+        border-color: $blue-600;
+      }
+    }
+
+    .calendar-icon {
+      position: absolute;
+      right: 0.5rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: $neutral-600;
+
+      &:disabled {
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  .time-input-wrapper,
+  .timezone-wrapper {
+    margin-top: 0.5rem;
+
+    input,
+    select {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid $neutral-200;
+      border-radius: 4px;
+      font: inherit;
+
+      &:focus {
+        outline: none;
+        border-color: $blue-600;
+      }
+    }
+  }
+
+  .message {
+    margin-top: 0.25rem;
+    color: $red-800;
+    font-size: 0.75rem;
+
+    &.warning {
+      color: $yellow-600;
+    }
+  }
+
+  .calendar-popover {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 0.25rem;
+    background: #fff;
+    border: 1px solid $neutral-200;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    animation: fadeIn 0.2s ease-out;
+    padding: 0.5rem;
+
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+
+      .prev,
+      .next {
+        background: none;
+        border: none;
+        cursor: pointer;
+      }
+
+      .current {
+        font-weight: 600;
+      }
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 2rem);
+      grid-auto-rows: 2rem;
+      text-align: center;
+
+      .weekdays,
+      .week {
+        display: contents;
+      }
+
+      .weekday {
+        font-weight: 600;
+        font-size: 0.75rem;
+      }
+
+      button {
+        border: none;
+        background: none;
+        cursor: pointer;
+        border-radius: 4px;
+
+        &.other-month {
+          color: $neutral-400;
+        }
+        &.today {
+          border: 1px solid $blue-600;
+        }
+        &.selected {
+          background: $blue-600;
+          color: #fff;
+        }
+        &:hover {
+          background: $neutral-100;
+        }
+      }
+    }
+  }
+
+  @media (max-width: 480px) {
+    width: 100%;
+
+    .date-input-wrapper,
+    .time-input-wrapper,
+    .timezone-wrapper {
+      display: flex;
+      flex-direction: column;
+
+      input,
+      select {
+        width: 100%;
+      }
+
+      .calendar-icon {
+        position: absolute;
+        right: 0.5rem;
+        top: 0.75rem;
+        transform: none;
+      }
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
