@@ -1,0 +1,15 @@
+<div class="content-switcher" role="tablist" [attr.aria-label]="ariaLabel" [ngClass]="[type, size]" (keydown)="onKeydown($event)">
+  <button
+    *ngFor="let option of options; let i = index"
+    #optionBtn
+    type="button"
+    role="tab"
+    [disabled]="option.disabled"
+    [ngClass]="{ 'selected': option.value === selected, 'disabled': option.disabled }"
+    [attr.aria-selected]="option.value === selected"
+    [attr.aria-disabled]="option.disabled || null"
+    (click)="onSelect(option.value, option.disabled)">
+    <i *ngIf="type === 'with-icons' && option.icon" class="{{ option.icon }}"></i>
+    {{ option.label }}
+  </button>
+</div>
