@@ -1,0 +1,121 @@
+<div class="datepicker-wrapper" [ngClass]="size" [formGroup]="form">
+  <label class="datepicker-label" [attr.for]="dateId">{{ label }}</label>
+
+  <!-- Date field -->
+  <div class="date-input-wrapper">
+    <input
+      type="text"
+      [id]="dateId"
+      formControlName="date"
+      placeholder="dd/mm/yyyy"
+      aria-haspopup="dialog"
+      [attr.aria-invalid]="errorMessage ? true : null"
+      [ngClass]="{
+        'has-error': errorMessage,
+        'has-warning': warningMessage,
+        'is-disabled': disabled
+      }"
+      (focus)="openCalendar()"
+    />
+    <button
+      type="button"
+      class="calendar-icon"
+      (click)="openCalendar()"
+      [disabled]="disabled"
+      aria-label="Abrir calendário"
+    >
+      <i class="fa fa-calendar"></i>
+    </button>
+  </div>
+
+  <!-- Time field -->
+  <div class="time-input-wrapper" *ngIf="showTime">
+    <input
+      type="text"
+      formControlName="time"
+      placeholder="hh:mm"
+      (input)="onTimeChange()"
+      [attr.aria-invalid]="errorMessage ? true : null"
+    />
+  </div>
+
+  <!-- Timezone field -->
+  <div class="timezone-wrapper" *ngIf="showTimezone">
+    <select
+      formControlName="timezone"
+      (change)="onTimezoneChange()"
+    >
+      <option *ngFor="let tz of timezones" [value]="tz">{{ tz }}</option>
+    </select>
+  </div>
+
+  <!-- Messages -->
+  <div class="message" *ngIf="errorMessage">
+    <i class="fa fa-exclamation-circle"></i> {{ errorMessage }}
+  </div>
+  <div class="message warning" *ngIf="!errorMessage && warningMessage">
+    <i class="fa fa-exclamation-triangle"></i> {{ warningMessage }}
+  </div>
+
+  <!-- Calendar popover -->
+  <div
+    class="calendar-popover"
+    *ngIf="calendarOpen"
+    role="dialog"
+    tabindex="0"
+  >
+    <div class="calendar-header">
+      <button
+        type="button"
+        class="prev"
+        (click)="prevMonth()"
+        aria-label="Mês anterior"
+      >
+        <i class="fa fa-chevron-left"></i>
+      </button>
+      <div class="current">{{ monthLabel }}</div>
+      <button
+        type="button"
+        class="next"
+        (click)="nextMonth()"
+        aria-label="Próximo mês"
+      >
+        <i class="fa fa-chevron-right"></i>
+      </button>
+    </div>
+
+    <div class="calendar-grid" role="grid">
+      <div class="weekdays" role="row">
+        <div
+          class="weekday"
+          role="columnheader"
+          *ngFor="let wd of weekdayNames"
+        >
+          {{ wd }}
+        </div>
+      </div>
+
+      <div class="week" role="row" *ngFor="let week of weeks">
+        <button
+          type="button"
+          role="gridcell"
+          *ngFor="let day of week"
+          (click)="selectDate(day)"
+          [ngClass]="{
+            'other-month': day.getMonth() !== currentMonth,
+            today: isToday(day),
+            selected: selectedDate &&
+              day.toDateString() === selectedDate.toDateString()
+          }"
+          [attr.aria-selected]="
+            selectedDate && day.toDateString() === selectedDate.toDateString()
+              ? 'true'
+              : null
+          "
+        >
+          {{ day.getDate() }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

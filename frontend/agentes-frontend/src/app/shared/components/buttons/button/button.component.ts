@@ -24,7 +24,6 @@ export class ButtonComponent implements OnInit {
   @Output() clicked = new EventEmitter<Event>();
 
   ngOnInit(): void {
-    console.log('👉 iconLeft recebido:', this.iconLeft);
   }
 
   onClick(event: Event): void {
