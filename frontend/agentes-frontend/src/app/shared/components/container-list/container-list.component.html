@@ -1,0 +1,87 @@
+<div class="container-list" [ngClass]="{ disabled: disabled }">
+  <div class="list-header">
+    <input
+      class="list-title"
+      type="text"
+      [value]="title"
+      (input)="title = ($event.target as HTMLInputElement).value"
+      (focus)="startEditTitle()"
+      (blur)="stopEditTitle()"
+      [ngClass]="{ editing: editingTitle }"
+      [disabled]="disabled"
+      aria-label="Título da lista"
+    />
+    <button
+      class="search-button"
+      type="button"
+      aria-label="Buscar"
+      [disabled]="disabled"
+    >
+      <i class="fa fa-search"></i>
+    </button>
+  </div>
+
+  <div
+    class="list-item"
+    *ngFor="let item of items; let i = index; trackBy: trackByIndex"
+    [ngClass]="{
+      selected: selectedIndex === i,
+      editing: editingIndex === i,
+      disabled: item.disabled
+    }"
+    (click)="selectItem(i)"
+    [attr.aria-expanded]="item.expanded"
+  >
+    <i class="fa fa-file icon-left"></i>
+    <input
+      class="item-input"
+      type="text"
+      [value]="item.text"
+      (input)="item.text = ($event.target as HTMLInputElement).value"
+      (click)="$event.stopPropagation()"
+      (focus)="startEdit(i)"
+      (blur)="stopEdit(i)"
+      [disabled]="item.disabled"
+      [ngClass]="{ editing: editingIndex === i }"
+      aria-label="Item"
+    />
+    <button
+      class="remove-button"
+      type="button"
+      aria-label="Remover item"
+      (click)="removeItem(i); $event.stopPropagation()"
+      [disabled]="item.disabled"
+    >
+      <i class="fa fa-times"></i>
+    </button>
+    <div class="item-details" [ngClass]="{ expanded: item.expanded }">
+      <ng-container *ngIf="item.expanded">
+        <p>{{ item.text }}</p>
+      </ng-container>
+    </div>
+  </div>
+
+  <div class="add-item">
+    <input
+      class="add-input"
+      type="text"
+      [value]="newItem"
+      (input)="newItem = ($event.target as HTMLInputElement).value"
+      (focus)="addingItem = true"
+      (blur)="addingItem = false"
+      [ngClass]="{ editing: addingItem }"
+      [disabled]="disabled"
+      placeholder="Adicionar item"
+      aria-label="Adicionar item"
+    />
+    <button
+      class="add-button"
+      type="button"
+      (click)="addItem()"
+      aria-label="Adicionar item"
+      [disabled]="disabled"
+    >
+      <i class="fa fa-plus"></i>
+    </button>
+  </div>
+</div>
