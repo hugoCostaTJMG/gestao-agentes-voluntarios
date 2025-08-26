@@ -1,0 +1,23 @@
+<div class="checkbox-group">
+  <p class="group-label">{{ groupLabel }}</p>
+  <div class="options">
+    <app-checkbox
+      *ngFor="let option of options"
+      [label]="option.label"
+      [value]="option.value"
+      [checked]="option.checked"
+      [disabled]="option.disabled"
+      (changed)="onOptionChanged(option.value, $event)"
+    ></app-checkbox>
+  </div>
+  <div class="messages">
+    <div *ngIf="errorMessage" class="error-message">
+      <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+      <span>{{ errorMessage }}</span>
+    </div>
+    <div *ngIf="!errorMessage && warningMessage" class="warning-message">
+      <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+      <span>{{ warningMessage }}</span>
+    </div>
+  </div>
+</div>
