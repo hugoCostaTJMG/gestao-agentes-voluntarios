@@ -1,0 +1,100 @@
+@import '../../general/colors/colors.scss';
+
+.checkbox-container {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+}
+
+.checkbox-container input {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  border: 2px solid $neutral-400;
+  border-radius: 4px;
+  background: #fff;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.checkbox-container input:hover:not(:disabled) {
+  border-color: $blue-500;
+}
+
+.checkbox-container.checked input {
+  background-color: $blue-600;
+  border-color: $blue-600;
+}
+
+.checkbox-container.disabled {
+  cursor: not-allowed;
+}
+
+.checkbox-container.disabled input {
+  border-color: $neutral-300;
+  background-color: $neutral-100;
+}
+
+.checkbox-container.error input {
+  border-color: $red-500;
+}
+
+.checkbox-container.warning input {
+  border-color: $yellow-500;
+}
+
+.check-icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.checkbox-container.checked .check-icon {
+  opacity: 1;
+}
+
+.checkbox-label {
+  margin-left: 8px;
+  color: $neutral-800;
+}
+
+.messages {
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+.error-message,
+.warning-message {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.error-message {
+  color: $red-600;
+}
+
+.warning-message {
+  color: $yellow-600;
+}
+
+@media (max-width: 480px) {
+  .checkbox-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .checkbox-label {
+    margin-left: 0;
+    margin-top: 4px;
+  }
+}
