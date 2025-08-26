@@ -1,0 +1,26 @@
+<label class="checkbox-container" [ngClass]="{ 'checked': checked, 'disabled': disabled, 'error': errorMessage, 'warning': warningMessage && !errorMessage }">
+  <input
+    type="checkbox"
+    [checked]="checked"
+    [disabled]="disabled"
+    [attr.name]="name"
+    [attr.value]="value"
+    (change)="onChange($event)"
+    role="checkbox"
+    [attr.aria-checked]="checked"
+    [attr.aria-invalid]="errorMessage ? true : null"
+    [attr.aria-disabled]="disabled"
+  />
+  <span class="check-icon"><i class="fa fa-check" aria-hidden="true"></i></span>
+  <span class="checkbox-label">{{ label }}</span>
+</label>
+<div class="messages">
+  <div *ngIf="errorMessage" class="error-message">
+    <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+    <span>{{ errorMessage }}</span>
+  </div>
+  <div *ngIf="!errorMessage && warningMessage" class="warning-message">
+    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+    <span>{{ warningMessage }}</span>
+  </div>
+</div>
