@@ -1,0 +1,64 @@
+<div
+  class="dropdown"
+  [ngClass]="{ 'is-fluid': fluid, 'is-open': isOpen }"
+>
+  <!-- Botão principal -->
+  <button
+    type="button"
+    class="dropdown-trigger"
+    (click)="toggleDropdown()"
+    aria-haspopup="listbox"
+    [attr.aria-expanded]="isOpen"
+  >
+    <span>{{ displayLabel }}</span>
+    <i
+      class="fa-solid fa-chevron-down chevron"
+      [ngClass]="{ rotated: isOpen }"
+    ></i>
+  </button>
+
+  <!-- Lista -->
+  <ul *ngIf="isOpen" class="dropdown-menu" role="listbox">
+    <!-- Parent Checkbox -->
+    <li *ngIf="parentCheckbox" class="dropdown-item parent">
+      <label>
+        <input
+          type="checkbox"
+          [checked]="allSelected"
+          (change)="toggleAll()"
+        />
+        Selecionar todos
+      </label>
+    </li>
+
+    <!-- Opções -->
+    <li
+      *ngFor="let option of options"
+      class="dropdown-item"
+      [ngClass]="{ 'is-disabled': option.disabled, 'is-selected': option.selected }"
+      role="option"
+      [attr.aria-selected]="option.selected"
+      (click)="onSelect(option)"
+    >
+      <ng-container *ngIf="multiSelect && option.checkbox; else simpleOption">
+        <input
+          type="checkbox"
+          [checked]="option.selected"
+          [disabled]="option.disabled"
+        />
+        <span *ngIf="option.icon" class="icon">
+          <i [ngClass]="option.icon"></i>
+        </span>
+        {{ option.label }}
+      </ng-container>
+
+      <ng-template #simpleOption>
+        <span *ngIf="option.icon" class="icon">
+          <i [ngClass]="option.icon"></i>
+        </span>
+        {{ option.label }}
+        <i *ngIf="option.selected" class="fa fa-check checkmark"></i>
+      </ng-template>
+    </li>
+  </ul>
+</div>

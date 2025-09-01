@@ -1,0 +1,121 @@
+@import "../../general/colors/colors.scss";
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+  width: 240px;
+  font-family: 'IBM Plex Sans', sans-serif;
+
+  &.is-fluid {
+    width: 100%;
+  }
+
+  .dropdown-trigger {
+    width: 100%;
+    padding: 8px 16px;
+    border: 1px solid $neutral-200;
+    border-radius: 4px;
+    background: $neutral-50;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    line-height: 20px;
+    color: $neutral-800;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+
+    i {
+      margin-left: 8px;
+      font-size: 12px;
+      color: $neutral-600;
+    }
+
+    &:hover {
+      border-color: $blue-600;
+    }
+
+    &:focus {
+      outline: 2px solid $blue-600;
+      outline-offset: 2px;
+    }
+  }
+
+  .dropdown-menu {
+    position: absolute;
+    padding-left: unset;
+    top: calc(100% + 4px);
+    left: 0;
+    width: 100%;
+    max-height: 240px;
+    overflow-y: auto;
+    border: 1px solid $neutral-200;
+    background: white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    z-index: 10;
+    opacity: 0;
+    transform: translateY(-4px);
+    animation: fadeSlide 0.2s ease forwards;
+  }
+
+  @keyframes fadeSlide {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .dropdown-item {
+    padding: 8px 16px;
+    font-size: 14px;
+    line-height: 20px;
+    cursor: pointer;
+    color: $neutral-800;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid $neutral-200;
+    transition: background 0.2s ease;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &.is-disabled {
+      color: $neutral-400;
+      cursor: not-allowed;
+    }
+
+    &:hover:not(.is-disabled) {
+      background: $neutral-50;
+    }
+
+    &.is-selected {
+      background: $neutral-100;
+      border-left: 3px solid $blue-600;
+      padding-left: 13px; // compensar borda
+      font-weight: 500;
+
+      .checkmark {
+        color: $blue-600;
+        margin-left: auto;
+      }
+    }
+
+    .checkmark {
+      font-size: 12px;
+    }
+
+    &.parent {
+      font-weight: 600;
+      background: $neutral-50;
+    }
+  }
+  .option-icon {
+  margin-right: 8px;
+  font-size: 14px;
+  color: $neutral-600;
+}
+
+}
