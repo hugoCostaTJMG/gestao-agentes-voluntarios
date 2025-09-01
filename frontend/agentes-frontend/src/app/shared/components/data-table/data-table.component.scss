@@ -26,7 +26,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 0.5rem;
-    background: $neutral-100;
+    background: $neutral-50;
     gap: 0.5rem;
 
     .dt-toolbar-left {
@@ -97,7 +97,7 @@
   table {
     width: 100%;
     border-collapse: collapse;
-    background: $neutral-100;
+    background: $neutral-50;
 
     thead.sticky {
       position: sticky;
@@ -129,7 +129,7 @@
     }
 
     tbody tr:hover {
-      background: $neutral-100;
+      background: $neutral-50;
     }
 
     tbody tr.zebra {
@@ -138,11 +138,6 @@
 
     tbody tr.selected {
       background: rgba($blue-600, 0.1);
-    }
-
-    tbody tr.focused {
-      outline: 2px solid $blue-600;
-      outline-offset: -2px;
     }
 
     .select-cell,
