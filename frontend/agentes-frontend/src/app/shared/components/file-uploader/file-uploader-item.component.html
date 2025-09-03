@@ -1,0 +1,43 @@
+<li
+  class="uploader-item"
+  [ngClass]="[size, state, disabled ? 'is-disabled' : '']"
+  role="listitem"
+  tabindex="0"
+  (keydown)="onKeydown($event)"
+  [attr.aria-busy]="state === 'uploading' ? 'true' : null"
+  [attr.aria-invalid]="state === 'error' ? 'true' : null"
+  [attr.aria-disabled]="disabled ? 'true' : null"
+>
+  <div class="item-content">
+    <span class="file-name">{{ fileName }}</span>
+    <i *ngIf="state === 'uploading'" class="fa fa-spinner spin" aria-hidden="true"></i>
+    <i *ngIf="state === 'success'" class="fa fa-check-circle" aria-hidden="true"></i>
+    <i *ngIf="state === 'error'" class="fa fa-exclamation-circle" aria-hidden="true"></i>
+    <button
+      *ngIf="removable && !disabled"
+      type="button"
+      class="btn-remove"
+      [attr.aria-label]="removeLabel"
+      (click)="remove.emit()"
+    >
+      <i class="fa fa-times" aria-hidden="true"></i>
+    </button>
+  </div>
+  <div
+    *ngIf="state === 'error' && errorPrimary"
+    class="error-message"
+    role="alert"
+    aria-live="polite"
+  >
+    <span class="primary">{{ errorPrimary }}</span>
+    <span *ngIf="errorSecondary" class="secondary">{{ errorSecondary }}</span>
+    <button
+      *ngIf="!disabled"
+      type="button"
+      class="retry"
+      (click)="retry.emit()"
+    >
+      {{ retryLabel }}
+    </button>
+  </div>
+</li>
