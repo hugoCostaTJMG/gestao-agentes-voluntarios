@@ -50,7 +50,6 @@ body {
 /* Cards */
 .card {
   border: none;
-  border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
 }
@@ -58,7 +57,6 @@ body {
 .card-header {
   background-color: var(--primary-color);
   color: $neutral-50;
-  border-radius: 8px 8px 0 0;
   font-weight: 600;
 }
 
@@ -92,7 +90,6 @@ body {
 /* Tabelas */
 .table {
   background-color: $neutral-50;
-  border-radius: 8px;
   overflow: hidden;
 }
 .table thead th {
@@ -115,7 +112,6 @@ body {
 
 /* Alertas */
 .alert {
-  border-radius: 8px;
   border: none;
 }
 
@@ -176,7 +172,6 @@ body {
 .qr-code-container img {
   max-width: 200px;
   border: 2px solid var(--primary-color);
-  border-radius: 8px;
   padding: 10px;
   background-color: $neutral-50;
 }

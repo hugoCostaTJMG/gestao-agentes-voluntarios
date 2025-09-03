@@ -1,4 +1,11 @@
-<div class="file-uploader" [ngClass]="[size, variant, fluid ? 'is-fluid' : '', disabled ? 'is-disabled' : '']">
+<div
+  class="file-uploader"
+  [ngClass]="[
+    'size-' + size,
+    fluid ? 'is-fluid' : '',
+    disabled ? 'is-disabled' : ''
+  ]"
+>
   <label *ngIf="label" class="uploader-label">{{ label }}</label>
   <p *ngIf="helperText" class="uploader-helper">{{ helperText }}</p>
 
@@ -30,7 +37,11 @@
     role="button"
     tabindex="0"
     [attr.aria-label]="t.dragDrop"
-    [ngClass]="{ 'is-active': dragActive, 'is-error': dropzoneError, 'is-disabled': disabled }"
+    [ngClass]="{
+      'is-active': dragActive,
+      'is-error': dropzoneError,
+      'is-disabled': disabled
+    }"
     (click)="openFileDialog()"
     (keydown)="onDropzoneKeydown($event)"
     (dragenter)="onDragOver($event)"
