@@ -1,0 +1,110 @@
+@import "../../general/colors/colors.scss";
+
+.file-uploader {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: fit-content;
+
+  &.is-fluid {
+    width: 100%;
+  }
+
+  &.is-disabled {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  .uploader-label {
+    font-weight: 700;
+  }
+
+  .uploader-helper {
+    font-size: 14px;
+    color: $neutral-600;
+  }
+
+  .uploader-button {
+    background: $red-800;
+    color: #fff;
+    border: 0;
+    border-radius: 4px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background 150ms ease-out;
+    font-size: 14px;
+
+    &:hover:not(:disabled) { background: $red-700; }
+    &:active:not(:disabled) { background: $red-900; }
+    &:disabled { background: $neutral-300; cursor: not-allowed; }
+    &:focus-visible { outline: none; box-shadow: 0 0 0 2px $blue-600; }
+  }
+
+  .dropzone {
+    border: 2px dashed $neutral-400;
+    border-radius: 4px;
+    padding: 16px;
+    cursor: pointer;
+    transition: border-color 150ms ease-out, background 150ms ease-out;
+    color: $neutral-600;
+    background: $neutral-50;
+
+    &.is-active { border-style: solid; border-color: $neutral-600; }
+    &.is-error { border-color: $red-800; border-style: solid; color: $red-800; }
+    &.is-disabled { border-color: $neutral-200; color: $neutral-200; cursor: not-allowed; }
+    &:hover:not(.is-disabled) { border-style: solid; border-color: $neutral-600; }
+    &:focus-visible { outline: none; box-shadow: 0 0 0 2px $blue-600; }
+  }
+
+  .uploader-list {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .skeleton {
+    .sk-line {
+      height: 16px;
+      background: $neutral-200;
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+      margin-bottom: 8px;
+
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, $neutral-100, transparent);
+        animation: shimmer 1.2s infinite;
+      }
+    }
+  }
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
+
+@media (max-width: 480px) {
+  .file-uploader,
+  .file-uploader .uploader-button,
+  .file-uploader .dropzone {
+    width: 100%;
+  }
+}

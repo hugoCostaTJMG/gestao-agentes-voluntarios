@@ -1,0 +1,68 @@
+<div class="file-uploader" [ngClass]="[size, variant, fluid ? 'is-fluid' : '', disabled ? 'is-disabled' : '']">
+  <label *ngIf="label" class="uploader-label">{{ label }}</label>
+  <p *ngIf="helperText" class="uploader-helper">{{ helperText }}</p>
+
+  <input
+    #fileInput
+    class="visually-hidden"
+    type="file"
+    [multiple]="multiple"
+    [accept]="acceptAsString"
+    (change)="onFileInputChange($event)"
+    [disabled]="disabled"
+  />
+
+  <button
+    *ngIf="variant === 'button' || variant === 'both'"
+    type="button"
+    class="uploader-button"
+    [disabled]="disabled"
+    (click)="openFileDialog()"
+    (keydown.enter)="openFileDialog()"
+    (keydown.space)="openFileDialog()"
+  >
+    {{ label || t.dragDrop }}
+  </button>
+
+  <div
+    *ngIf="variant === 'dropzone' || variant === 'both'"
+    class="dropzone"
+    role="button"
+    tabindex="0"
+    [attr.aria-label]="t.dragDrop"
+    [ngClass]="{ 'is-active': dragActive, 'is-error': dropzoneError, 'is-disabled': disabled }"
+    (click)="openFileDialog()"
+    (keydown)="onDropzoneKeydown($event)"
+    (dragenter)="onDragOver($event)"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave($event)"
+    (drop)="onDropEvent($event)"
+  >
+    <span>{{ t.dragDrop }}</span>
+  </div>
+
+  <ul class="uploader-list" role="list">
+    <app-file-uploader-item
+      *ngFor="let item of items; let i = index"
+      [fileName]="item.name"
+      [state]="item.state"
+      [progress]="item.progress"
+      [errorPrimary]="item.errorPrimary"
+      [errorSecondary]="item.errorSecondary"
+      [removable]="!disabled"
+      [disabled]="disabled"
+      [size]="size"
+      [removeLabel]="t.remove"
+      [retryLabel]="t.retry"
+      (remove)="onRemove(item)"
+      (retry)="retryItem(item)"
+      (focusPrev)="handleFocusPrev(i)"
+      (focusNext)="handleFocusNext(i)"
+    ></app-file-uploader-item>
+  </ul>
+
+  <div *ngIf="showSkeleton" class="skeleton">
+    <div class="sk-line"></div>
+    <div class="sk-line"></div>
+  </div>
+</div>
