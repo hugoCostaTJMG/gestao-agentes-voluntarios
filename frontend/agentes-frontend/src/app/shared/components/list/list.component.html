@@ -1,28 +1,51 @@
-<div class="list-root" [ngClass]="['size-' + size, type]" [attr.aria-label]="ariaLabel" role="group" tabindex="0">
+<div
+  class="list-root"
+  [ngClass]="['size-' + size, type]"
+  [attr.aria-label]="ariaLabel"
+  role="group"
+  tabindex="0"
+>
   <ng-template #render let-items let-level="level">
-    <ol *ngIf="type === 'ordered'; else unorderedTmpl"
-        [ngClass]="['lvl-' + level, columns === 2 && level === 1 ? 'columns-2' : '']"
-        [attr.start]="level === 1 && start !== null ? start : null">
-      <li *ngFor="let it of items" class="fade-in">
+    <ol
+      *ngIf="type === 'ordered'; else unorderedTmpl"
+      [ngClass]="['lvl-' + level, columns === 2 && level === 1 ? 'columns-2' : '']"
+      [attr.start]="level === 1 && start !== null ? start : null"
+    >
+      <li
+        *ngFor="let it of items; let i = index; trackBy: trackByIndex"
+        class="fade-in"
+      >
         <span *ngIf="it.text">{{ it.text }}</span>
         <span *ngIf="it.html" [innerHTML]="sanitize(it.html)"></span>
+
         <ng-container *ngIf="it.children?.length">
-          <ng-container *ngTemplateOutlet="render; context: { $implicit: it.children, level: level + 1 }"></ng-container>
+          <ng-container
+            *ngTemplateOutlet="render; context: { $implicit: it.children, level: level + 1 }"
+          ></ng-container>
         </ng-container>
       </li>
     </ol>
+
     <ng-template #unorderedTmpl>
       <ul [ngClass]="['lvl-' + level, columns === 2 && level === 1 ? 'columns-2' : '']">
-        <li *ngFor="let it of items" class="fade-in">
+        <li
+          *ngFor="let it of items; let i = index; trackBy: trackByIndex"
+          class="fade-in"
+        >
           <span *ngIf="it.text">{{ it.text }}</span>
           <span *ngIf="it.html" [innerHTML]="sanitize(it.html)"></span>
+
           <ng-container *ngIf="it.children?.length">
-            <ng-container *ngTemplateOutlet="render; context: { $implicit: it.children, level: level + 1 }"></ng-container>
+            <ng-container
+              *ngTemplateOutlet="render; context: { $implicit: it.children, level: level + 1 }"
+            ></ng-container>
           </ng-container>
         </li>
       </ul>
     </ng-template>
   </ng-template>
 
-  <ng-container *ngTemplateOutlet="render; context: { $implicit: items, level: 1 }"></ng-container>
+  <ng-container
+    *ngTemplateOutlet="render; context: { $implicit: items, level: 1 }"
+  ></ng-container>
 </div>

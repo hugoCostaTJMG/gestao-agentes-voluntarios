@@ -7,6 +7,12 @@
 .list-root {
   color: $neutral-900;
 
+  /* Foco visível (Carbon-like) */
+  &:focus-visible {
+    outline: 2px solid $blue-600;
+    outline-offset: 2px;
+  }
+  /* Fallback para navegadores sem :focus-visible */
   &:focus {
     outline: 2px solid $blue-600;
     outline-offset: 2px;
@@ -14,7 +20,7 @@
 
   ol, ul {
     margin: 0;
-    padding-left: 1.25rem;
+    padding-left: 1.25rem; // indent padrão
   }
 
   li {
@@ -23,6 +29,7 @@
   }
 }
 
+/* Tamanhos */
 .size-sm { font-size: 0.875rem; }
 .size-md { font-size: 1rem; }
 .size-lg { font-size: 1.125rem; }
@@ -30,34 +37,41 @@
 /* Ordered lists */
 ol.lvl-1 { list-style-type: decimal; }
 ol.lvl-2 { list-style-type: lower-alpha; }
-ol.lvl-3, ol.lvl-4, ol.lvl-5, ol.lvl-6 { list-style-type: lower-roman; }
+/* Demais níveis com lower-roman para manter coerência com o layout */
+ol.lvl-3,
+ol.lvl-4,
+ol.lvl-5,
+ol.lvl-6 { list-style-type: lower-roman; }
 
 /* Unordered lists */
 ul { list-style: none; }
+
 ul.lvl-1 > li {
   position: relative;
   padding-left: 1rem;
 }
 ul.lvl-1 > li::before {
-  content: "\2013";
+  content: "\2013"; // en dash —
   position: absolute;
   left: 0;
-  top: 0.1rem;
   color: $neutral-700;
 }
+
+/* Níveis internos: quadrado sólido menor */
 ul:not(.lvl-1) > li {
   position: relative;
   padding-left: 1rem;
 }
 ul:not(.lvl-1) > li::before {
-  content: "\25A0";
-  font-size: 0.55rem;
+  content: "\25A0"; // ■
+  font-size: 0.5em;
   position: absolute;
   left: 0;
-  top: 0.35rem;
+  top: 0.75em; // em melhora o alinhamento vertical
   color: $neutral-700;
 }
 
+/* 2 colunas no nível 1 (quebra para 1 coluna no mobile) */
 .columns-2 {
   column-count: 2;
   column-gap: 2rem;
@@ -68,11 +82,16 @@ ul:not(.lvl-1) > li::before {
   }
 }
 
+/* Animação leve ao inserir itens */
 .fade-in {
   animation: fadeIn 120ms ease-out;
 }
-
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(2px); }
-  to { opacity: 1; transform: none; }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Respeita usuários que preferem menos movimento */
+@media (prefers-reduced-motion: reduce) {
+  .fade-in { animation: none; }
 }

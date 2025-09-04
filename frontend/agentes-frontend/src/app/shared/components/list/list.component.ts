@@ -4,10 +4,11 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 export type ListType = 'ordered' | 'unordered';
 export type ListSize = 'sm' | 'md' | 'lg';
+
 export interface ListItem {
-  text?: string;                 // texto simples
-  html?: string;                 // HTML seguro (usar [innerHTML] com sanitização)
-  children?: ListItem[];         // nós aninhados
+  text?: string;           // texto simples
+  html?: string;           // HTML confiável (renderizado via [innerHTML])
+  children?: ListItem[];   // nós aninhados
 }
 
 @Component({
@@ -27,11 +28,11 @@ export class ListComponent {
 
   constructor(private sanitizer: DomSanitizer) {}
 
-  /**
-   * Sanitiza HTML fornecido para uso seguro no template.
-   * A fonte deve ser confiável, pois bypassSecurityTrustHtml desativa a sanitização padrão.
-   */
+  /** Sanitiza HTML para uso no template. Use apenas para conteúdo interno/confiável. */
   sanitize(html: string): SafeHtml {
     return this.sanitizer.bypassSecurityTrustHtml(html);
   }
+
+  /** trackBy para performance em *ngFor */
+  trackByIndex = (i: number) => i;
 }
