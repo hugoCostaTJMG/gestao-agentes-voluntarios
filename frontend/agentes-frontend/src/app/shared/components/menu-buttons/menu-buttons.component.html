@@ -1,0 +1,82 @@
+<div class="mb-wrapper" [ngClass]="[variant, type, size]">
+  <ng-container [ngSwitch]="variant">
+    <!-- Overflow -->
+    <button *ngSwitchCase="'overflow'"
+            type="button"
+            class="mb-trigger overflow"
+            [ngClass]="[type, size]"
+            (click)="toggleMenu()"
+            (keydown)="onTriggerKeydown($event)"
+            [disabled]="disabled"
+            role="button"
+            aria-haspopup="menu"
+            [attr.aria-expanded]="open"
+            [attr.aria-controls]="menuId">
+      <i [class]="icon" aria-hidden="true"></i>
+    </button>
+
+    <!-- Menu button -->
+    <button *ngSwitchCase="'menu'"
+            type="button"
+            class="mb-trigger menu"
+            [ngClass]="[type, size]"
+            (click)="toggleMenu()"
+            (keydown)="onTriggerKeydown($event)"
+            [disabled]="disabled"
+            role="button"
+            aria-haspopup="menu"
+            [attr.aria-expanded]="open"
+            [attr.aria-controls]="menuId">
+      <span class="mb-label">{{ label }}</span>
+      <i class="fa fa-chevron-down mb-caret" aria-hidden="true"></i>
+    </button>
+
+    <!-- Combo / Split button -->
+    <div *ngSwitchCase="'combo'" class="mb-combo-wrapper" [ngClass]="[type, size]">
+      <button type="button"
+              class="mb-trigger primary"
+              [ngClass]="[type, size]"
+              (click)="onPrimaryClick()"
+              [disabled]="disabled">
+        {{ label }}
+      </button>
+      <button type="button"
+              class="mb-trigger caret"
+              [ngClass]="[type, size]"
+              (click)="toggleMenu()"
+              (keydown)="onTriggerKeydown($event)"
+              [disabled]="disabled"
+              role="button"
+              aria-haspopup="menu"
+              [attr.aria-expanded]="open"
+              [attr.aria-controls]="menuId">
+        <i class="fa fa-chevron-down" aria-hidden="true"></i>
+      </button>
+    </div>
+  </ng-container>
+
+  <!-- Menu -->
+  <div class="mb-menu" #menu
+       [ngClass]="[placementClass, alignClass, size]"
+       role="menu"
+       [attr.aria-label]="label"
+       [style.width.px]="menuWidth"
+       *ngIf="open">
+    <ul class="mb-list">
+      <ng-container *ngFor="let it of items; let i = index">
+        <li *ngIf="it.dividerAbove" class="mb-divider" role="separator" aria-hidden="true"></li>
+        <li #menuItem
+            class="mb-item"
+            role="menuitem"
+            [attr.tabindex]="i === activeIndex ? 0 : -1"
+            [ngClass]="{ disabled: it.disabled, danger: it.danger }"
+            (click)="onItemClick(it)"
+            (keydown)="onItemKeydown($event, i)">
+          <i *ngIf="it.iconLeft" [class]="it.iconLeft" aria-hidden="true"></i>
+          <span class="mb-label">{{ it.label }}</span>
+          <small *ngIf="it.helperText" class="mb-helper">{{ it.helperText }}</small>
+        </li>
+      </ng-container>
+    </ul>
+  </div>
+</div>
