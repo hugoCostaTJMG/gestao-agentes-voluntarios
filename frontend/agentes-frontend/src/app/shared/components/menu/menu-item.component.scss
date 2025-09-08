@@ -1,0 +1,83 @@
+@import "../../general/colors/colors.scss";
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 16px;
+  height: 40px;
+  background: $neutral-50;
+  border: none;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  color: $neutral-800;
+  cursor: pointer;
+  transition: background 150ms cubic-bezier(0.2, 0, 0.38, 0.9),
+    color 150ms cubic-bezier(0.2, 0, 0.38, 0.9);
+
+  .suffix {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: $neutral-600;
+  }
+
+  &.danger {
+    color: $red-700;
+    .suffix {
+      color: inherit;
+    }
+  }
+
+  &.disabled {
+    color: $neutral-400;
+    cursor: not-allowed;
+    background: $neutral-50;
+    .suffix {
+      color: $neutral-400;
+    }
+  }
+
+  &:hover:not(.disabled) {
+    background: $neutral-100;
+  }
+
+  &.active:not(.disabled),
+  &:focus-visible {
+    outline: 2px solid $blue-600;
+    outline-offset: -2px;
+  }
+
+  &:active:not(.disabled) {
+    background: $neutral-200;
+  }
+
+  &.selected:not(.disabled) {
+    background: $red-600;
+    color: $neutral-0;
+    .suffix {
+      color: $neutral-0;
+    }
+  }
+
+  &.danger:hover:not(.disabled) {
+    background: $red-50;
+  }
+
+  &.danger:active:not(.disabled) {
+    background: $red-100;
+  }
+
+  &.danger.selected:not(.disabled) {
+    background: $red-600;
+    color: $neutral-0;
+  }
+}
+
+.menu-divider {
+  border: none;
+  border-top: 1px solid $neutral-200;
+  margin: 4px 0;
+}
