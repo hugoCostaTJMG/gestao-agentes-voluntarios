@@ -1,0 +1,28 @@
+<ng-container [ngSwitch]="item.role">
+  <hr *ngSwitchCase="'separator'" class="menu-divider" role="separator" />
+  <button
+    #button
+    *ngSwitchDefault
+    type="button"
+    class="menu-item"
+    [ngClass]="{
+      active: active,
+      selected: item.selected || item.checked,
+      danger: item.danger,
+      disabled: item.disabled
+    }"
+    [attr.role]="item.role || 'menuitem'"
+    [attr.aria-disabled]="item.disabled"
+    [attr.aria-checked]="item.role === 'menuitemcheckbox' || item.role === 'menuitemradio' ? item.checked : null"
+    [attr.aria-selected]="item.role === 'menuitem' ? item.selected : null"
+    [attr.aria-label]="item.ariaLabel || null"
+    tabindex="-1"
+    (click)="onClick($event)"
+  >
+    <span class="label">{{ item.label }}</span>
+    <span class="suffix">
+      <span *ngIf="item.shortcut" class="shortcut">{{ item.shortcut }}</span>
+      <i *ngIf="item.trailingIcon" class="{{ item.trailingIcon }}" aria-hidden="true"></i>
+    </span>
+  </button>
+</ng-container>

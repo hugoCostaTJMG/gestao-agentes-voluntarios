@@ -1,0 +1,20 @@
+<div
+  class="menu"
+  role="menu"
+  aria-orientation="vertical"
+  [attr.aria-label]="ariaLabel"
+  tabindex="0"
+  (keydown)="onKeydown($event)"
+>
+  <ul class="menu-list" [style.--max-height.px]="maxHeight">
+    <li *ngFor="let item of items; let i = index; trackBy: trackById">
+      <hr *ngIf="item.dividerAbove" class="menu-divider" role="separator" />
+      <app-menu-item
+        [item]="item"
+        [active]="i === activeIndex"
+        [selectable]="selectable"
+        (pressed)="onItemPressed(item)"
+      ></app-menu-item>
+    </li>
+  </ul>
+</div>

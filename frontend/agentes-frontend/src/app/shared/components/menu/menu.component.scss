@@ -1,0 +1,31 @@
+@import "../../general/colors/colors.scss";
+
+.menu {
+  background: $neutral-0;
+  border: 1px solid $neutral-200;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  width: 240px;
+}
+
+.menu-list {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+  max-height: var(--max-height);
+  overflow-y: auto;
+  box-shadow: inset 0 -8px 8px -8px rgba(0, 0, 0, 0.12);
+}
+
+.menu-divider {
+  border: none;
+  border-top: 1px solid $neutral-200;
+  margin: 4px 0;
+}
+
+@media (max-width: 480px) {
+  .menu {
+    width: 100%;
+  }
+}
