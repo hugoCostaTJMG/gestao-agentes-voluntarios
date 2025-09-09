@@ -1,0 +1,226 @@
+@import "../../general/colors/colors.scss";
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba($neutral-950, .64);
+  animation: fade 150ms cubic-bezier(0.2,0,0.38,0.9) forwards;
+}
+
+.modal-wrapper {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-container {
+  background: $neutral-0;
+  border: 1px solid $neutral-200;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.2);
+  width: 100%;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  animation: scaleFade 150ms cubic-bezier(0.2,0,0.38,0.9) forwards;
+}
+
+.modal-container.sm { max-width: 416px; }
+.modal-container.md { max-width: 672px; }
+.modal-container.lg { max-width: 832px; }
+.modal-container.xl { max-width: 1056px; }
+
+.modal-header {
+  padding: 24px;
+}
+
+.modal-label {
+  color: $neutral-600;
+  font-size: 0.75rem;
+  margin: 0 0 4px 0;
+}
+
+.modal-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+
+  h2 {
+    margin: 0;
+    font-weight: 600;
+    font-size: 1.25rem;
+    flex: 1;
+  }
+}
+
+.close-button {
+  background: transparent;
+  border: none;
+  padding: 0.25rem;
+  cursor: pointer;
+  color: $neutral-600;
+  font-size: 1.25rem;
+  transition: background-color 150ms cubic-bezier(0.2,0,0.38,0.9);
+}
+
+.close-button:hover {
+  background: $neutral-100;
+}
+
+.close-button:focus {
+  outline: 2px solid $blue-600;
+  outline-offset: 2px;
+}
+
+.modal-description {
+  margin-top: 0.5rem;
+}
+
+.modal-steps {
+  margin-top: 1rem;
+
+  .step-bar {
+    height: 2px;
+    background: $neutral-200;
+    position: relative;
+    overflow: hidden;
+    .step-bar-fill {
+      height: 2px;
+      background: $red-600;
+      width: 0;
+      transition: width 150ms cubic-bezier(0.2,0,0.38,0.9);
+    }
+  }
+
+  .step-items {
+    list-style: none;
+    display: flex;
+    gap: 1rem;
+    margin: 0.5rem 0 0 0;
+    padding: 0;
+
+    li {
+      font-size: 0.75rem;
+      color: $neutral-600;
+      display: flex;
+      flex-direction: column;
+    }
+
+    li.complete .step-label,
+    li.current .step-label {
+      color: $neutral-900;
+    }
+  }
+}
+
+.modal-body {
+  padding: 16px 24px;
+  flex: 1;
+  overflow: auto;
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid $neutral-200;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.left-actions, .right-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.modal-action {
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  border-radius: 4px;
+  transition: background-color 150ms cubic-bezier(0.2,0,0.38,0.9), color 150ms cubic-bezier(0.2,0,0.38,0.9);
+}
+
+.modal-action:focus {
+  outline: 2px solid $blue-600;
+  outline-offset: 2px;
+}
+
+.modal-action.primary {
+  background: $red-600;
+  color: $neutral-0;
+}
+.modal-action.primary:hover:not(:disabled) { background: $red-700; }
+.modal-action.primary:active:not(:disabled) { background: $red-800; }
+
+.modal-action.secondary {
+  background: $neutral-800;
+  color: $neutral-0;
+}
+.modal-action.secondary:hover:not(:disabled) { background: $neutral-700; }
+.modal-action.secondary:active:not(:disabled) { background: $neutral-900; }
+
+.modal-action.danger {
+  background: $red-700;
+  color: $neutral-0;
+}
+.modal-action.danger:hover:not(:disabled) { background: $red-800; }
+.modal-action.danger:active:not(:disabled) { background: $red-900; }
+
+.modal-action.ghost {
+  background: transparent;
+  color: $red-600;
+}
+.modal-action.ghost:hover:not(:disabled) { background: $red-50; }
+.modal-action.ghost:active:not(:disabled) { background: $red-100; }
+
+.modal-action:disabled {
+  background: $neutral-300;
+  color: $neutral-600;
+  cursor: not-allowed;
+}
+
+.busy-state {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: $neutral-600;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid $neutral-300;
+  border-top-color: $red-600;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleFade {
+  from { opacity: 0; transform: scale(.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@media (max-width: 480px) {
+  .modal-wrapper { padding: 0; }
+  .modal-container { width: 100%; height: 100%; border-radius: 0; }
+  .modal-footer { flex-direction: column; align-items: stretch; }
+  .right-actions, .left-actions { width: 100%; justify-content: flex-end; }
+  .left-actions { order: -1; justify-content: flex-start; }
+  .modal-action { width: 100%; }
+}

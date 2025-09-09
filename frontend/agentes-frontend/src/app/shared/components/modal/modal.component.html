@@ -1,0 +1,55 @@
+<div class="modal-backdrop" *ngIf="open" (click)="onBackdropClick()"></div>
+<div class="modal-wrapper" *ngIf="open">
+  <div #container class="modal-container" [ngClass]="size" role="dialog" aria-modal="true"
+       [attr.aria-label]="ariaLabel"
+       [attr.aria-labelledby]="ariaLabelledby ? ariaLabelledby : titleId"
+       [attr.aria-describedby]="ariaDescribedby ? ariaDescribedby : descId"
+       [cdkTrapFocus]="focusTrap" [cdkTrapFocusAutoCapture]="focusTrap">
+    <div class="modal-header">
+      <p class="modal-label" *ngIf="label">{{ label }}</p>
+      <div class="modal-title-row">
+        <h2 [id]="titleId">{{ title }}</h2>
+        <button type="button" class="close-button" aria-label="Fechar" *ngIf="showClose" (click)="onCloseButton()">
+          &times;
+        </button>
+      </div>
+      <div class="modal-steps" *ngIf="steps.length">
+        <div class="step-bar">
+          <div class="step-bar-fill" [style.width.%]="progress"></div>
+        </div>
+        <ul class="step-items">
+          <li *ngFor="let step of steps" [ngClass]="step.state">
+            <span class="step-label">{{ step.label }}</span>
+            <span class="step-optional" *ngIf="step.optionalLabel">{{ step.optionalLabel }}</span>
+          </li>
+        </ul>
+      </div>
+      <p class="modal-description" *ngIf="description" [id]="descId">{{ description }}</p>
+    </div>
+    <div class="modal-body">
+      <ng-content select="[modal-body]"></ng-content>
+    </div>
+    <div class="modal-footer">
+      <div class="left-actions">
+        <ng-container *ngFor="let act of leftActions">
+          <button class="modal-action" [ngClass]="act.kind" [disabled]="busy || act.disabled"
+            (click)="onActionClick(act)" [attr.aria-disabled]="(busy || act.disabled) ? true : null">
+            {{ act.label }}
+          </button>
+        </ng-container>
+      </div>
+      <div class="right-actions" *ngIf="!busy">
+        <ng-container *ngFor="let act of rightActions">
+          <button class="modal-action" [ngClass]="act.kind" [disabled]="busy || act.disabled"
+            (click)="onActionClick(act)" [attr.aria-disabled]="(busy || act.disabled) ? true : null">
+            {{ act.label }}
+          </button>
+        </ng-container>
+      </div>
+      <div class="busy-state" *ngIf="busy">
+        <div class="spinner"></div>
+        <span>{{ busyMessage }}</span>
+      </div>
+    </div>
+  </div>
+</div>
