@@ -1,0 +1,46 @@
+<div
+  class="notification-item"
+  [@fadeSlide]
+  [ngClass]="[
+    item.kind,
+    'type-' + item.type,
+    item.title ? 'has-title' : '',
+    item.actionLabel ? 'has-action' : '',
+    item.timestamp ? 'has-timestamp' : '',
+    item.theme ? 'theme-' + item.theme : ''
+  ]"
+  [attr.role]="item.type === 'warning' || item.type === 'error' ? 'alert' : 'status'"
+  aria-live="polite"
+  aria-atomic="true"
+  tabindex="0"
+>
+  <span class="notification-icon" [ngClass]="iconClass(item.type)" aria-hidden="true"></span>
+  <div class="notification-content">
+    <div *ngIf="item.title" class="notification-title">{{ item.title }}</div>
+    <div class="notification-message">{{ item.message }}</div>
+    <div *ngIf="item.timestamp" class="notification-timestamp">{{ item.timestamp }}</div>
+  </div>
+  <div class="notification-actions">
+    <button
+      *ngIf="item.actionLabel"
+      type="button"
+      class="notification-action"
+      [ngClass]="item.actionStyle || 'link'"
+      (click)="onAction()"
+      (keydown.enter)="onAction()"
+      (keydown.space)="onAction()"
+      [attr.aria-label]="item.actionAriaLabel || item.actionLabel"
+    >
+      {{ item.actionLabel }}
+    </button>
+    <button
+      *ngIf="item.dismissible !== false"
+      type="button"
+      class="notification-close"
+      aria-label="Fechar"
+      (click)="onDismiss()"
+    >
+      <span aria-hidden="true" class="fa-solid fa-xmark"></span>
+    </button>
+  </div>
+</div>
