@@ -56,9 +56,9 @@
 
   &.selected:not(.disabled) {
     background: $red-600;
-    color: $neutral-0;
+    color: $neutral-50;
     .suffix {
-      color: $neutral-0;
+      color: $neutral-50;
     }
   }
 
@@ -72,7 +72,7 @@
 
   &.danger.selected:not(.disabled) {
     background: $red-600;
-    color: $neutral-0;
+    color: $neutral-50;
   }
 }
 

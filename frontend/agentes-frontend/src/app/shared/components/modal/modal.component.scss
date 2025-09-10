@@ -17,7 +17,7 @@
 }
 
 .modal-container {
-  background: $neutral-0;
+  background: $neutral-50;
   border: 1px solid $neutral-200;
   border-radius: 8px;
   box-shadow: 0 8px 24px rgba(0,0,0,.2);
@@ -154,21 +154,21 @@
 
 .modal-action.primary {
   background: $red-600;
-  color: $neutral-0;
+  color: $neutral-50;
 }
 .modal-action.primary:hover:not(:disabled) { background: $red-700; }
 .modal-action.primary:active:not(:disabled) { background: $red-800; }
 
 .modal-action.secondary {
   background: $neutral-800;
-  color: $neutral-0;
+  color: $neutral-50;
 }
 .modal-action.secondary:hover:not(:disabled) { background: $neutral-700; }
 .modal-action.secondary:active:not(:disabled) { background: $neutral-900; }
 
 .modal-action.danger {
   background: $red-700;
-  color: $neutral-0;
+  color: $neutral-50;
 }
 .modal-action.danger:hover:not(:disabled) { background: $red-800; }
 .modal-action.danger:active:not(:disabled) { background: $red-900; }
