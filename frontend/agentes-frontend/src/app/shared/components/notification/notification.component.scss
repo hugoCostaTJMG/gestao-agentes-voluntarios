@@ -1,0 +1,21 @@
+@import "../../general/colors/colors.scss";
+
+:host.notification-host {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+:host.notification-host.toast {
+  position: fixed;
+  z-index: 1000;
+}
+
+:host.notification-host.toast.position-top-right { top: 16px; right: 16px; }
+:host.notification-host.toast.position-top-left { top: 16px; left: 16px; }
+:host.notification-host.toast.position-bottom-right { bottom: 16px; right: 16px; }
+:host.notification-host.toast.position-bottom-left { bottom: 16px; left: 16px; }
+
+:host.notification-host.theme-dark {
+  color: $neutral-100;
+}

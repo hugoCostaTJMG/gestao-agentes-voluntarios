@@ -1,0 +1,6 @@
+<app-notification-item
+  *ngFor="let item of items; trackBy: trackById"
+  [item]="item"
+  (action)="onAction($event)"
+  (dismiss)="onDismiss($event)"
+></app-notification-item>
