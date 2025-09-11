@@ -1,0 +1,96 @@
+<label class="ni-label" [ngClass]="{ 'sr-only': hideLabel }" [attr.for]="inputId">
+  {{ label || ariaLabel || 'Label' }}
+  <ng-content select="[label-help]"></ng-content>
+</label>
+
+<div class="number-input"
+     [ngClass]="[
+       'size-' + size,
+       fluid ? 'is-fluid' : '',
+       disabled ? 'is-disabled' : '',
+       readonly ? 'is-readonly' : '',
+       invalid ? 'is-invalid' : '',
+       warn ? 'is-warn' : '',
+       skeleton ? 'is-skeleton' : '',
+       isFocused ? 'is-focused' : ''
+     ]">
+  <div class="ni-field">
+    <span class="ni-prefix">
+      <ng-content select="[prefix]"></ng-content>
+    </span>
+    <input
+      type="number"
+      class="ni-input"
+      [id]="inputId"
+      [name]="name || inputId"
+      [attr.placeholder]="placeholder"
+      [disabled]="disabled"
+      [readOnly]="readonly"
+      [attr.min]="min ?? null"
+      [attr.max]="max ?? null"
+      [attr.step]="step"
+      role="spinbutton"
+      [attr.aria-valuemin]="min ?? null"
+      [attr.aria-valuemax]="max ?? null"
+      [attr.aria-valuenow]="value ?? null"
+      [attr.aria-invalid]="invalid || null"
+      [attr.aria-describedby]="describedByIds"
+      [ngModel]="displayValue"
+      (ngModelChange)="onInputChange($event)"
+      (keydown)="onKeydown($event)"
+      (focus)="onFocus($event)"
+      (blur)="onBlur($event)"
+    />
+
+    <i *ngIf="invalid" class="fa-solid fa-circle-exclamation state-icon" aria-hidden="true"></i>
+    <i *ngIf="!invalid && warn" class="fa-solid fa-triangle-exclamation state-icon" aria-hidden="true"></i>
+
+    <div class="ni-actions">
+      <ng-content select="[action-item]"></ng-content>
+    </div>
+
+    <span class="ni-divider" aria-hidden="true" *ngIf="!hideControls"></span>
+
+    <button *ngIf="!hideControls"
+            type="button"
+            class="ni-btn minus"
+            [disabled]="disabled || readonly || isAtMin"
+            [attr.aria-disabled]="(disabled || readonly || isAtMin) ? true : null"
+            aria-label="Diminuir"
+            (pointerdown)="onPressStart('dec', $event)"
+            (pointerup)="onPressEnd()"
+            (pointerleave)="onPressEnd()"
+            (click)="decrement()">
+      &minus;
+    </button>
+
+    <span class="ni-divider" aria-hidden="true" *ngIf="!hideControls"></span>
+
+    <button *ngIf="!hideControls"
+            type="button"
+            class="ni-btn plus"
+            [disabled]="disabled || readonly || isAtMax"
+            [attr.aria-disabled]="(disabled || readonly || isAtMax) ? true : null"
+            aria-label="Aumentar"
+            (pointerdown)="onPressStart('inc', $event)"
+            (pointerup)="onPressEnd()"
+            (pointerleave)="onPressEnd()"
+            (click)="increment()">
+      &#43;
+    </button>
+  </div>
+
+  <div class="ni-messages">
+    <div *ngIf="invalid && invalidText" class="ni-error" role="alert" [id]="errorId">
+      <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+      <span>{{ invalidText }}</span>
+    </div>
+    <div *ngIf="!invalid && warn && warnText" class="ni-warn" role="status" [id]="warnId">
+      <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+      <span>{{ warnText }}</span>
+    </div>
+    <div *ngIf="!invalid && !warn && helperText" class="ni-helper" [id]="helperId">
+      {{ helperText }}
+    </div>
+  </div>
+</div>
