@@ -1,18 +1,32 @@
 <button
   [attr.type]="buttonType"
   [routerLink]="routerLink"
-  [ngClass]="[type, size]"
-  [disabled]="disabled"
+  class="cds--btn"
+  [ngClass]="[
+    'cds--btn--' + type,       
+    'cds--btn--' + size,               
+    iconOnly ? 'cds--btn--icon-only' : '',
+    loading ? 'cds--btn--loading' : ''
+  ]"
+  [disabled]="disabled || loading"
   (click)="onClick($event)"
-  [attr.aria-label]="ariaLabel"
+  [attr.aria-label]="ariaLabel || (iconOnly ? label : null)"
+  [attr.aria-busy]="loading ? 'true' : null"
 >
-  <ng-container *ngIf="iconLeft">
-    <i class="{{ iconLeft }}"></i>
-  </ng-container>
+  <!-- Inline loading (Carbon-style) -->
+  <span *ngIf="loading" class="cds--loading cds--loading--small" role="status" aria-live="polite" aria-label="Carregando">
+    <svg class="cds--loading__svg" viewBox="0 0 100 100" aria-hidden="true">
+      <circle class="cds--loading__stroke" cx="50%" cy="50%" r="44"></circle>
+    </svg>
+  </span>
 
-  <span *ngIf="label">{{ label }}</span>
+  <span class="cds--btn__icon cds--btn__icon--left" *ngIf="iconLeft && !loading">
+    <i [class]="iconLeft" aria-hidden="true"></i>
+  </span>
 
-  <ng-container *ngIf="iconRight">
-    <i class="{{ iconRight }}"></i>
-  </ng-container>
+  <span *ngIf="!iconOnly" class="cds--btn__label">{{ label }}</span>
+
+  <span class="cds--btn__icon cds--btn__icon--right" *ngIf="iconRight && !loading">
+    <i [class]="iconRight" aria-hidden="true"></i>
+  </span>
 </button>
