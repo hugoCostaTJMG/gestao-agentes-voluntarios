@@ -39,7 +39,7 @@ public class AgenteVoluntarioController {
         @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('uma_authorization')")
     public ResponseEntity<AgenteVoluntarioResponseDTO> cadastrarAgente(
             @Valid @RequestBody AgenteVoluntarioDTO dto,
             Authentication authentication) {
@@ -72,7 +72,7 @@ public class AgenteVoluntarioController {
         @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA') or hasRole('COFIJ')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA') or hasRole('uma_authorization')")
     public ResponseEntity<Page<AgenteVoluntarioResponseDTO>> listarAgentes(Pageable pageable) {
         Page<AgenteVoluntarioResponseDTO> response = agenteService.listarAgentes(pageable);
         return ResponseEntity.ok(response);
@@ -99,8 +99,8 @@ public class AgenteVoluntarioController {
         @ApiResponse(responseCode = "200", description = "Lista de agentes ativos"),
         @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasRole('uma_authorization')")
     @GetMapping("/ativos")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA') or hasRole('COFIJ')")
     public ResponseEntity<List<AgenteVoluntarioResponseDTO>> listarAgentesAtivos() {
         List<AgenteVoluntarioResponseDTO> response = agenteService.listarAgentesAtivos();
         return ResponseEntity.ok(response);

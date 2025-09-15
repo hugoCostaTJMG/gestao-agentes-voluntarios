@@ -5,6 +5,7 @@ import { AuthService } from '../../services/auth.service';
 import { Usuario } from '../../models/interfaces';
 import { CommonModule } from '@angular/common';
 import { ButtonComponent } from '../../shared/components/buttons/button/button.component';
+import { KeycloakService } from '../../services/keycloak.service';
 
 @Component({
   selector: 'app-login',
@@ -17,6 +18,7 @@ export class LoginComponent implements OnInit {
   loading = false;
   showError = false;
   showInfo = false;
+  isLoggedIn = false;
   errorMessage = '';
   infoMessage = '';
 
@@ -24,7 +26,8 @@ export class LoginComponent implements OnInit {
     private apiService: ApiService,
     private authService: AuthService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private keycloak: KeycloakService
   ) {}
 
   ngOnInit(): void {
@@ -42,24 +45,12 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  loginKeycloak(): void {
+  async loginKeycloak() {
     this.showInfo = true;
     this.infoMessage = 'Redirecionando para o Keycloak...';
     
-    // Aqui você implementaria a integração com Keycloak
-    // Por enquanto, simular um login administrativo
-    setTimeout(() => {
-      const adminUser: Usuario = {
-        id: 1,
-        nome: 'Administrador',
-        email: 'admin@corregedoria.gov.br',
-        perfil: 'ADMIN',
-        token: 'mock-admin-token'
-      };
-      
-      this.authService.setCurrentUser(adminUser);
-      this.router.navigate(['/agentes']);
-    }, 2000);
+    await this.keycloak.init();  
+    this.keycloak.login();  
   }
 
   loginGovBr(): void {
