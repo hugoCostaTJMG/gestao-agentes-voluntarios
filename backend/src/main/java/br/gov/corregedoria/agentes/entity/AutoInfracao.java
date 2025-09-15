@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Entidade que representa um Auto de Infração registrado no sistema
@@ -24,8 +23,10 @@ import java.util.UUID;
 public class AutoInfracao {
     
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "auto_infracao_seq")
+    @SequenceGenerator(name = "auto_infracao_seq", sequenceName = "auto_infracao_seq", allocationSize = 1)
     @Column(name = "id", updatable = false, nullable = false)
-    private String id;
+    private Long id;
     
     // === DADOS DO AUTUADO (Obrigatórios) ===
     
@@ -171,9 +172,7 @@ public class AutoInfracao {
     
     // === CONSTRUTORES ===
     
-    public AutoInfracao() {
-        this.id = UUID.randomUUID().toString();
-    }
+    public AutoInfracao() {}
     
     // === MÉTODOS DE NEGÓCIO ===
     

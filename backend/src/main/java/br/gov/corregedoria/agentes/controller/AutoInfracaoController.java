@@ -15,7 +15,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/autos")
@@ -40,9 +39,9 @@ public class AutoInfracaoController {
     @Operation(summary = "Buscar auto por ID")
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERVISOR') or hasRole('AGENTE')")
-    public ResponseEntity<AutoInfracao> buscar(@PathVariable String id,
+    public ResponseEntity<AutoInfracao> buscar(@PathVariable Long id,
                                                Authentication authentication) {
-        UUID agenteId = UUID.fromString(authentication.getName());
+        Long agenteId = Long.parseLong(authentication.getName());
         String perfil = authentication.getAuthorities().stream()
                 .findFirst().map(a -> a.getAuthority().replace("ROLE_", "")).orElse("AGENTE");
         AutoInfracao auto = autoService.buscarPorId(id, agenteId, perfil);
@@ -54,7 +53,7 @@ public class AutoInfracaoController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERVISOR') or hasRole('AGENTE')")
     public ResponseEntity<AutoInfracao> cadastrar(@Valid @RequestBody AutoInfracao auto,
                                                   Authentication authentication) {
-        UUID agenteId = UUID.fromString(authentication.getName());
+        Long agenteId = Long.parseLong(authentication.getName());
         AutoInfracao salvo = autoService.cadastrar(auto, agenteId, authentication.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(salvo);
     }
@@ -62,10 +61,10 @@ public class AutoInfracaoController {
     @Operation(summary = "Atualizar auto de infração")
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERVISOR') or hasRole('AGENTE')")
-    public ResponseEntity<AutoInfracao> atualizar(@PathVariable String id,
+    public ResponseEntity<AutoInfracao> atualizar(@PathVariable Long id,
                                                   @Valid @RequestBody AutoInfracao auto,
                                                   Authentication authentication) {
-        UUID agenteId = UUID.fromString(authentication.getName());
+        Long agenteId = Long.parseLong(authentication.getName());
         String perfil = authentication.getAuthorities().stream()
                 .findFirst().map(a -> a.getAuthority().replace("ROLE_", "")).orElse("AGENTE");
         AutoInfracao atualizado = autoService.atualizar(id, auto, agenteId, perfil, authentication.getName());
@@ -75,9 +74,9 @@ public class AutoInfracaoController {
     @Operation(summary = "Excluir auto de infração")
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERVISOR') or hasRole('AGENTE')")
-    public ResponseEntity<Void> excluir(@PathVariable String id,
+    public ResponseEntity<Void> excluir(@PathVariable Long id,
                                         Authentication authentication) {
-        UUID agenteId = UUID.fromString(authentication.getName());
+        Long agenteId = Long.parseLong(authentication.getName());
         autoService.excluir(id, agenteId, authentication.getName());
         return ResponseEntity.noContent().build();
     }
@@ -85,7 +84,7 @@ public class AutoInfracaoController {
     @Operation(summary = "Cancelar auto de infração")
     @PatchMapping("/{id}/cancelar")
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERVISOR')")
-    public ResponseEntity<AutoInfracao> cancelar(@PathVariable String id,
+    public ResponseEntity<AutoInfracao> cancelar(@PathVariable Long id,
                                                  @RequestBody String justificativa,
                                                  Authentication authentication) {
         String perfil = authentication.getAuthorities().stream()

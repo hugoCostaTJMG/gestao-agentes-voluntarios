@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.format.DateTimeFormatter;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,7 +25,7 @@ public class ConsultaPublicaService {
      * Consulta pública de credencial via QR Code
      * RN005 - Consulta Pública de Credencial
      */
-    public ConsultaPublicaDTO consultarCredencial(UUID credencialId) {
+    public ConsultaPublicaDTO consultarCredencial(Long credencialId) {
         Credencial credencial = credencialRepository.findById(credencialId)
                 .orElseThrow(() -> new EntityNotFoundException("Credencial não encontrada"));
 
@@ -49,7 +48,7 @@ public class ConsultaPublicaService {
     /**
      * Verifica se uma credencial é válida
      */
-    public boolean credencialValida(UUID credencialId) {
+    public boolean credencialValida(Long credencialId) {
         return credencialRepository.existsById(credencialId);
     }
 }

@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/public")
@@ -30,8 +29,8 @@ public class ConsultaPublicaController {
     })
     @GetMapping("/verificar/{credencialId}")
     public ResponseEntity<ConsultaPublicaDTO> verificarCredencial(
-            @Parameter(description = "ID da credencial obtido via QR Code") 
-            @PathVariable UUID credencialId) {
+            @Parameter(description = "ID da credencial obtido via QR Code")
+            @PathVariable Long credencialId) {
         
         try {
             ConsultaPublicaDTO response = consultaPublicaService.consultarCredencial(credencialId);
@@ -48,8 +47,8 @@ public class ConsultaPublicaController {
     })
     @GetMapping("/validar/{credencialId}")
     public ResponseEntity<Boolean> validarCredencial(
-            @Parameter(description = "ID da credencial") 
-            @PathVariable UUID credencialId) {
+            @Parameter(description = "ID da credencial")
+            @PathVariable Long credencialId) {
         
         boolean valida = consultaPublicaService.credencialValida(credencialId);
         return ResponseEntity.ok(valida);
@@ -59,8 +58,8 @@ public class ConsultaPublicaController {
                description = "Página HTML para exibição dos dados públicos do agente")
     @GetMapping("/verificar/{credencialId}/pagina")
     public ResponseEntity<String> paginaVerificacao(
-            @Parameter(description = "ID da credencial") 
-            @PathVariable UUID credencialId) {
+            @Parameter(description = "ID da credencial")
+            @PathVariable Long credencialId) {
         
         try {
             ConsultaPublicaDTO dados = consultaPublicaService.consultarCredencial(credencialId);

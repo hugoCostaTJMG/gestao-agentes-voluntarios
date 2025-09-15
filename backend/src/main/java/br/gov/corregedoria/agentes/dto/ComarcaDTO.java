@@ -2,11 +2,9 @@ package br.gov.corregedoria.agentes.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
-import java.util.UUID;
-
 public class ComarcaDTO {
 
-    private UUID id;
+    private Long id;
 
     @NotBlank(message = "Nome da comarca é obrigatório")
     private String nomeComarca;
@@ -18,17 +16,17 @@ public class ComarcaDTO {
         this.nomeComarca = nomeComarca;
     }
 
-    public ComarcaDTO(UUID id, String nomeComarca) {
+    public ComarcaDTO(Long id, String nomeComarca) {
         this.id = id;
         this.nomeComarca = nomeComarca;
     }
 
     // Getters e Setters
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

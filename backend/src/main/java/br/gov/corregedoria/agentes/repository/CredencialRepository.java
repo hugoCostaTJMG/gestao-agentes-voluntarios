@@ -9,10 +9,9 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
-public interface CredencialRepository extends JpaRepository<Credencial, UUID> {
+public interface CredencialRepository extends JpaRepository<Credencial, Long> {
 
     /**
      * Busca credenciais de um agente específico
@@ -22,13 +21,13 @@ public interface CredencialRepository extends JpaRepository<Credencial, UUID> {
     /**
      * Busca credenciais de um agente pelo ID do agente
      */
-    List<Credencial> findByAgenteId(UUID agenteId);
+    List<Credencial> findByAgenteId(Long agenteId);
 
     /**
      * Busca a credencial mais recente de um agente
      */
     @Query("SELECT c FROM Credencial c WHERE c.agente.id = :agenteId ORDER BY c.dataEmissao DESC")
-    Optional<Credencial> findCredencialMaisRecenteByAgenteId(@Param("agenteId") UUID agenteId);
+    Optional<Credencial> findCredencialMaisRecenteByAgenteId(@Param("agenteId") Long agenteId);
 
     /**
      * Busca credencial pela URL do QR Code

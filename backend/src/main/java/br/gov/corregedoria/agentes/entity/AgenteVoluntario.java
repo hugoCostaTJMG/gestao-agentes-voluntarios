@@ -5,23 +5,21 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 @Entity
 @Table(name = "agente_voluntario")
 public class AgenteVoluntario {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "agente_voluntario_seq")
+    @SequenceGenerator(name = "agente_voluntario_seq", sequenceName = "agente_voluntario_seq", allocationSize = 1)
     @Column(name = "id_agente", updatable = false, nullable = false)
-    private UUID id;
+    private Long id;
 
     @NotBlank(message = "Nome completo é obrigatório")
     @Column(name = "nome_completo", nullable = false, length = 255)
@@ -118,11 +116,11 @@ public class AgenteVoluntario {
     }
 
     // Getters e Setters
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

@@ -20,7 +20,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/agentes")
@@ -60,7 +59,7 @@ public class AgenteVoluntarioController {
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA') or hasRole('COFIJ')")
     public ResponseEntity<AgenteVoluntarioResponseDTO> buscarPorId(
-            @Parameter(description = "ID do agente") @PathVariable UUID id) {
+            @Parameter(description = "ID do agente") @PathVariable Long id) {
         
         AgenteVoluntarioResponseDTO response = agenteService.buscarPorId(id);
         return ResponseEntity.ok(response);
@@ -117,7 +116,7 @@ public class AgenteVoluntarioController {
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA')")
     public ResponseEntity<AgenteVoluntarioResponseDTO> atualizarStatus(
-            @Parameter(description = "ID do agente") @PathVariable UUID id,
+            @Parameter(description = "ID do agente") @PathVariable Long id,
             @Parameter(description = "Novo status") @RequestParam StatusAgente status,
             Authentication authentication) {
         
@@ -138,7 +137,7 @@ public class AgenteVoluntarioController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA')")
     public ResponseEntity<AgenteVoluntarioResponseDTO> atualizarAgente(
-            @Parameter(description = "ID do agente") @PathVariable UUID id,
+            @Parameter(description = "ID do agente") @PathVariable Long id,
             @Valid @RequestBody AgenteVoluntarioDTO dto,
             Authentication authentication) {
         
@@ -172,7 +171,7 @@ public class AgenteVoluntarioController {
     @GetMapping("/{id}/pode-emitir-credencial")
     @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA') or hasRole('COFIJ')")
     public ResponseEntity<Boolean> podeEmitirCredencial(
-            @Parameter(description = "ID do agente") @PathVariable UUID id) {
+            @Parameter(description = "ID do agente") @PathVariable Long id) {
         
         boolean podeEmitir = agenteService.podeEmitirCredencial(id);
         return ResponseEntity.ok(podeEmitir);

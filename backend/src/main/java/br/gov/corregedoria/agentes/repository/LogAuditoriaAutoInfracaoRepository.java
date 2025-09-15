@@ -20,7 +20,7 @@ public interface LogAuditoriaAutoInfracaoRepository extends JpaRepository<LogAud
     /**
      * Busca logs de auditoria de um auto de infração específico
      */
-    List<LogAuditoriaAutoInfracao> findByAutoInfracaoIdOrderByDataOperacaoDesc(String autoInfracaoId);
+    List<LogAuditoriaAutoInfracao> findByAutoInfracaoIdOrderByDataOperacaoDesc(Long autoInfracaoId);
     
     /**
      * Busca logs de auditoria por usuário
@@ -61,7 +61,7 @@ public interface LogAuditoriaAutoInfracaoRepository extends JpaRepository<LogAud
            "(:sucesso IS NULL OR l.sucesso = :sucesso) " +
            "ORDER BY l.dataOperacao DESC")
     Page<LogAuditoriaAutoInfracao> findWithFilters(
-        @Param("autoInfracaoId") String autoInfracaoId,
+        @Param("autoInfracaoId") Long autoInfracaoId,
         @Param("usuario") String usuario,
         @Param("tipoOperacao") String tipoOperacao,
         @Param("dataInicio") LocalDateTime dataInicio,
@@ -88,7 +88,7 @@ public interface LogAuditoriaAutoInfracaoRepository extends JpaRepository<LogAud
     /**
      * Busca últimas operações de um auto de infração
      */
-    List<LogAuditoriaAutoInfracao> findTop10ByAutoInfracaoIdOrderByDataOperacaoDesc(String autoInfracaoId);
+    List<LogAuditoriaAutoInfracao> findTop10ByAutoInfracaoIdOrderByDataOperacaoDesc(Long autoInfracaoId);
     
     /**
      * Busca operações de cancelamento

@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,7 +46,7 @@ public class CredencialService {
      * RN003 - Status para Emissão de Credencial
      * RN004 - Geração de QR Code
      */
-    public CredencialDTO emitirCredencial(UUID agenteId, String usuarioLogado) throws WriterException, IOException {
+    public CredencialDTO emitirCredencial(Long agenteId, String usuarioLogado) throws WriterException, IOException {
         AgenteVoluntario agente = agenteRepository.findById(agenteId)
                 .orElseThrow(() -> new EntityNotFoundException("Agente não encontrado: " + agenteId));
 
@@ -57,12 +56,11 @@ public class CredencialService {
         }
 
         // Gerar URL de verificação
-        String credencialId = UUID.randomUUID().toString();
-        String urlVerificacao = qrCodeUtil.gerarUrlVerificacao(baseUrl, credencialId);
-
         // Criar credencial
-        Credencial credencial = new Credencial(agente, urlVerificacao, usuarioLogado);
-        credencial.setId(UUID.fromString(credencialId));
+        Credencial credencial = new Credencial(agente, null, usuarioLogado);
+        credencial = credencialRepository.save(credencial);
+        String urlVerificacao = qrCodeUtil.gerarUrlVerificacao(baseUrl, credencial.getId().toString());
+        credencial.setQrCodeUrl(urlVerificacao);
         credencial = credencialRepository.save(credencial);
 
         // Registrar auditoria
@@ -76,7 +74,7 @@ public class CredencialService {
      * Lista credenciais de um agente
      */
     @Transactional(readOnly = true)
-    public List<CredencialDTO> listarCredenciaisDoAgente(UUID agenteId) {
+    public List<CredencialDTO> listarCredenciaisDoAgente(Long agenteId) {
         return credencialRepository.findByAgenteId(agenteId).stream()
                 .map(this::converterParaDTO)
                 .collect(Collectors.toList());
@@ -86,7 +84,7 @@ public class CredencialService {
      * Busca credencial por ID
      */
     @Transactional(readOnly = true)
-    public CredencialDTO buscarCredencialPorId(UUID credencialId) {
+    public CredencialDTO buscarCredencialPorId(Long credencialId) {
         Credencial credencial = credencialRepository.findById(credencialId)
                 .orElseThrow(() -> new EntityNotFoundException("Credencial não encontrada: " + credencialId));
         return converterParaDTO(credencial);
@@ -95,7 +93,7 @@ public class CredencialService {
     /**
      * Gera o PDF da credencial
      */
-    public byte[] gerarPDFCredencial(UUID credencialId) throws WriterException, IOException {
+    public byte[] gerarPDFCredencial(Long credencialId) throws WriterException, IOException {
         Credencial credencial = credencialRepository.findById(credencialId)
                 .orElseThrow(() -> new EntityNotFoundException("Credencial não encontrada: " + credencialId));
 
