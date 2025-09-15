@@ -2,20 +2,18 @@ package br.gov.corregedoria.agentes.entity;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Table(name = "log_auditoria")
 public class LogAuditoria {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "log_auditoria_seq")
+    @SequenceGenerator(name = "log_auditoria_seq", sequenceName = "log_auditoria_seq", allocationSize = 1)
     @Column(name = "id_log", updatable = false, nullable = false)
-    private UUID id;
+    private Long id;
 
     @CreationTimestamp
     @Column(name = "data_hora", nullable = false)
@@ -44,11 +42,11 @@ public class LogAuditoria {
     }
 
     // Getters e Setters
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

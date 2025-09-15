@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/credenciais")
@@ -41,7 +40,7 @@ public class CredencialController {
     @PostMapping("/emitir/{agenteId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('COFIJ')")
     public ResponseEntity<CredencialDTO> emitirCredencial(
-            @Parameter(description = "ID do agente") @PathVariable UUID agenteId,
+            @Parameter(description = "ID do agente") @PathVariable Long agenteId,
             Authentication authentication) throws WriterException, IOException {
         
         String usuarioLogado = authentication.getName();
@@ -58,7 +57,7 @@ public class CredencialController {
     @GetMapping("/agente/{agenteId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA') or hasRole('COFIJ')")
     public ResponseEntity<List<CredencialDTO>> listarCredenciaisDoAgente(
-            @Parameter(description = "ID do agente") @PathVariable UUID agenteId) {
+            @Parameter(description = "ID do agente") @PathVariable Long agenteId) {
         
         List<CredencialDTO> response = credencialService.listarCredenciaisDoAgente(agenteId);
         return ResponseEntity.ok(response);
@@ -74,7 +73,7 @@ public class CredencialController {
     @GetMapping("/{credencialId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA') or hasRole('COFIJ')")
     public ResponseEntity<CredencialDTO> buscarCredencialPorId(
-            @Parameter(description = "ID da credencial") @PathVariable UUID credencialId) {
+            @Parameter(description = "ID da credencial") @PathVariable Long credencialId) {
         
         CredencialDTO response = credencialService.buscarCredencialPorId(credencialId);
         return ResponseEntity.ok(response);
@@ -90,7 +89,7 @@ public class CredencialController {
     @GetMapping("/{credencialId}/pdf")
     @PreAuthorize("hasRole('ADMIN') or hasRole('COFIJ')")
     public ResponseEntity<byte[]> gerarPDFCredencial(
-            @Parameter(description = "ID da credencial") @PathVariable UUID credencialId) 
+            @Parameter(description = "ID da credencial") @PathVariable Long credencialId)
             throws WriterException, IOException {
         
         byte[] pdfBytes = credencialService.gerarPDFCredencial(credencialId);

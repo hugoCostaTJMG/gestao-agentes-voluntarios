@@ -2,21 +2,19 @@ package br.gov.corregedoria.agentes.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import org.hibernate.annotations.GenericGenerator;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 @Entity
 @Table(name = "area_atuacao")
 public class AreaAtuacao {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "area_atuacao_seq")
+    @SequenceGenerator(name = "area_atuacao_seq", sequenceName = "area_atuacao_seq", allocationSize = 1)
     @Column(name = "id_area_atuacao", updatable = false, nullable = false)
-    private UUID id;
+    private Long id;
 
     @NotBlank(message = "Nome da área de atuação é obrigatório")
     @Column(name = "nome_area_atuacao", nullable = false, unique = true, length = 255)
@@ -33,11 +31,11 @@ public class AreaAtuacao {
     }
 
     // Getters e Setters
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

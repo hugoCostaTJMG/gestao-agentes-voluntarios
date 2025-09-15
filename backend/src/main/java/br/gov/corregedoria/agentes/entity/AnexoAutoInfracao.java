@@ -16,7 +16,8 @@ import java.time.LocalDateTime;
 public class AnexoAutoInfracao {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "anexo_auto_infracao_seq")
+    @SequenceGenerator(name = "anexo_auto_infracao_seq", sequenceName = "anexo_auto_infracao_seq", allocationSize = 1)
     private Long id;
     
     @NotNull(message = "Auto de infração é obrigatório")

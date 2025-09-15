@@ -2,11 +2,9 @@ package br.gov.corregedoria.agentes.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
-import java.util.UUID;
-
 public class AreaAtuacaoDTO {
 
-    private UUID id;
+    private Long id;
 
     @NotBlank(message = "Nome da área de atuação é obrigatório")
     private String nomeAreaAtuacao;
@@ -18,17 +16,17 @@ public class AreaAtuacaoDTO {
         this.nomeAreaAtuacao = nomeAreaAtuacao;
     }
 
-    public AreaAtuacaoDTO(UUID id, String nomeAreaAtuacao) {
+    public AreaAtuacaoDTO(Long id, String nomeAreaAtuacao) {
         this.id = id;
         this.nomeAreaAtuacao = nomeAreaAtuacao;
     }
 
     // Getters e Setters
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

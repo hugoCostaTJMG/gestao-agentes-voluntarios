@@ -8,11 +8,10 @@ import jakarta.validation.constraints.Pattern;
 
 import java.time.LocalDate;
 import java.util.Set;
-import java.util.UUID;
 
 public class AgenteVoluntarioDTO {
 
-    private UUID id;
+    private Long id;
 
     @NotBlank(message = "Nome completo é obrigatório")
     private String nomeCompleto;
@@ -42,10 +41,10 @@ public class AgenteVoluntarioDTO {
     private String disponibilidade;
 
     @NotEmpty(message = "Pelo menos uma comarca deve ser selecionada")
-    private Set<UUID> comarcasIds;
+    private Set<Long> comarcasIds;
 
     @NotEmpty(message = "Pelo menos uma área de atuação deve ser selecionada")
-    private Set<UUID> areasAtuacaoIds;
+    private Set<Long> areasAtuacaoIds;
 
     private StatusAgente status;
     private String dataCadastro;
@@ -55,7 +54,7 @@ public class AgenteVoluntarioDTO {
     public AgenteVoluntarioDTO() {}
 
     public AgenteVoluntarioDTO(String nomeCompleto, String cpf, String telefone, String email, 
-                              String disponibilidade, Set<UUID> comarcasIds, Set<UUID> areasAtuacaoIds) {
+                              String disponibilidade, Set<Long> comarcasIds, Set<Long> areasAtuacaoIds) {
         this.nomeCompleto = nomeCompleto;
         this.cpf = cpf;
         this.telefone = telefone;
@@ -66,11 +65,11 @@ public class AgenteVoluntarioDTO {
     }
 
     // Getters e Setters
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -186,19 +185,19 @@ public class AgenteVoluntarioDTO {
         this.disponibilidade = disponibilidade;
     }
 
-    public Set<UUID> getComarcasIds() {
+    public Set<Long> getComarcasIds() {
         return comarcasIds;
     }
 
-    public void setComarcasIds(Set<UUID> comarcasIds) {
+    public void setComarcasIds(Set<Long> comarcasIds) {
         this.comarcasIds = comarcasIds;
     }
 
-    public Set<UUID> getAreasAtuacaoIds() {
+    public Set<Long> getAreasAtuacaoIds() {
         return areasAtuacaoIds;
     }
 
-    public void setAreasAtuacaoIds(Set<UUID> areasAtuacaoIds) {
+    public void setAreasAtuacaoIds(Set<Long> areasAtuacaoIds) {
         this.areasAtuacaoIds = areasAtuacaoIds;
     }
 

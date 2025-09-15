@@ -1,11 +1,10 @@
 package br.gov.corregedoria.agentes.dto;
 
-import java.util.UUID;
 
 public class CredencialDTO {
 
-    private UUID id;
-    private UUID agenteId;
+    private Long id;
+    private Long agenteId;
     private String nomeAgente;
     private String cpfAgente;
     private String statusAgente;
@@ -17,19 +16,19 @@ public class CredencialDTO {
     public CredencialDTO() {}
 
     // Getters e Setters
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public UUID getAgenteId() {
+    public Long getAgenteId() {
         return agenteId;
     }
 
-    public void setAgenteId(UUID agenteId) {
+    public void setAgenteId(Long agenteId) {
         this.agenteId = agenteId;
     }
 

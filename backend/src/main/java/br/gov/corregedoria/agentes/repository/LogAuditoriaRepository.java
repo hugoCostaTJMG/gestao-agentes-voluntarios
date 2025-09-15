@@ -10,10 +10,9 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 @Repository
-public interface LogAuditoriaRepository extends JpaRepository<LogAuditoria, UUID> {
+public interface LogAuditoriaRepository extends JpaRepository<LogAuditoria, Long> {
 
     /**
      * Busca logs por usuário

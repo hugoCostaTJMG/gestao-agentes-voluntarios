@@ -15,7 +15,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -73,7 +72,7 @@ public class AreaAtuacaoController {
     })
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA') or hasRole('COFIJ')")
-    public ResponseEntity<AreaAtuacaoDTO> buscarAreaAtuacaoPorId(@PathVariable UUID id) {
+    public ResponseEntity<AreaAtuacaoDTO> buscarAreaAtuacaoPorId(@PathVariable Long id) {
         return areaAtuacaoRepository.findById(id)
                 .map(area -> ResponseEntity.ok(new AreaAtuacaoDTO(area.getId(), area.getNomeAreaAtuacao())))
                 .orElse(ResponseEntity.notFound().build());

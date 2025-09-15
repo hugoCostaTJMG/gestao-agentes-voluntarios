@@ -5,10 +5,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
-public interface AreaAtuacaoRepository extends JpaRepository<AreaAtuacao, UUID> {
+public interface AreaAtuacaoRepository extends JpaRepository<AreaAtuacao, Long> {
 
     /**
      * Busca uma área de atuação pelo nome

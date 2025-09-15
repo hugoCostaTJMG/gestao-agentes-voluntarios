@@ -211,11 +211,5 @@
 //         return credencial.isPresent();
 //     }
 
-//     /**
-//      * Gera código de verificação único para a carteirinha
-//      */
-//     private String gerarCodigoVerificacao() {
-//         return UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-//     }
 // }
 

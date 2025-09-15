@@ -11,8 +11,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
-
 /**
  * Service responsável pelas regras de negócio dos Autos de Infração.
  *
@@ -40,7 +38,7 @@ public class AutoInfracaoService {
      * RN008 - Validação de dados obrigatórios é realizada pelas anotações Bean Validation.
      */
     public AutoInfracao cadastrar(@Valid AutoInfracao auto,
-                                  UUID agenteId,
+                                  Long agenteId,
                                   String usuarioLogado) {
         AgenteVoluntario agente = agenteRepository.findById(agenteId)
                 .orElseThrow(() -> new EntityNotFoundException("Agente não encontrado: " + agenteId));
@@ -60,9 +58,9 @@ public class AutoInfracaoService {
      * Atualiza um Auto de Infração existente.
      * RN010/RN011/RN012 aplicados conforme status e perfil do usuário.
      */
-    public AutoInfracao atualizar(String id,
+    public AutoInfracao atualizar(Long id,
                                   @Valid AutoInfracao dadosAtualizados,
-                                  UUID agenteId,
+                                  Long agenteId,
                                   String perfilUsuario,
                                   String usuarioLogado) {
         AutoInfracao existente = obterParaEdicao(id, agenteId, perfilUsuario);
@@ -94,7 +92,7 @@ public class AutoInfracaoService {
      * Cancela um auto de infração.
      * RN013 - Justificativa obrigatória. RN014 - Status final.
      */
-    public AutoInfracao cancelar(String id, String justificativa, String usuarioLogado, String perfilUsuario) {
+    public AutoInfracao cancelar(Long id, String justificativa, String usuarioLogado, String perfilUsuario) {
         AutoInfracao auto = autoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Auto não encontrado: " + id));
 
@@ -109,7 +107,7 @@ public class AutoInfracaoService {
      * Exclui um auto de infração em rascunho.
      * RN010 - Autos registrados não podem ser excluídos.
      */
-    public void excluir(String id, UUID agenteId, String usuarioLogado) {
+    public void excluir(Long id, Long agenteId, String usuarioLogado) {
         AutoInfracao auto = autoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Auto não encontrado: " + id));
 
@@ -140,11 +138,11 @@ public class AutoInfracaoService {
      * Busca auto por ID aplicando regras de acesso.
      */
     @Transactional(readOnly = true)
-    public AutoInfracao buscarPorId(String id, UUID agenteId, String perfilUsuario) {
+    public AutoInfracao buscarPorId(Long id, Long agenteId, String perfilUsuario) {
         return obterParaEdicao(id, agenteId, perfilUsuario);
     }
 
-    private AutoInfracao obterParaEdicao(String id, UUID agenteId, String perfilUsuario) {
+    private AutoInfracao obterParaEdicao(Long id, Long agenteId, String perfilUsuario) {
         AutoInfracao auto = autoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Auto não encontrado: " + id));
 
