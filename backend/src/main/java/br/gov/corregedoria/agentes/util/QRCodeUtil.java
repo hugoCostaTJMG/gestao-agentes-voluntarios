@@ -35,7 +35,7 @@ public class QRCodeUtil {
     /**
      * Gera a URL de verificação pública para o QR Code
      */
-    public String gerarUrlVerificacao(String baseUrl, String credencialId) {
+    public String gerarUrlVerificacao(String baseUrl, Long credencialId) {
         return baseUrl + "/public/verificar/" + credencialId;
     }
 }

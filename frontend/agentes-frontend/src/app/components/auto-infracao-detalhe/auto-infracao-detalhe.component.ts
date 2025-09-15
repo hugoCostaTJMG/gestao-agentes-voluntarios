@@ -20,7 +20,8 @@ export class AutoInfracaoDetalheComponent implements OnInit {
   constructor(private route: ActivatedRoute, private api: ApiService, private router: Router) {}
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
+    const idParam = this.route.snapshot.paramMap.get('id');
+    const id = idParam ? Number(idParam) : null;
     if (id) {
       this.api.buscarAutoPorId(id).subscribe(a => {
         this.auto = a;

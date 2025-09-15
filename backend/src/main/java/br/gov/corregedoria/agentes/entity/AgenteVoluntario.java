@@ -16,8 +16,8 @@ import java.util.Set;
 public class AgenteVoluntario {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "agente_voluntario_seq")
-    @SequenceGenerator(name = "agente_voluntario_seq", sequenceName = "agente_voluntario_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_AGENTE_VOLUNTARIO")
+    @SequenceGenerator(name = "S_AGENTE_VOLUNTARIO", sequenceName = "S_AGENTE_VOLUNTARIO", allocationSize = 1)
     @Column(name = "id_agente", updatable = false, nullable = false)
     private Long id;
 

@@ -11,8 +11,8 @@ import java.util.Set;
 public class Comarca {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "comarca_seq")
-    @SequenceGenerator(name = "comarca_seq", sequenceName = "comarca_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_COMARCA")
+    @SequenceGenerator(name = "S_COMARCA", sequenceName = "S_COMARCA", allocationSize = 1)
     @Column(name = "id_comarca", updatable = false, nullable = false)
     private Long id;
 

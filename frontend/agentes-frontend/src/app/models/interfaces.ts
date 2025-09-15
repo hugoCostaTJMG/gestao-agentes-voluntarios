@@ -1,6 +1,6 @@
 // Interfaces para os modelos de dados
 export interface AgenteVoluntario {
-  id?: string;
+  id?: number;
   nomeCompleto: string;
   cpf: string;
   telefone: string;
@@ -14,14 +14,14 @@ export interface AgenteVoluntario {
 }
 
 export interface AgenteVoluntarioDTO {
-  id?: string;
+  id?: number;
   nomeCompleto: string;
   cpf: string;
   telefone: string;
   email: string;
   disponibilidade?: string;
-  comarcasIds: string[];
-  areasAtuacaoIds: string[];
+  comarcasIds: number[];
+  areasAtuacaoIds: number[];
   dataNascimento?: string;
   fotoBase64?: string;
   nacionalidade?: string;
@@ -34,7 +34,7 @@ export interface AgenteVoluntarioDTO {
 }
 
 export interface AgenteVoluntarioResponseDTO {
-  id: string;
+  id: number;
   nomeCompleto: string;
   cpf: string;
   telefone: string;
@@ -48,18 +48,18 @@ export interface AgenteVoluntarioResponseDTO {
 }
 
 export interface Comarca {
-  id: string;
+  id: number;
   nomeComarca: string;
 }
 
 export interface AreaAtuacao {
-  id: string;
+  id: number;
   nomeAreaAtuacao: string;
 }
 
 export interface Credencial {
-  id: string;
-  agenteId: string;
+  id: number;
+  agenteId: number;
   nomeAgente: string;
   cpfAgente: string;
   statusAgente: string;
@@ -69,7 +69,7 @@ export interface Credencial {
 }
 
 export interface ConsultaPublica {
-  agenteId: string;
+  agenteId: number;
   nomeCompleto: string;
   situacao: string;
   dataCadastro: string;
@@ -84,7 +84,7 @@ export interface LoginGovBr {
 }
 
 export interface Usuario {
-  id: string;
+  id: number;
   nome: string;
   email: string;
   perfil: string;
@@ -123,7 +123,7 @@ export enum StatusAutoInfracao {
 
 export interface AnexoAutoInfracao {
   id?: number;
-  autoInfracaoId: string;
+  autoInfracaoId: number;
   nomeArquivo: string;
   nomeOriginal: string;
   tipoArquivo: string;
@@ -135,15 +135,15 @@ export interface AnexoAutoInfracao {
 }
 
 export interface AutoInfracao {
-  id?: string;
+  id?: number;
   nomeAutuado: string;
   cpfCnpjAutuado: string;
   enderecoAutuado: string;
   contatoAutuado: string;
-  agenteId?: string;
+  agenteId?: number;
   nomeAgente?: string;
   matriculaAgente?: string;
-  comarcaId: string;
+  comarcaId: number;
   baseLegal: string;
   dataInfracao: string;
   horaInfracao: string;

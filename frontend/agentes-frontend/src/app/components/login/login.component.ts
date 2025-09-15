@@ -95,7 +95,7 @@ export class LoginComponent implements OnInit {
           next: (agente) => {
             // 3. Criar usuário logado
             const user: Usuario = {
-              id: agente.id || '',
+              id: agente.id || 0,
               nome: agente.nomeCompleto,
               email: agente.email,
               perfil: 'AGENTE',

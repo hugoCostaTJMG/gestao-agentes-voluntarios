@@ -23,8 +23,8 @@ import java.util.List;
 public class AutoInfracao {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "auto_infracao_seq")
-    @SequenceGenerator(name = "auto_infracao_seq", sequenceName = "auto_infracao_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_AUTO_INFRACAO")
+    @SequenceGenerator(name = "S_AUTO_INFRACAO", sequenceName = "S_AUTO_INFRACAO", allocationSize = 1)
     @Column(name = "id", updatable = false, nullable = false)
     private Long id;
     
@@ -228,11 +228,11 @@ public class AutoInfracao {
     
     // === GETTERS E SETTERS ===
     
-    public String getId() {
+    public Long getId() {
         return id;
     }
-    
-    public void setId(String id) {
+
+    public void setId(Long id) {
         this.id = id;
     }
     

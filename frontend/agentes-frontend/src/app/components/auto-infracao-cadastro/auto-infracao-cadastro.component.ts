@@ -51,7 +51,8 @@ export class AutoInfracaoCadastroComponent implements OnInit {
     }
 
     const auto: AutoInfracao = {
-      ...this.form.value
+      ...this.form.value,
+      comarcaId: Number(this.form.value.comarcaId)
     } as AutoInfracao;
 
     this.loading = true;

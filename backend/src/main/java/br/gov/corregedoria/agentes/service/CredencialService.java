@@ -59,7 +59,7 @@ public class CredencialService {
         // Criar credencial
         Credencial credencial = new Credencial(agente, null, usuarioLogado);
         credencial = credencialRepository.save(credencial);
-        String urlVerificacao = qrCodeUtil.gerarUrlVerificacao(baseUrl, credencial.getId().toString());
+        String urlVerificacao = qrCodeUtil.gerarUrlVerificacao(baseUrl, credencial.getId());
         credencial.setQrCodeUrl(urlVerificacao);
         credencial = credencialRepository.save(credencial);
 
