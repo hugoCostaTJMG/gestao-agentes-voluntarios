@@ -174,8 +174,8 @@ export class AgenteCadastroComponent implements OnInit {
         filiacaoPai: formValue.filiacaoPai,
         filiacaoMae: formValue.filiacaoMae,
         disponibilidade: formValue.disponibilidade,
-        comarcasIds: formValue.comarcasIds,
-        areasAtuacaoIds: formValue.areasAtuacaoIds
+        comarcasIds: formValue.comarcasIds.map((id: any) => Number(id)),
+        areasAtuacaoIds: formValue.areasAtuacaoIds.map((id: any) => Number(id))
       };
 
       // Converter foto para base64 se selecionada

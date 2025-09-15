@@ -40,7 +40,7 @@ export class ApiService {
     return headers;
   }
 
-verificarStatusCarteirinha(agenteId: string): Observable<{ podeGerar: boolean, mensagem?: string }> {
+verificarStatusCarteirinha(agenteId: number): Observable<{ podeGerar: boolean, mensagem?: string }> {
   return this.http.get<{ podeGerar: boolean, mensagem?: string }>(
     `${this.baseUrl}/carteirinha/verificar/${agenteId}`,
     { headers: this.getAuthHeaders() }
@@ -115,15 +115,19 @@ verificarStatusCarteirinha(agenteId: string): Observable<{ podeGerar: boolean, m
       const mock: PaginatedResponse<AgenteVoluntario> = {
         content: [
           {
-            id: '1',
+            id: 1,
             nomeCompleto: 'Agente Mock 1',
             cpf: '11122233344',
+            telefone: '',
+            email: '',
             status: 'ATIVO'
           } as AgenteVoluntario,
           {
-            id: '2',
+            id: 2,
             nomeCompleto: 'Agente Mock 2',
             cpf: '55566677788',
+            telefone: '',
+            email: '',
             status: 'INATIVO'
           } as AgenteVoluntario,
         ],
@@ -138,7 +142,7 @@ verificarStatusCarteirinha(agenteId: string): Observable<{ podeGerar: boolean, m
   );
 }
 
-  buscarAgentePorId(id: string): Observable<AgenteVoluntario> {
+  buscarAgentePorId(id: number): Observable<AgenteVoluntario> {
     return this.http.get<AgenteVoluntario>(`${this.baseUrl}/api/agentes/${id}`, {
       headers: this.getAuthHeaders()
     });
@@ -156,7 +160,7 @@ verificarStatusCarteirinha(agenteId: string): Observable<{ podeGerar: boolean, m
     });
   }
 
-  atualizarStatusAgente(id: string, status: string): Observable<AgenteVoluntario> {
+  atualizarStatusAgente(id: number, status: string): Observable<AgenteVoluntario> {
     const params = new HttpParams().set('status', status);
     return this.http.patch<AgenteVoluntario>(`${this.baseUrl}/api/agentes/${id}/status`, null, {
       headers: this.getAuthHeaders(),
@@ -164,7 +168,7 @@ verificarStatusCarteirinha(agenteId: string): Observable<{ podeGerar: boolean, m
     });
   }
 
-  atualizarAgente(id: string, agente: AgenteVoluntarioDTO): Observable<AgenteVoluntario> {
+  atualizarAgente(id: number, agente: AgenteVoluntarioDTO): Observable<AgenteVoluntario> {
     return this.http.put<AgenteVoluntario>(`${this.baseUrl}/api/agentes/${id}`, agente, {
       headers: this.getAuthHeaders()
     });
@@ -180,25 +184,25 @@ verificarStatusCarteirinha(agenteId: string): Observable<{ podeGerar: boolean, m
 
   // ===== CREDENCIAIS =====
 
-  emitirCredencial(agenteId: string): Observable<Credencial> {
+  emitirCredencial(agenteId: number): Observable<Credencial> {
     return this.http.post<Credencial>(`${this.baseUrl}/api/credenciais/emitir/${agenteId}`, null, {
       headers: this.getAuthHeaders()
     });
   }
 
-  listarCredenciaisDoAgente(agenteId: string): Observable<Credencial[]> {
+  listarCredenciaisDoAgente(agenteId: number): Observable<Credencial[]> {
     return this.http.get<Credencial[]>(`${this.baseUrl}/api/credenciais/agente/${agenteId}`, {
       headers: this.getAuthHeaders()
     });
   }
 
-  buscarCredencialPorId(credencialId: string): Observable<Credencial> {
+  buscarCredencialPorId(credencialId: number): Observable<Credencial> {
     return this.http.get<Credencial>(`${this.baseUrl}/api/credenciais/${credencialId}`, {
       headers: this.getAuthHeaders()
     });
   }
 
-  gerarPDFCredencial(credencialId: string): Observable<Blob> {
+  gerarPDFCredencial(credencialId: number): Observable<Blob> {
     return this.http.get(`${this.baseUrl}/api/credenciais/${credencialId}/pdf`, {
       headers: this.getAuthHeaders(),
       responseType: 'blob'
@@ -207,11 +211,11 @@ verificarStatusCarteirinha(agenteId: string): Observable<{ podeGerar: boolean, m
 
   // ===== CONSULTA PÚBLICA =====
 
-  verificarCredencial(credencialId: string): Observable<ConsultaPublica> {
+  verificarCredencial(credencialId: number): Observable<ConsultaPublica> {
     return this.http.get<ConsultaPublica>(`${this.baseUrl}/public/verificar/${credencialId}`);
   }
 
-  validarCredencial(credencialId: string): Observable<boolean> {
+  validarCredencial(credencialId: number): Observable<boolean> {
     return this.http.get<boolean>(`${this.baseUrl}/public/validar/${credencialId}`);
   }
 
@@ -264,7 +268,7 @@ verificarStatusCarteirinha(agenteId: string): Observable<{ podeGerar: boolean, m
     });
   }
 
-  buscarAutoPorId(id: string): Observable<AutoInfracao> {
+  buscarAutoPorId(id: number): Observable<AutoInfracao> {
     return this.http.get<AutoInfracao>(`${this.baseUrl}/api/autos/${id}`, {
       headers: this.getAuthHeaders()
     });
@@ -276,32 +280,32 @@ verificarStatusCarteirinha(agenteId: string): Observable<{ podeGerar: boolean, m
     });
   }
 
-  atualizarAuto(id: string, auto: AutoInfracao): Observable<AutoInfracao> {
+  atualizarAuto(id: number, auto: AutoInfracao): Observable<AutoInfracao> {
     return this.http.put<AutoInfracao>(`${this.baseUrl}/api/autos/${id}`, auto, {
       headers: this.getAuthHeaders()
     });
   }
 
-  cancelarAuto(id: string, justificativa: string): Observable<AutoInfracao> {
+  cancelarAuto(id: number, justificativa: string): Observable<AutoInfracao> {
     const body = { justificativa };
     return this.http.patch<AutoInfracao>(`${this.baseUrl}/api/autos/${id}/cancelar`, body, {
       headers: this.getAuthHeaders()
     });
   }
 
-  excluirAuto(id: string): Observable<void> {
+  excluirAuto(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/api/autos/${id}`, {
       headers: this.getAuthHeaders()
     });
   }
 
-  listarAnexos(autoId: string): Observable<AnexoAutoInfracao[]> {
+  listarAnexos(autoId: number): Observable<AnexoAutoInfracao[]> {
     return this.http.get<AnexoAutoInfracao[]>(`${this.baseUrl}/api/autos/${autoId}/anexos`, {
       headers: this.getAuthHeaders()
     });
   }
 
-  uploadAnexo(autoId: string, arquivo: File, descricao?: string): Observable<AnexoAutoInfracao> {
+  uploadAnexo(autoId: number, arquivo: File, descricao?: string): Observable<AnexoAutoInfracao> {
     const formData = new FormData();
     formData.append('arquivo', arquivo);
     if (descricao) {

@@ -2,21 +2,19 @@ package br.gov.corregedoria.agentes.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import org.hibernate.annotations.GenericGenerator;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 @Entity
 @Table(name = "comarca")
 public class Comarca {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_COMARCA")
+    @SequenceGenerator(name = "S_COMARCA", sequenceName = "S_COMARCA", allocationSize = 1)
     @Column(name = "id_comarca", updatable = false, nullable = false)
-    private UUID id;
+    private Long id;
 
     @NotBlank(message = "Nome da comarca é obrigatório")
     @Column(name = "nome_comarca", nullable = false, unique = true, length = 255)
@@ -33,20 +31,21 @@ public class Comarca {
     }
 
     // Getters e Setters
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public UUID getCodigoComarca() {
-    return this.id;
-}
-public void setCodigoComarca(UUID codigoComarca) {
-    this.id = codigoComarca;
-}
+    public Long getCodigoComarca() {
+        return this.id;
+    }
+
+    public void setCodigoComarca(Long codigoComarca) {
+        this.id = codigoComarca;
+    }
 
     public String getNomeComarca() {
         return nomeComarca;

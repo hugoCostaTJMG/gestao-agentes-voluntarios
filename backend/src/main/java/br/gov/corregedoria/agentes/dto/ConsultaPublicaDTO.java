@@ -1,10 +1,8 @@
 package br.gov.corregedoria.agentes.dto;
 
-import java.util.UUID;
-
 public class ConsultaPublicaDTO {
 
-    private UUID agenteId;
+    private Long agenteId;
     private String nomeCompleto;
     private String situacao;
     private String dataCadastro;
@@ -13,7 +11,7 @@ public class ConsultaPublicaDTO {
     // Construtores
     public ConsultaPublicaDTO() {}
 
-    public ConsultaPublicaDTO(UUID agenteId, String nomeCompleto, String situacao, 
+    public ConsultaPublicaDTO(Long agenteId, String nomeCompleto, String situacao,
                              String dataCadastro, String comarcasAtuacao) {
         this.agenteId = agenteId;
         this.nomeCompleto = nomeCompleto;
@@ -23,11 +21,11 @@ public class ConsultaPublicaDTO {
     }
 
     // Getters e Setters
-    public UUID getAgenteId() {
+    public Long getAgenteId() {
         return agenteId;
     }
 
-    public void setAgenteId(UUID agenteId) {
+    public void setAgenteId(Long agenteId) {
         this.agenteId = agenteId;
     }
 

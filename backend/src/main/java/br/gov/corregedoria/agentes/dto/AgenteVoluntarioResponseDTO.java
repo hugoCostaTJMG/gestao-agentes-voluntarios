@@ -1,11 +1,10 @@
 package br.gov.corregedoria.agentes.dto;
 
 import java.util.Set;
-import java.util.UUID;
 
 public class AgenteVoluntarioResponseDTO {
 
-    private UUID id;
+    private Long id;
     private String nomeCompleto;
     private String cpf;
     private String telefone;
@@ -21,11 +20,11 @@ public class AgenteVoluntarioResponseDTO {
     public AgenteVoluntarioResponseDTO() {}
 
     // Getters e Setters
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

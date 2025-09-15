@@ -13,7 +13,7 @@ import { NgIf } from '@angular/common';
   styleUrls: ['./impressao-carteirinha.component.scss']
 })
 export class ImpressaoCarteirinhaComponent implements OnInit {
-  agenteId: string = '';
+  agenteId: number = 0;
   agente: any = null;
   loading: boolean = false;
   error: string = '';
@@ -33,8 +33,9 @@ export class ImpressaoCarteirinhaComponent implements OnInit {
       return;
     }
 
-    this.agenteId = this.route.snapshot.paramMap.get('id') || '';
-    
+    const idParam = this.route.snapshot.paramMap.get('id');
+    this.agenteId = idParam ? Number(idParam) : 0;
+
     if (this.agenteId) {
       this.carregarDadosAgente();
       this.verificarStatusCarteirinha();

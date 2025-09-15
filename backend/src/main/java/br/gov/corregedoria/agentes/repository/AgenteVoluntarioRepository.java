@@ -11,10 +11,9 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
-public interface AgenteVoluntarioRepository extends JpaRepository<AgenteVoluntario, UUID> {
+public interface AgenteVoluntarioRepository extends JpaRepository<AgenteVoluntario, Long> {
 
     /**
      * Verifica se existe um agente com o CPF informado

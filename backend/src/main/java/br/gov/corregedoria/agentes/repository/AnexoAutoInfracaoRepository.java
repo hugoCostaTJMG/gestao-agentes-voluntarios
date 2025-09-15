@@ -18,7 +18,7 @@ public interface AnexoAutoInfracaoRepository extends JpaRepository<AnexoAutoInfr
     /**
      * Busca todos os anexos de um auto de infração
      */
-    List<AnexoAutoInfracao> findByAutoInfracao_IdOrderByDataUploadDesc(String autoInfracaoId);
+    List<AnexoAutoInfracao> findByAutoInfracao_IdOrderByDataUploadDesc(Long autoInfracaoId);
     
     /**
      * Busca anexo por nome do arquivo
@@ -34,7 +34,7 @@ public interface AnexoAutoInfracaoRepository extends JpaRepository<AnexoAutoInfr
      * Busca apenas imagens de um auto de infração
      */
     @Query("SELECT a FROM AnexoAutoInfracao a WHERE a.autoInfracao.id = :autoInfracaoId AND a.tipoArquivo LIKE 'image/%' ORDER BY a.dataUpload DESC")
-    List<AnexoAutoInfracao> findImagensByAutoInfracao(@Param("autoInfracaoId") String autoInfracaoId);
+    List<AnexoAutoInfracao> findImagensByAutoInfracao(@Param("autoInfracaoId") Long autoInfracaoId);
     
     /**
      * Busca apenas documentos de um auto de infração
@@ -43,18 +43,18 @@ public interface AnexoAutoInfracaoRepository extends JpaRepository<AnexoAutoInfr
            "(a.tipoArquivo = 'application/pdf' OR a.tipoArquivo = 'application/msword' OR " +
            "a.tipoArquivo = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' OR " +
            "a.tipoArquivo = 'text/plain') ORDER BY a.dataUpload DESC")
-    List<AnexoAutoInfracao> findDocumentosByAutoInfracao(@Param("autoInfracaoId") String autoInfracaoId);
+    List<AnexoAutoInfracao> findDocumentosByAutoInfracao(@Param("autoInfracaoId") Long autoInfracaoId);
     
     /**
      * Conta anexos de um auto de infração
      */
-    long countByAutoInfracao_Id(String autoInfracaoId);
+    long countByAutoInfracao_Id(Long autoInfracaoId);
     
     /**
      * Calcula tamanho total dos anexos de um auto de infração
      */
     @Query("SELECT COALESCE(SUM(a.tamanhoArquivo), 0) FROM AnexoAutoInfracao a WHERE a.autoInfracao.id = :autoInfracaoId")
-    Long sumTamanhoArquivosByAutoInfracao(@Param("autoInfracaoId") String autoInfracaoId);
+    Long sumTamanhoArquivosByAutoInfracao(@Param("autoInfracaoId") Long autoInfracaoId);
     
     /**
      * Busca anexos por usuário que fez upload
@@ -64,6 +64,6 @@ public interface AnexoAutoInfracaoRepository extends JpaRepository<AnexoAutoInfr
     /**
      * Remove todos os anexos de um auto de infração
      */
-    void deleteByAutoInfracao_Id(String autoInfracaoId);
+    void deleteByAutoInfracao_Id(Long autoInfracaoId);
 }
 

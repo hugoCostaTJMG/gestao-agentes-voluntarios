@@ -18,13 +18,13 @@ import java.time.LocalDateTime;
 public class LogAuditoriaAutoInfracao {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_LOG_AUDITORIA_AUTO_INFRACAO")
+    @SequenceGenerator(name = "S_LOG_AUDITORIA_AUTO_INFRACAO", sequenceName = "S_LOG_AUDITORIA_AUTO_INFRACAO", allocationSize = 1)
     private Long id;
-    
-    @NotBlank(message = "ID do auto de infração é obrigatório")
-    @Size(max = 36, message = "ID deve ter no máximo 36 caracteres")
-    @Column(name = "auto_infracao_id", nullable = false, length = 36)
-    private String autoInfracaoId;
+
+    @NotNull(message = "ID do auto de infração é obrigatório")
+    @Column(name = "auto_infracao_id", nullable = false)
+    private Long autoInfracaoId;
     
     @NotBlank(message = "Tipo de operação é obrigatório")
     @Size(max = 50, message = "Tipo de operação deve ter no máximo 50 caracteres")
@@ -66,7 +66,7 @@ public class LogAuditoriaAutoInfracao {
     
     public LogAuditoriaAutoInfracao() {}
     
-    public LogAuditoriaAutoInfracao(String autoInfracaoId, String tipoOperacao, String usuario, 
+    public LogAuditoriaAutoInfracao(Long autoInfracaoId, String tipoOperacao, String usuario,
                                   String perfilUsuario, String enderecoIp) {
         this.autoInfracaoId = autoInfracaoId;
         this.tipoOperacao = tipoOperacao;
@@ -80,7 +80,7 @@ public class LogAuditoriaAutoInfracao {
     /**
      * Cria um log de criação de auto de infração
      */
-    public static LogAuditoriaAutoInfracao criarLogCriacao(String autoInfracaoId, String usuario, 
+    public static LogAuditoriaAutoInfracao criarLogCriacao(Long autoInfracaoId, String usuario,
                                                          String perfilUsuario, String enderecoIp) {
         LogAuditoriaAutoInfracao log = new LogAuditoriaAutoInfracao(autoInfracaoId, "CRIACAO", 
                                                                    usuario, perfilUsuario, enderecoIp);
@@ -91,8 +91,8 @@ public class LogAuditoriaAutoInfracao {
     /**
      * Cria um log de edição de auto de infração
      */
-    public static LogAuditoriaAutoInfracao criarLogEdicao(String autoInfracaoId, String usuario, 
-                                                        String perfilUsuario, String enderecoIp, 
+    public static LogAuditoriaAutoInfracao criarLogEdicao(Long autoInfracaoId, String usuario,
+                                                        String perfilUsuario, String enderecoIp,
                                                         String camposAlterados) {
         LogAuditoriaAutoInfracao log = new LogAuditoriaAutoInfracao(autoInfracaoId, "EDICAO", 
                                                                    usuario, perfilUsuario, enderecoIp);
@@ -103,8 +103,8 @@ public class LogAuditoriaAutoInfracao {
     /**
      * Cria um log de cancelamento de auto de infração
      */
-    public static LogAuditoriaAutoInfracao criarLogCancelamento(String autoInfracaoId, String usuario, 
-                                                              String perfilUsuario, String enderecoIp, 
+    public static LogAuditoriaAutoInfracao criarLogCancelamento(Long autoInfracaoId, String usuario,
+                                                              String perfilUsuario, String enderecoIp,
                                                               String justificativa) {
         LogAuditoriaAutoInfracao log = new LogAuditoriaAutoInfracao(autoInfracaoId, "CANCELAMENTO", 
                                                                    usuario, perfilUsuario, enderecoIp);
@@ -116,7 +116,7 @@ public class LogAuditoriaAutoInfracao {
     /**
      * Cria um log de consulta de auto de infração
      */
-    public static LogAuditoriaAutoInfracao criarLogConsulta(String autoInfracaoId, String usuario, 
+    public static LogAuditoriaAutoInfracao criarLogConsulta(Long autoInfracaoId, String usuario,
                                                           String perfilUsuario, String enderecoIp) {
         LogAuditoriaAutoInfracao log = new LogAuditoriaAutoInfracao(autoInfracaoId, "CONSULTA", 
                                                                    usuario, perfilUsuario, enderecoIp);
@@ -127,8 +127,8 @@ public class LogAuditoriaAutoInfracao {
     /**
      * Cria um log de tentativa de acesso negado
      */
-    public static LogAuditoriaAutoInfracao criarLogAcessoNegado(String autoInfracaoId, String usuario, 
-                                                              String perfilUsuario, String enderecoIp, 
+    public static LogAuditoriaAutoInfracao criarLogAcessoNegado(Long autoInfracaoId, String usuario,
+                                                              String perfilUsuario, String enderecoIp,
                                                               String operacaoTentada, String motivo) {
         LogAuditoriaAutoInfracao log = new LogAuditoriaAutoInfracao(autoInfracaoId, "ACESSO_NEGADO", 
                                                                    usuario, perfilUsuario, enderecoIp);
@@ -148,11 +148,11 @@ public class LogAuditoriaAutoInfracao {
         this.id = id;
     }
     
-    public String getAutoInfracaoId() {
+    public Long getAutoInfracaoId() {
         return autoInfracaoId;
     }
-    
-    public void setAutoInfracaoId(String autoInfracaoId) {
+
+    public void setAutoInfracaoId(Long autoInfracaoId) {
         this.autoInfracaoId = autoInfracaoId;
     }
     

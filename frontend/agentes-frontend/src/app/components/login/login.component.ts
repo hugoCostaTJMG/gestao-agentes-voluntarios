@@ -50,7 +50,7 @@ export class LoginComponent implements OnInit {
     // Por enquanto, simular um login administrativo
     setTimeout(() => {
       const adminUser: Usuario = {
-        id: '1',
+        id: 1,
         nome: 'Administrador',
         email: 'admin@corregedoria.gov.br',
         perfil: 'ADMIN',
@@ -104,7 +104,7 @@ export class LoginComponent implements OnInit {
           next: (agente) => {
             // 3. Criar usuário logado
             const user: Usuario = {
-              id: agente.id || '',
+              id: agente.id || 0,
               nome: agente.nomeCompleto,
               email: agente.email,
               perfil: 'AGENTE',

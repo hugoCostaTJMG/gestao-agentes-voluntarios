@@ -5,10 +5,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
-public interface ComarcaRepository extends JpaRepository<Comarca, UUID> {
+public interface ComarcaRepository extends JpaRepository<Comarca, Long> {
 
     /**
      * Busca uma comarca pelo nome

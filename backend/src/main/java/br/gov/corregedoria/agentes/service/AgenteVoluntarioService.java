@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -82,7 +81,7 @@ public class AgenteVoluntarioService {
      * Busca agente por ID
      */
     @Transactional(readOnly = true)
-    public AgenteVoluntarioResponseDTO buscarPorId(UUID id) {
+    public AgenteVoluntarioResponseDTO buscarPorId(Long id) {
         AgenteVoluntario agente = agenteRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Agente não encontrado: " + id));
         return converterParaResponseDTO(agente);
@@ -121,7 +120,7 @@ public class AgenteVoluntarioService {
      * Atualiza o status de um agente
      * RN006 - Atualização da Situação do Agente
      */
-    public AgenteVoluntarioResponseDTO atualizarStatus(UUID id, StatusAgente novoStatus, String usuarioLogado) {
+    public AgenteVoluntarioResponseDTO atualizarStatus(Long id, StatusAgente novoStatus, String usuarioLogado) {
         AgenteVoluntario agente = agenteRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Agente não encontrado: " + id));
 
@@ -140,7 +139,7 @@ public class AgenteVoluntarioService {
     /**
      * Atualiza dados de um agente
      */
-    public AgenteVoluntarioResponseDTO atualizarAgente(UUID id, AgenteVoluntarioDTO dto, String usuarioLogado) {
+    public AgenteVoluntarioResponseDTO atualizarAgente(Long id, AgenteVoluntarioDTO dto, String usuarioLogado) {
         AgenteVoluntario agente = agenteRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Agente não encontrado: " + id));
 
@@ -194,7 +193,7 @@ public class AgenteVoluntarioService {
      * RN003 - Status para Emissão de Credencial
      */
     @Transactional(readOnly = true)
-    public boolean podeEmitirCredencial(UUID agenteId) {
+    public boolean podeEmitirCredencial(Long agenteId) {
         AgenteVoluntario agente = agenteRepository.findById(agenteId)
                 .orElseThrow(() -> new EntityNotFoundException("Agente não encontrado: " + agenteId));
         return agente.podeEmitirCredencial();
