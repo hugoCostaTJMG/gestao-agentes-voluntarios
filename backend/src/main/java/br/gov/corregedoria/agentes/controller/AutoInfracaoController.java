@@ -27,7 +27,7 @@ public class AutoInfracaoController {
 
     @Operation(summary = "Listar autos de infração")
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERVISOR') or hasRole('AGENTE')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('uma_authorization')")
     public ResponseEntity<Page<AutoInfracao>> listar(Pageable pageable,
                                                     @RequestParam(required = false) StatusAutoInfracao status,
                                                     Authentication authentication) {
@@ -50,7 +50,7 @@ public class AutoInfracaoController {
 
     @Operation(summary = "Cadastrar auto de infração")
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERVISOR') or hasRole('AGENTE')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('uma_authorization')")
     public ResponseEntity<AutoInfracao> cadastrar(@Valid @RequestBody AutoInfracao auto,
                                                   Authentication authentication) {
         Long agenteId = Long.parseLong(authentication.getName());

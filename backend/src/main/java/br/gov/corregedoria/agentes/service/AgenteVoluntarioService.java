@@ -52,6 +52,7 @@ public class AgenteVoluntarioService {
         agente.setDisponibilidade(dto.getDisponibilidade());
         agente.setUsuarioCadastro(usuarioLogado);
         agente.setStatus(StatusAgente.EM_ANALISE); // RN007 - Status inicial
+        agente.setDataCadastro(java.time.LocalDateTime.now());
 
         // Associar comarcas
         Set<Comarca> comarcas = dto.getComarcasIds().stream()
@@ -70,9 +71,10 @@ public class AgenteVoluntarioService {
         // Salvar agente
         agente = agenteRepository.save(agente);
 
-        // Registrar auditoria
-        auditoriaUtil.registrarLog(usuarioLogado, "CADASTRO_AGENTE", 
-                "Agente cadastrado: " + agente.getId() + " - " + agente.getNomeCompleto());
+        // // Registrar auditoria
+        //TODO corrigir auditoria
+        // auditoriaUtil.registrarLog(usuarioLogado, "CADASTRO_AGENTE", 
+        //         "Agente cadastrado: " + agente.getId() + " - " + agente.getNomeCompleto());
 
         return converterParaResponseDTO(agente);
     }
