@@ -18,11 +18,46 @@ services:
       - agentes-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "sqlplus", "-L", "system/OraclePassword123@//localhost:1521/XE", "@/dev/null"]
+      test: ["CMD", "sqlplus", "-L", "system/OraclePassword123@//localhost:1521/XEPDB1", "@/dev/null"]
       interval: 30s
       timeout: 10s
-      retries: 5
+      retries: 10
 
+  # Keycloak
+  keycloak:
+    build: ./keycloak   # 👈 usa o Dockerfile que já está na pasta keycloak
+    image: keycloak-agentes-voluntarios
+    ports:
+      - "8084:8080" # HTTP (externa 8084 -> interna 8080)
+    environment:
+      - TZ=America/Sao_Paulo
+      - LAN=pt_BR.UTF-8
+      - LANGUAGE=pt_BR.UTF-8
+      - LC_ALL=pt_BR.UTF-8
+      - KEYCLOAK_USER=admin
+      - KEYCLOAK_PASSWORD=admin
+      - DB_VENDOR=h2
+      - KEYCLOAK_FRONTEND_URL=http://keycloak:8080/auth
+    volumes:
+      - ./.docker/dbdata2:/opt/jboss/keycloak/standalone/data
+    entrypoint:
+      - "/opt/jboss/tools/docker-entrypoint.sh"
+      - "-Dkeycloak.profile=preview"
+      - "-Dspi-theme-static-max-age=-1"
+      - "-Dspi-theme-cache-themes=false"
+      - "-Dspi-theme-cache-templates=false"
+    command: >
+      -Dorg.jboss.logging.provider=slf4j
+      -Djboss.logging.level=DEBUG
+      -Dorg.keycloak.email=DEBUG
+    networks:
+      - agentes-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/auth/"]
+      interval: 20s
+      timeout: 10s
+      retries: 10
 
   # Backend Spring Boot
   backend:
@@ -37,14 +72,17 @@ services:
       - ORACLE_DB_SERVICE=XEPDB1
       - ORACLE_DB_USER=agentes_user
       - ORACLE_DB_PASSWORD=agentes_pass
-      - ORACLE_DB_SCHEMA=agentes_user
+      - ORACLE_DB_SCHEMA=AGENTES_USER
       - GOVBR_CLIENT_ID=${GOVBR_CLIENT_ID}
       - GOVBR_CLIENT_SECRET=${GOVBR_CLIENT_SECRET}
       - GOVBR_REDIRECT_URI=${GOVBR_REDIRECT_URI}
     ports:
       - "8080:8080"
     depends_on:
-      - oracle-db
+      oracle-db:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
     networks:
       - agentes-network
     restart: unless-stopped
@@ -80,4 +118,3 @@ volumes:
 networks:
   agentes-network:
     driver: bridge
-

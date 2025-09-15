@@ -8,6 +8,7 @@ import { LogoComponent } from '../../shared/general/logo/logo.component';
 import { MarcaComponent } from '../../shared/general/marca/marca.component';
 import { ButtonComponent } from '../../shared/components/buttons/button/button.component';
 import { BehaviorSubject } from 'rxjs';
+import { KeycloakService } from '../../services/keycloak.service';
 
 @Component({
   selector: 'app-header',
@@ -23,6 +24,7 @@ export class HeaderComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
+    private keycloakService: KeycloakService,
     private router: Router
   ) {
     const savedUser = localStorage.getItem('currentUser');
@@ -43,6 +45,7 @@ export class HeaderComponent implements OnInit {
 
   logout(): void {
     this.authService.logout();
+    this.keycloakService.logout();  
     this.router.navigate(['/login']);
   }
 }

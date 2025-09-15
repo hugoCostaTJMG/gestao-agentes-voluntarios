@@ -1,1 +1,11 @@
-<p>consulta-publica works!</p>
+<h2>Consulta Pública - Comarcas</h2>
+
+<div *ngIf="errorMessage" class="error">
+  {{ errorMessage }}
+</div>
+
+<ul>
+  <li *ngFor="let comarca of comarcas">
+    {{ comarca.nomeComarca }}
+  </li>
+</ul>

@@ -12,8 +12,14 @@ export class AuthService {
   constructor() {
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser) {
-      this.currentUserSubject.next(JSON.parse(savedUser));
+      try {
+        this.currentUserSubject.next(JSON.parse(savedUser) as Usuario);
+      } catch (e) {
+        console.error('Erro ao parsear usuário salvo', e);
+        localStorage.removeItem('currentUser');
+      }
     }
+
   }
 
   /** Return the logged in user or null */

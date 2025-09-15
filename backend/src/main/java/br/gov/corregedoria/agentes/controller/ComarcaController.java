@@ -34,7 +34,7 @@ public class ComarcaController {
         @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA') or hasRole('COFIJ')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA') or hasRole('uma_authorization')")
     public ResponseEntity<List<ComarcaDTO>> listarComarcas() {
         List<ComarcaDTO> comarcas = comarcaRepository.findAll().stream()
                 .map(comarca -> new ComarcaDTO(comarca.getId(), comarca.getNomeComarca()))
@@ -51,7 +51,7 @@ public class ComarcaController {
         @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('uma_authorization')")
     public ResponseEntity<ComarcaDTO> cadastrarComarca(@Valid @RequestBody ComarcaDTO dto) {
         if (comarcaRepository.existsByNomeComarca(dto.getNomeComarca())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
