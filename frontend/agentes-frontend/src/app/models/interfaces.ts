@@ -2,6 +2,7 @@
 export interface AgenteVoluntario {
   id?: number;
   nomeCompleto: string;
+  nome?: string; // alguns endpoints retornam 'nome' simples
   cpf: string;
   telefone: string;
   email: string;
@@ -11,6 +12,7 @@ export interface AgenteVoluntario {
   usuarioCadastro?: string;
   comarcas?: Comarca[];
   areasAtuacao?: AreaAtuacao[];
+  keycloakId?: string; // identificado quando vinculado ao Keycloak/gov.br
 }
 
 export interface AgenteVoluntarioDTO {
@@ -84,11 +86,12 @@ export interface LoginGovBr {
 }
 
 export interface Usuario {
-  id: number;
+  id?: number;           // opcional: o backend preenche depois
+  keycloakId: string;    // obrigatório: UUID do Keycloak OU 'sub' do token do gov.br
   nome: string;
   email: string;
-  perfil: string;
-  token?: string;
+  perfil: string;        // ex.: 'AGENTE', 'ADMIN', etc.
+  token: string;         // access token vigente
 }
 
 export enum StatusAgente {
@@ -165,4 +168,3 @@ export interface AutoInfracao {
   justificativaCancelamento?: string;
   anexos?: AnexoAutoInfracao[];
 }
-

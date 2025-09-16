@@ -31,13 +31,13 @@ export class LoginComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Verificar se já está logado
+    // Se já está logado, redireciona:
     if (this.authService.isLoggedIn()) {
       this.router.navigate(['/agentes']);
       return;
     }
 
-    // Verificar se há código de retorno do gov.br
+    // Captura retorno do gov.br (código de autorização)
     this.route.queryParams.subscribe(params => {
       if (params['code']) {
         this.processarRetornoGovBr(params['code']);
@@ -48,9 +48,9 @@ export class LoginComponent implements OnInit {
   async loginKeycloak() {
     this.showInfo = true;
     this.infoMessage = 'Redirecionando para o Keycloak...';
-    
-    await this.keycloak.init();  
-    this.keycloak.login();  
+
+    await this.keycloak.init();
+    this.keycloak.login(); // redireciona para o Keycloak
   }
 
   loginGovBr(): void {
@@ -60,7 +60,7 @@ export class LoginComponent implements OnInit {
     this.infoMessage = 'Redirecionando para o gov.br...';
 
     const redirectUri = `${window.location.origin}/login`;
-    
+
     this.apiService.gerarUrlAutorizacaoGovBr(redirectUri).subscribe({
       next: (response) => {
         window.location.href = response.authorizeUrl;
@@ -75,6 +75,28 @@ export class LoginComponent implements OnInit {
     });
   }
 
+  /**
+   * Extrai o 'sub' (ou campos equivalentes) do JWT.
+   * Usa base64url → base64 e faz o parse do payload.
+   */
+  private extractSubject(jwt: string): string | undefined {
+    try {
+      const base64url = jwt.split('.')[1];
+      if (!base64url) return undefined;
+
+      const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
+      // Ajuste de padding (base64) para evitar InvalidCharacterError
+      const padded = base64 + '==='.slice((base64.length + 3) % 4);
+      const payload = JSON.parse(atob(padded));
+
+      // Preferência: sub → cpf → documento → user_id → uid
+      return payload.sub || payload.cpf || payload.documento || payload.user_id || payload.uid;
+    } catch (e) {
+      console.warn('Falha ao extrair subject do token gov.br:', e);
+      return undefined;
+    }
+  }
+
   private processarRetornoGovBr(code: string): void {
     this.loading = true;
     this.showInfo = true;
@@ -82,41 +104,57 @@ export class LoginComponent implements OnInit {
 
     const redirectUri = `${window.location.origin}/login`;
 
-    // 1. Trocar código por token
+    // 1) Trocar código por token
     this.apiService.trocarCodigoPorToken(code, redirectUri).subscribe({
       next: (tokenResponse) => {
-        // 2. Fazer login com o token
+        // 2) Fazer login com o token no backend
         const loginData = {
-          cpf: '', // O CPF será obtido do token
+          cpf: '', // backend extrai do token; se necessário, pode preencher após decodificar o JWT
           govBrToken: tokenResponse.accessToken
         };
 
         this.apiService.loginGovBr(loginData).subscribe({
           next: (agente) => {
-            // 3. Criar usuário logado
+            // 3) Montar Usuario sempre com keycloakId preenchido
+            const subject = this.extractSubject(tokenResponse.accessToken);
+            const externalId = subject ?? agente.keycloakId ?? agente.cpf;
+
+            if (!externalId) {
+              this.loading = false;
+              this.showInfo = false;
+              this.showError = true;
+              this.errorMessage = 'Não foi possível identificar o usuário autenticado.';
+              console.error('Retorno gov.br sem identificador único (sub/cpf/keycloakId).');
+              return;
+            }
+
             const user: Usuario = {
-              id: agente.id || 0,
-              nome: agente.nomeCompleto,
-              email: agente.email,
+              keycloakId: externalId,
+              id: agente.id,
+              nome: agente.nomeCompleto ?? agente.nome ?? '',
+              email: agente.email ?? '',
               perfil: 'AGENTE',
               token: tokenResponse.accessToken
             };
 
+            // Guarda o usuário logado
             this.authService.setCurrentUser(user);
+
+            // Redireciona para a área logada
             this.router.navigate(['/meu-perfil']);
           },
           error: (error) => {
             this.loading = false;
             this.showInfo = false;
             this.showError = true;
-            
-            if (error.status === 404) {
+
+            if (error?.status === 404) {
               this.errorMessage = 'CPF não encontrado na base de agentes voluntários.';
             } else {
               this.errorMessage = 'Erro na autenticação. Tente novamente.';
             }
-            
-            console.error('Erro no login:', error);
+
+            console.error('Erro no login gov.br:', error);
           }
         });
       },
@@ -130,4 +168,3 @@ export class LoginComponent implements OnInit {
     });
   }
 }
-

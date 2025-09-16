@@ -33,7 +33,7 @@ async init(): Promise<boolean> {
     const token = this.keycloak.token || '';
 
     const user: Usuario = {
-      id: profile.id,
+      keycloakId: profile.id, 
       nome: `${profile.firstName || ''} ${profile.lastName || ''}`.trim(),
       email: profile.email || '',
       perfil: 'ADMIN',   // mock ou baseado no role
