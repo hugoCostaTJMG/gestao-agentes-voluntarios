@@ -1,0 +1,69 @@
+<section class="dashboard">
+  <header class="dashboard__header">
+    <div class="dashboard__title">
+      <i class="fas fa-tachometer-alt"></i>
+      <h1>Dashboard</h1>
+    </div>
+    <app-button
+      label="Atualizar"
+      type="primary"
+      size="sm"
+      iconLeft="fas fa-sync-alt"
+      [loading]="refreshing"
+      (clicked)="refreshDashboard()"
+    ></app-button>
+  </header>
+
+  <div class="dashboard__metrics">
+    <article class="metric-card" *ngFor="let metric of metrics" [ngClass]="'metric-card--' + metric.color">
+      <div class="metric-card__icon">
+        <i [class]="metric.icon"></i>
+      </div>
+      <div class="metric-card__value">{{ metric.value }}</div>
+      <div class="metric-card__label">{{ metric.label }}</div>
+    </article>
+  </div>
+
+  <div class="dashboard__panels">
+    <section class="panel panel--activities">
+      <header class="panel__header">
+        <i class="fas fa-history"></i>
+        <span>Atividades Recentes</span>
+      </header>
+      <ul class="activities">
+        <li class="activities__item" *ngFor="let activity of activities">
+          <div class="activities__info">
+            <strong>{{ activity.title }}</strong>
+            <span class="activities__description">{{ activity.description }}</span>
+            <small class="activities__time">{{ activity.time }}</small>
+          </div>
+          <app-badge [text]="activity.status" [variant]="activity.badgeVariant" tone="soft"></app-badge>
+        </li>
+        <li class="activities__empty" *ngIf="!activities.length">
+          Nenhuma atividade registrada.
+        </li>
+      </ul>
+    </section>
+
+    <section class="panel panel--status">
+      <header class="panel__header">
+        <i class="fas fa-chart-pie"></i>
+        <span>Status dos Agentes</span>
+      </header>
+      <div class="status" *ngIf="statusSummary.length; else emptyStatus">
+        <div class="status__item" *ngFor="let status of statusSummary">
+          <span class="status__label">{{ status.label }}</span>
+          <app-badge
+            class="status__badge"
+            [text]="status.count | number:'1.0-0'"
+            [variant]="status.badgeVariant"
+            tone="soft"
+          ></app-badge>
+        </div>
+      </div>
+      <ng-template #emptyStatus>
+        <p class="status__empty">Ainda não há dados de status.</p>
+      </ng-template>
+    </section>
+  </div>
+</section>

@@ -9,6 +9,14 @@
 
   <!-- Conteúdo principal -->
   <main class="flex-grow-1 p-4 app-content">
+    <app-alert
+      *ngIf="alert$ | async as alert"
+      [type]="mapAlertType(alert.type)"
+      [message]="alert.text"
+      [dismissible]="true"
+      (dismissed)="clearAlert()"
+      class="mb-3"
+    ></app-alert>
     <router-outlet></router-outlet>
   </main>
 </div>

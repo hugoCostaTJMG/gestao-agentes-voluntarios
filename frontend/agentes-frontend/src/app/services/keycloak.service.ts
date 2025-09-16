@@ -31,12 +31,22 @@ async init(): Promise<boolean> {
   if (authenticated) {
     const profile = await this.keycloak.loadUserProfile();
     const token = this.keycloak.token || '';
+    const realmRoles = this.getRealmRoles().map(role => role.toUpperCase());
+    const clientRoles = this.getClientRoles().map(role => role.toUpperCase());
+    const allRoles = new Set<string>([...realmRoles, ...clientRoles]);
+
+    let perfil = '';
+    if (allRoles.has('ADMIN')) {
+      perfil = 'ADMIN';
+    } else if (allRoles.has('AGENTE')) {
+      perfil = 'AGENTE';
+    }
 
     const user: Usuario = {
       keycloakId: profile.id, 
       nome: `${profile.firstName || ''} ${profile.lastName || ''}`.trim(),
       email: profile.email || '',
-      perfil: 'ADMIN',   // mock ou baseado no role
+      perfil,
       token
     };
 
@@ -45,7 +55,7 @@ async init(): Promise<boolean> {
 
     // 🔑 aqui você redireciona pra área logada
     if (this.router.url === '/login') {
-      this.router.navigate(['/agentes']);
+      this.router.navigate(['/']);
     }
   }
 
@@ -74,5 +84,26 @@ async init(): Promise<boolean> {
 
   getToken(): string | undefined {
     return this.keycloak?.token;
+  }
+
+  getRealmRoles(): string[] {
+    if (!this.keycloak?.realmAccess?.roles) {
+      return [];
+    }
+
+    return [...this.keycloak.realmAccess.roles];
+  }
+
+  getClientRoles(): string[] {
+    if (!this.keycloak?.resourceAccess) {
+      return [];
+    }
+
+    const roles = new Set<string>();
+    Object.values(this.keycloak.resourceAccess).forEach(access => {
+      access?.roles?.forEach(role => roles.add(role));
+    });
+
+    return Array.from(roles);
   }
 }

@@ -29,7 +29,7 @@ export class ImpressaoCarteirinhaComponent implements OnInit {
 
   ngOnInit(): void {
     if (!this.temPermissaoImpressao()) {
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/']);
       return;
     }
 

@@ -1,27 +1,89 @@
 import { Routes } from '@angular/router';
-import { LoginComponent } from './components/login/login.component';
-import { AgenteCadastroComponent } from './components/agente-cadastro/agente-cadastro.component';
-import { AgenteListaComponent } from './components/agente-lista/agente-lista.component';
-import { PainelAgentesComponent } from './components/painel-agentes/painel-agentes.component';
-import { CredencialEmissaoComponent } from './components/credencial-emissao/credencial-emissao.component';
-import { ConsultaPublicaComponent } from './components/consulta-publica/consulta-publica.component';
-import { AutoInfracaoCadastroComponent } from './components/auto-infracao-cadastro/auto-infracao-cadastro.component';
-import { AutoInfracaoListaComponent } from './components/auto-infracao-lista/auto-infracao-lista.component';
-import { AutoInfracaoDetalheComponent } from './components/auto-infracao-detalhe/auto-infracao-detalhe.component';
-import { ImpressaoCarteirinhaComponent } from './components/impressao-carteirinha/impressao-carteirinha.component';
+import { AuthGuard } from './guards/auth.guard';
+import { RoleGuard } from './guards/role.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
-  { path: 'login', component: LoginComponent },
-  { path: 'dashboard', component: PainelAgentesComponent },
-  { path: 'agentes', component: AgenteListaComponent },
-  { path: 'agentes/cadastro', component: AgenteCadastroComponent },
-  { path: 'carteirinhas', component: ImpressaoCarteirinhaComponent },
-  { path: 'credenciais', component: CredencialEmissaoComponent },
-  { path: 'consulta-publica', component: ConsultaPublicaComponent },
-  { path: 'autos', component: AutoInfracaoListaComponent },
-  { path: 'autos/cadastro', component: AutoInfracaoCadastroComponent },
-  { path: 'autos/:id', component: AutoInfracaoDetalheComponent },
-  { path: '**', redirectTo: '/login' }
+  {
+    path: '',
+    loadComponent: () =>
+      import('./components/dashboard/dashboard.component').then(m => m.DashboardComponent),
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['ADMIN', 'AGENTE'] }
+  },
+  {
+    path: 'login',
+    loadComponent: () =>
+      import('./components/login/login.component').then(m => m.LoginComponent)
+  },
+  {
+    path: 'carteirinha',
+    loadComponent: () =>
+      import('./components/carteirinha/carteirinha.component').then(m => m.CarteirinhaComponent),
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['AGENTE'] }
+  },
+  {
+    path: 'carteirinha-agemtes',
+    loadComponent: () =>
+      import('./components/carteirinha/carteirinha.component').then(m => m.CarteirinhaComponent),
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['AGENTE'] }
+  },
+  {
+    path: 'carteirinhas/:id',
+    loadComponent: () =>
+      import('./components/impressao-carteirinha/impressao-carteirinha.component').then(m => m.ImpressaoCarteirinhaComponent),
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['ADMIN'] }
+  },
+  {
+    path: 'agentes',
+    loadComponent: () =>
+      import('./components/painel-agentes/painel-agentes.component').then(m => m.PainelAgentesComponent),
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['ADMIN'] }
+  },
+  {
+    path: 'agentes/cadastro',
+    loadComponent: () =>
+      import('./components/agente-cadastro/agente-cadastro.component').then(m => m.AgenteCadastroComponent),
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['ADMIN'] }
+  },
+  {
+    path: 'credenciais',
+    loadComponent: () =>
+      import('./components/credencial-emissao/credencial-emissao.component').then(m => m.CredencialEmissaoComponent),
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['ADMIN'] }
+  },
+  {
+    path: 'autos',
+    loadComponent: () =>
+      import('./components/auto-infracao-lista/auto-infracao-lista.component').then(m => m.AutoInfracaoListaComponent),
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['ADMIN'] }
+  },
+  {
+    path: 'autos/cadastro',
+    loadComponent: () =>
+      import('./components/auto-infracao-cadastro/auto-infracao-cadastro.component').then(m => m.AutoInfracaoCadastroComponent),
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['ADMIN'] }
+  },
+  {
+    path: 'autos/:id',
+    loadComponent: () =>
+      import('./components/auto-infracao-detalhe/auto-infracao-detalhe.component').then(m => m.AutoInfracaoDetalheComponent),
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['ADMIN'] }
+  },
+  {
+    path: 'consulta-publica',
+    loadComponent: () =>
+      import('./components/consulta-publica/consulta-publica.component').then(m => m.ConsultaPublicaComponent),
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['ADMIN', 'AGENTE'] }
+  },
+  { path: '**', redirectTo: '' }
 ];
-

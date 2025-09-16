@@ -8,54 +8,15 @@
 
   <!-- Links de navegação -->
   <ul class="nav flex-column">
-    <li class="nav-item">
-      <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">
-        <i class="fas fa-tachometer-alt me-2"></i> Dashboard
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" routerLink="/agentes" routerLinkActive="active">
-        <i class="fas fa-users me-2"></i> Agentes Voluntários
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" routerLink="/agentes/cadastro" routerLinkActive="active">
-        <i class="fas fa-user-plus me-2"></i> Cadastrar Agente
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" routerLink="/credenciais" routerLinkActive="active">
-        <i class="fas fa-id-card me-2"></i> Emissão de Credencial
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" routerLink="/carteirinhas" routerLinkActive="active">
-        <i class="fas fa-print me-2"></i> Impressão Carteirinhas
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" routerLink="/autos" routerLinkActive="active">
-        <i class="fas fa-file-alt me-2"></i> Autos de Infração
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" routerLink="/atualizacao-situacao" routerLinkActive="active">
-        <i class="fas fa-sync-alt me-2"></i> Atualização Situação
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" routerLink="/consulta-publica" routerLinkActive="active">
-        <i class="fas fa-search me-2"></i> Consulta Pública
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" routerLink="/relatorios" routerLinkActive="active">
-        <i class="fas fa-chart-bar me-2"></i> Relatórios
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" routerLink="/configuracoes" routerLinkActive="active">
-        <i class="fas fa-cog me-2"></i> Configurações
+    <li class="nav-item" *ngFor="let item of visibleMenuItems">
+      <a
+        class="nav-link"
+        [routerLink]="item.link"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="item.exact ? { exact: true } : undefined"
+        (click)="closeSidebar()"
+      >
+        <i class="{{ item.icon }} me-2"></i> {{ item.label }}
       </a>
     </li>
   </ul>

@@ -1,46 +1,66 @@
-import { Component, OnInit } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
+import { CommonModule, NgIf } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ButtonComponent } from '../../shared/components/buttons/button/button.component';
+import { BadgeComponent } from '../../shared/components/badge/badge.component';
+import { AlertComponent } from '../../shared/components/alert/alert.component';
+import { ApiService } from '../../services/api.service';
+import { ConsultaPublica } from '../../models/interfaces';
 
 @Component({
   selector: 'app-consulta-publica',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule, NgIf, ButtonComponent, BadgeComponent, AlertComponent],
   templateUrl: './consulta-publica.component.html',
   styleUrls: ['./consulta-publica.component.scss']
 })
-export class ConsultaPublicaComponent implements OnInit {
+export class ConsultaPublicaComponent {
+  numeroCredencial = '';
+  loadingConsulta = false;
+  resultado?: ConsultaPublica;
+  mensagem?: { tipo: 'success' | 'error'; texto: string };
 
-  comarcas: any[] = [];
-  errorMessage: string | null = null;
+  constructor(private readonly apiService: ApiService) {}
 
-  constructor(private http: HttpClient) {}
-
-  ngOnInit(): void {
-    const currentUser = localStorage.getItem('currentUser');
-
-    if (!currentUser) {
-      this.errorMessage = 'Usuário não logado';
+  consultarCredencial(): void {
+    const credencialFormatada = this.numeroCredencial.trim();
+    if (!credencialFormatada) {
+      this.mensagem = { tipo: 'error', texto: 'Informe o número da credencial para continuar.' };
+      this.resultado = undefined;
       return;
     }
 
-    const parsedUser = JSON.parse(currentUser);
-    const token = parsedUser.token;
+    const somenteDigitos = credencialFormatada.replace(/\D/g, '');
+    if (!somenteDigitos) {
+      this.mensagem = { tipo: 'error', texto: 'Número da credencial inválido.' };
+      this.resultado = undefined;
+      return;
+    }
 
-    const headers = new HttpHeaders()
-      .set('Authorization', `Bearer ${token}`)
-      .set('Content-Type', 'application/json');
+    const credencialId = Number(somenteDigitos);
+    this.loadingConsulta = true;
+    this.mensagem = undefined;
+    this.resultado = undefined;
 
-    this.http.get<any[]>('http://localhost:8080/api/comarcas', { headers })
-      .subscribe({
-        next: (data) => {
-          this.comarcas = data;
-          console.log('Comarcas recebidas:', data);
-        },
-        error: (error) => {
-          this.errorMessage = 'Erro ao buscar comarcas';
-          console.error(error);
-        }
-      });
+    this.apiService.verificarCredencial(credencialId).subscribe({
+      next: (dados) => {
+        this.resultado = dados;
+        this.loadingConsulta = false;
+        this.mensagem = { tipo: 'success', texto: 'Credencial localizada com sucesso.' };
+      },
+      error: () => {
+        this.loadingConsulta = false;
+        this.resultado = undefined;
+        this.mensagem = { tipo: 'error', texto: 'Credencial não encontrada ou inválida.' };
+      }
+    });
+  }
+
+  escanearQrCode(): void {
+    window.alert('Funcionalidade de leitura por QR Code em desenvolvimento.');
+  }
+
+  limparMensagem(): void {
+    this.mensagem = undefined;
   }
 }

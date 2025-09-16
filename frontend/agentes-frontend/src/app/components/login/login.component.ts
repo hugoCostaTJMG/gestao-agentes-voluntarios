@@ -33,7 +33,7 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
     // Se já está logado, redireciona:
     if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/agentes']);
+      this.router.navigate(['/']);
       return;
     }
 
@@ -141,7 +141,7 @@ export class LoginComponent implements OnInit {
             this.authService.setCurrentUser(user);
 
             // Redireciona para a área logada
-            this.router.navigate(['/meu-perfil']);
+            this.router.navigate(['/']);
           },
           error: (error) => {
             this.loading = false;

@@ -1,39 +1,53 @@
 import { Component } from '@angular/core';
-import { RouterOutlet, RouterLink } from '@angular/router';
+import { RouterOutlet } from '@angular/router';
+import { NgIf, AsyncPipe } from '@angular/common';
 import { HeaderComponent } from './components/header/header.component';
-import { LoginComponent } from './components/login/login.component';
-import { AgenteCadastroComponent } from './components/agente-cadastro/agente-cadastro.component';
-import { AgenteListaComponent } from './components/agente-lista/agente-lista.component';
-import { CredencialEmissaoComponent } from './components/credencial-emissao/credencial-emissao.component';
-import { ConsultaPublicaComponent } from './components/consulta-publica/consulta-publica.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { AlertComponent } from './shared/components/alert/alert.component';
+import { AlertService, AlertMessage } from './services/alert.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [
     RouterOutlet,
-    RouterLink,
+    NgIf,
+    AsyncPipe,
     HeaderComponent,
     SidebarComponent,
-    LoginComponent,
-    AgenteCadastroComponent,
-    AgenteListaComponent,
-    CredencialEmissaoComponent,
-    ConsultaPublicaComponent
+    AlertComponent
   ],
-  templateUrl: './app.component.html', // agora usa arquivo separado
+  templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
   title = 'Sistema de Agentes Voluntários';
-  toggleSidebar() {
+  alert$ = this.alertService.message$;
+
+  constructor(private alertService: AlertService) {}
+
+  toggleSidebar(): void {
     document.body.classList.toggle('sidebar-open');
   }
 
-  closeSidebar() {
+  closeSidebar(): void {
     document.body.classList.remove('sidebar-open');
   }
+
+  mapAlertType(type: AlertMessage['type']): 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'danger' | 'neutral' | 'ghost' {
+    switch (type) {
+      case 'success':
+        return 'success';
+      case 'warning':
+        return 'warning';
+      case 'error':
+        return 'danger';
+      default:
+        return 'info';
+    }
+  }
+
+  clearAlert(): void {
+    this.alertService.clear();
+  }
 }
-
-

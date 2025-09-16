@@ -1,0 +1,72 @@
+<section class="carteirinha">
+  <app-alert
+    *ngIf="mensagemErro"
+    [type]="'danger'"
+    [message]="mensagemErro"
+    [dismissible]="true"
+    (dismissed)="mensagemErro = ''"
+  ></app-alert>
+
+  <div class="carteirinha__card" *ngIf="agente; else carregando">
+    <header class="carteirinha__header">
+      <div class="carteirinha__avatar">
+        <i class="fas fa-user-circle"></i>
+      </div>
+      <div class="carteirinha__identificacao">
+        <h2>{{ nomeCompleto }}</h2>
+        <span class="carteirinha__cpf">{{ cpfFormatado }}</span>
+      </div>
+    </header>
+
+    <dl class="carteirinha__info">
+      <div>
+        <dt>Comarca:</dt>
+        <dd>{{ comarcaPrincipal }}</dd>
+      </div>
+      <div class="carteirinha__status">
+        <dt>Status:</dt>
+        <dd>
+          <app-badge [text]="statusAgente" [variant]="statusVariant" tone="soft"></app-badge>
+        </dd>
+      </div>
+      <div>
+        <dt>Credencial:</dt>
+        <dd>{{ codigoCredencial }}</dd>
+      </div>
+    </dl>
+
+    <div class="carteirinha__acoes">
+      <app-button
+        type="ghost"
+        size="md"
+        [disabled]="!podeGerar"
+        [loading]="loadingPreview"
+        iconLeft="fas fa-eye"
+        label="Preview"
+        (clicked)="previewCarteirinha()"
+      ></app-button>
+
+      <app-button
+        type="danger"
+        size="lg"
+        [disabled]="!podeGerar"
+        [loading]="loadingDownload"
+        iconLeft="fas fa-id-card"
+        label="Gerar Carteirinha"
+        (clicked)="gerarCarteirinha()"
+      ></app-button>
+    </div>
+  </div>
+
+  <ng-template #carregando>
+    <div class="carteirinha__loading" *ngIf="loadingDados; else semDados">
+      Carregando informações da carteirinha...
+    </div>
+  </ng-template>
+
+  <ng-template #semDados>
+    <div class="carteirinha__loading">
+      Nenhum dado disponível no momento.
+    </div>
+  </ng-template>
+</section>

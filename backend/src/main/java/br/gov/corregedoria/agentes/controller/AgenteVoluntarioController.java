@@ -57,7 +57,7 @@ public class AgenteVoluntarioController {
         @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA') or hasRole('COFIJ')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA') or hasRole('COFIJ') or hasRole('AGENTE')")
     public ResponseEntity<AgenteVoluntarioResponseDTO> buscarPorId(
             @Parameter(description = "ID do agente") @PathVariable Long id) {
         

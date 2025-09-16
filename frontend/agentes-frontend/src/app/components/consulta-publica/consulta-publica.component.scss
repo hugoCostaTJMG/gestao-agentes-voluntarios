@@ -1,0 +1,85 @@
+@use '../../shared/general/colors/colors' as colors;
+
+.consulta-publica {
+  h4 {
+    font-weight: 600;
+  }
+
+  .card {
+    border: none;
+    border-radius: 1.25rem;
+    overflow: hidden;
+  }
+
+  .card-header {
+    background: linear-gradient(135deg, colors.$red-700, colors.$red-500);
+    padding: 1.25rem 1.5rem;
+    border: none;
+    display: flex;
+    align-items: center;
+  }
+
+  .card-header h5 {
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .card-header small {
+    font-size: 0.875rem;
+    opacity: 0.85;
+    display: block;
+  }
+
+  .consulta-card__form .form-control {
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-color: colors.$neutral-200;
+  }
+
+  .consulta-card__form .form-control:focus {
+    border-color: colors.$red-500;
+    box-shadow: 0 0 0 0.2rem rgba(255, 36, 51, 0.15);
+  }
+
+  .consulta-card__form .form-text {
+    font-size: 0.85rem;
+    color: colors.$neutral-500;
+  }
+
+  .resultado {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .resultado__row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .resultado__label {
+    font-weight: 600;
+    color: colors.$neutral-600;
+  }
+
+  .resultado__value {
+    color: colors.$neutral-700;
+  }
+
+  .consulta-card .card-body {
+    padding: 1.5rem;
+  }
+
+  .consulta-card .card-footer {
+    padding: 1.25rem 1.5rem 1.5rem;
+    border-top: 1px solid colors.$neutral-100;
+  }
+}
+
+@media (max-width: 768px) {
+  .consulta-publica h4 {
+    font-size: 1.4rem;
+  }
+}
