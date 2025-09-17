@@ -1,4 +1,4 @@
-<div class="container-list" [ngClass]="{ disabled: disabled }">
+<div class="container-list" [ngClass]="{ disabled: disabled }" role="list" aria-label="Lista de itens">
   <div class="list-header">
     <input
       class="list-title"
@@ -30,7 +30,13 @@
       disabled: item.disabled
     }"
     (click)="selectItem(i)"
+    (keydown)="onItemKeydown($event, i)"
+    tabindex="0"
+    role="listitem"
     [attr.aria-expanded]="item.expanded"
+    [attr.aria-controls]="'cli-details-' + i"
+    [attr.aria-selected]="selectedIndex === i"
+    [attr.aria-disabled]="item.disabled ? true : null"
   >
     <i class="fa fa-file icon-left"></i>
     <input
@@ -54,7 +60,7 @@
     >
       <i class="fa fa-times"></i>
     </button>
-    <div class="item-details" [ngClass]="{ expanded: item.expanded }">
+    <div class="item-details" [ngClass]="{ expanded: item.expanded }" [id]="'cli-details-' + i" aria-hidden="{{!item.expanded}}">
       <ng-container *ngIf="item.expanded">
         <p>{{ item.text }}</p>
       </ng-container>

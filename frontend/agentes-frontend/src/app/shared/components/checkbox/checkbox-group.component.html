@@ -1,5 +1,5 @@
-<div class="checkbox-group">
-  <p class="group-label">{{ groupLabel }}</p>
+<div class="checkbox-group" role="group" [attr.aria-labelledby]="'cbg-label'" [attr.aria-describedby]="(errorMessage ? 'cbg-msg' : (warningMessage ? 'cbg-msg' : null))" [attr.aria-invalid]="errorMessage ? true : null">
+  <p class="group-label" [id]="'cbg-label'">{{ groupLabel }}</p>
   <div class="options">
     <app-checkbox
       *ngFor="let option of options"
@@ -10,12 +10,12 @@
       (changed)="onOptionChanged(option.value, $event)"
     ></app-checkbox>
   </div>
-  <div class="messages">
-    <div *ngIf="errorMessage" class="error-message">
+  <div class="messages" [id]="'cbg-msg'">
+    <div *ngIf="errorMessage" class="error-message" role="alert">
       <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
       <span>{{ errorMessage }}</span>
     </div>
-    <div *ngIf="!errorMessage && warningMessage" class="warning-message">
+    <div *ngIf="!errorMessage && warningMessage" class="warning-message" role="status" aria-live="polite">
       <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
       <span>{{ warningMessage }}</span>
     </div>

@@ -1,10 +1,17 @@
-<nav class="navbar navbar-expand-lg app-navbar shadow-sm">
+<nav class="navbar navbar-expand-lg app-navbar shadow-sm" aria-label="Barra superior do sistema">
   <div class="container-fluid d-flex justify-content-between align-items-center">
 
     <!-- 🔹 Esquerda: Hambúrguer (mobile) + Marca (desktop) -->
     <div class="d-flex align-items-center">
       <!-- Botão hamburguer (mobile) -->
-      <button class="btn d-lg-none me-2" style="color: white;" (click)="toggleSidebar()">
+      <button
+        class="btn d-lg-none me-2"
+        style="color: white;"
+        (click)="toggleSidebar()"
+        aria-label="Alternar menu lateral"
+        [attr.aria-expanded]="isSidebarOpen ? 'true' : 'false'"
+        aria-controls="app-sidebar"
+      >
         <i class="fas fa-bars fa-lg"></i>
       </button>
 

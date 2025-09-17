@@ -191,6 +191,16 @@ public class AgenteVoluntarioService {
     }
 
     /**
+     * Busca agente por CPF
+     */
+    @Transactional(readOnly = true)
+    public AgenteVoluntarioResponseDTO buscarPorCpf(String cpf) {
+        AgenteVoluntario agente = agenteRepository.findByCpf(cpf)
+                .orElseThrow(() -> new EntityNotFoundException("Agente não encontrado para o CPF: " + cpf));
+        return converterParaResponseDTO(agente);
+    }
+
+    /**
      * Verifica se um agente pode emitir credencial
      * RN003 - Status para Emissão de Credencial
      */
@@ -231,4 +241,3 @@ public class AgenteVoluntarioService {
         return dto;
     }
 }
-

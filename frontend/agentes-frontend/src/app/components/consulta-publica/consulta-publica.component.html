@@ -27,7 +27,7 @@
         </div>
 
         <div class="card-body">
-          <form (ngSubmit)="consultarCredencial()" class="consulta-card__form">
+          <form (ngSubmit)="consultarCredencial()" class="consulta-card__form" aria-label="Formulário para consulta de credencial de agente voluntário">
             <div class="mb-3">
               <label class="form-label" for="numeroCredencial">Número da Credencial</label>
               <input
@@ -38,13 +38,15 @@
                 [(ngModel)]="numeroCredencial"
                 placeholder="AGV-2024-001"
                 autocomplete="off"
+                aria-required="true"
+                [attr.aria-describedby]="'numeroCredencialHelp'"
               />
-              <div class="form-text">Digite o número da credencial ou escaneie o QR Code</div>
+              <div id="numeroCredencialHelp" class="form-text">Digite o número da credencial ou escaneie o QR Code</div>
             </div>
 
             <app-button
               class="w-100"
-              type="danger"
+              type="secondary"
               size="lg"
               iconLeft="fas fa-search"
               label="Consultar Credencial"
@@ -88,7 +90,7 @@
           <p class="mb-0 text-muted">Use a câmera do seu dispositivo para escanear o QR Code da credencial.</p>
           <app-button
             class="align-self-start"
-            type="primary"
+            type="secondary"
             size="md"
             iconLeft="fas fa-camera"
             label="Escanear QR Code"

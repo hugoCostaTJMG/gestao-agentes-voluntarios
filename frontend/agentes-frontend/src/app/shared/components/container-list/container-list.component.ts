@@ -48,6 +48,18 @@ export class ContainerListComponent {
     item.expanded = !item.expanded;
   }
 
+  onItemKeydown(event: KeyboardEvent, index: number): void {
+    const item = this.items[index];
+    if (!item) return;
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      this.selectItem(index);
+    } else if (event.key === 'Escape' && item.expanded) {
+      event.preventDefault();
+      item.expanded = false;
+    }
+  }
+
   startEditTitle(): void {
     this.editingTitle = true;
   }

@@ -21,6 +21,7 @@ export class HeaderComponent implements OnInit {
   private currentUserSubject = new BehaviorSubject<Usuario | null>(null);
   currentUser: Usuario | null = null;
   isLoggedIn = false;
+  isSidebarOpen = false;
 
   constructor(
     private authService: AuthService,
@@ -41,6 +42,7 @@ export class HeaderComponent implements OnInit {
   }
   toggleSidebar() {
     document.body.classList.toggle('sidebar-open');
+    this.isSidebarOpen = document.body.classList.contains('sidebar-open');
   }
 
   logout(): void {
@@ -49,4 +51,3 @@ export class HeaderComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 }
-

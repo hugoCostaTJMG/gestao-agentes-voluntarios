@@ -65,6 +65,22 @@ public class AgenteVoluntarioController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Buscar agente por CPF",
+               description = "Busca um agente voluntário pelo seu CPF")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Agente encontrado"),
+        @ApiResponse(responseCode = "404", description = "Agente não encontrado"),
+        @ApiResponse(responseCode = "403", description = "Acesso negado")
+    })
+    @GetMapping("/cpf/{cpf}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA') or hasRole('COFIJ') or hasRole('AGENTE')")
+    public ResponseEntity<AgenteVoluntarioResponseDTO> buscarPorCpf(
+            @Parameter(description = "CPF do agente") @PathVariable String cpf) {
+
+        AgenteVoluntarioResponseDTO response = agenteService.buscarPorCpf(cpf);
+        return ResponseEntity.ok(response);
+    }
+
     @Operation(summary = "Listar todos os agentes", 
                description = "Lista todos os agentes voluntários com paginação")
     @ApiResponses(value = {
@@ -177,4 +193,3 @@ public class AgenteVoluntarioController {
         return ResponseEntity.ok(podeEmitir);
     }
 }
-

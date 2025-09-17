@@ -1,4 +1,6 @@
-<nav class="app-sidebar d-flex flex-column p-3" *ngIf="isLoggedIn">
+<nav id="app-sidebar" class="app-sidebar d-flex flex-column p-3" *ngIf="isLoggedIn" role="navigation" aria-label="Menu lateral de navegação">
+
+  <h2 class="visually-hidden">Navegação principal</h2>
 
   <!-- Cabeçalho do Sidebar -->
   <div class="sidebar-header d-flex justify-content-between align-items-center mb-3 d-lg-none">
@@ -12,7 +14,10 @@
       <a
         class="nav-link"
         [routerLink]="item.link"
+        #rla="routerLinkActive"
         routerLinkActive="active"
+        [attr.aria-current]="rla.isActive ? 'page' : null"
+        [attr.aria-label]="item.label"
         [routerLinkActiveOptions]="item.exact ? { exact: true } : undefined"
         (click)="closeSidebar()"
       >

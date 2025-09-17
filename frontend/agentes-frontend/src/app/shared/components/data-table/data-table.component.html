@@ -4,6 +4,7 @@
   tabindex="0"
   (keydown)="onWrapperKeydown($event)"
   role="table"
+  [attr.aria-busy]="loading ? 'true' : null"
 >
   <!-- Toolbar -->
   <div *ngIf="showToolbar" class="dt-toolbar">
@@ -113,22 +114,23 @@
             *ngFor="let sr of skeletonRows; let srIndex = index"
             class="skeleton-row"
             role="row"
+            aria-hidden="true"
           >
             <td
               *ngIf="selectable !== 'none'"
               class="select-cell"
               role="cell"
             >
-              <div class="skeleton"></div>
+              <div class="skeleton" aria-hidden="true"></div>
             </td>
             <td *ngIf="expandable" class="expand-cell" role="cell">
-              <div class="skeleton"></div>
+              <div class="skeleton" aria-hidden="true"></div>
             </td>
             <td
               *ngFor="let col of columns; trackBy: trackByCol"
               role="cell"
             >
-              <div class="skeleton"></div>
+              <div class="skeleton" aria-hidden="true"></div>
             </td>
           </tr>
         </ng-container>
@@ -138,6 +140,8 @@
           <td
             [attr.colspan]="columns.length + extraColumns"
             role="cell"
+            aria-live="polite"
+            aria-atomic="true"
           >
             {{ errorMessage }}
           </td>

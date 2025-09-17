@@ -8,6 +8,7 @@ import { catchError } from 'rxjs/operators';
 import {
   AgenteVoluntario,
   AgenteVoluntarioDTO,
+  AgenteVoluntarioResponseDTO,
   Comarca,
   AreaAtuacao,
   Credencial,
@@ -144,6 +145,12 @@ verificarStatusCarteirinha(agenteId: number): Observable<{ podeGerar: boolean, m
 
   buscarAgentePorId(id: number): Observable<AgenteVoluntario> {
     return this.http.get<AgenteVoluntario>(`${this.baseUrl}/api/agentes/${id}`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  buscarAgentePorCpf(cpf: string): Observable<AgenteVoluntarioResponseDTO> {
+    return this.http.get<AgenteVoluntarioResponseDTO>(`${this.baseUrl}/api/agentes/cpf/${cpf}`, {
       headers: this.getAuthHeaders()
     });
   }
@@ -344,4 +351,3 @@ verificarStatusCarteirinha(agenteId: number): Observable<{ podeGerar: boolean, m
     return this.authService.isLoggedIn();
   }
 }
-

@@ -40,5 +40,17 @@ export class AccordionComponent {
     this.expandedIndex = this.expandedIndex === index ? null : index;
     this.toggled.emit(index);
   }
-}
 
+  onHeaderKeydown(event: KeyboardEvent, index: number): void {
+    if (this.loading) return;
+    const key = event.key;
+    if (key === 'Enter' || key === ' ') {
+      event.preventDefault();
+      this.toggleItem(index);
+    } else if (key === 'Escape' && this.expandedIndex === index) {
+      event.preventDefault();
+      this.expandedIndex = null;
+      this.toggled.emit(index);
+    }
+  }
+}

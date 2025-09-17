@@ -7,8 +7,10 @@
     type="button"
     class="dropdown-trigger"
     (click)="toggleDropdown()"
+    (keydown)="onTriggerKeydown($event)"
     aria-haspopup="listbox"
     [attr.aria-expanded]="isOpen"
+    [attr.aria-controls]="listId"
   >
     <span>{{ displayLabel }}</span>
     <i
@@ -18,7 +20,7 @@
   </button>
 
   <!-- Lista -->
-  <ul *ngIf="isOpen" class="dropdown-menu" role="listbox">
+  <ul *ngIf="isOpen" class="dropdown-menu" role="listbox" [id]="listId">
     <!-- Parent Checkbox -->
     <li *ngIf="parentCheckbox" class="dropdown-item parent">
       <label>
@@ -38,7 +40,10 @@
       [ngClass]="{ 'is-disabled': option.disabled, 'is-selected': option.selected }"
       role="option"
       [attr.aria-selected]="option.selected"
+      [attr.aria-disabled]="option.disabled || null"
+      tabindex="0"
       (click)="onSelect(option)"
+      (keydown)="onOptionKeydown($event, option)"
     >
       <ng-container *ngIf="multiSelect && option.checkbox; else simpleOption">
         <input

@@ -4,6 +4,7 @@
        [attr.aria-label]="ariaLabel"
        [attr.aria-labelledby]="ariaLabelledby ? ariaLabelledby : titleId"
        [attr.aria-describedby]="ariaDescribedby ? ariaDescribedby : descId"
+       [attr.aria-busy]="busy ? 'true' : null"
        [cdkTrapFocus]="focusTrap" [cdkTrapFocusAutoCapture]="focusTrap">
     <div class="modal-header">
       <p class="modal-label" *ngIf="label">{{ label }}</p>
@@ -46,7 +47,7 @@
           </button>
         </ng-container>
       </div>
-      <div class="busy-state" *ngIf="busy">
+      <div class="busy-state" *ngIf="busy" role="status" aria-live="polite">
         <div class="spinner"></div>
         <span>{{ busyMessage }}</span>
       </div>

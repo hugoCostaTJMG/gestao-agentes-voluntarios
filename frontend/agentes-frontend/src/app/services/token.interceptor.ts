@@ -5,8 +5,8 @@ import {
   HttpHandler,
   HttpEvent
 } from '@angular/common/http';
-import { Observable, from } from 'rxjs';
-import { mergeMap } from 'rxjs/operators';
+import { Observable, from, throwError } from 'rxjs';
+import { catchError, mergeMap } from 'rxjs/operators';
 import { KeycloakService } from './keycloak.service';
 
 @Injectable()
@@ -17,17 +17,22 @@ export class TokenInterceptor implements HttpInterceptor {
     // Transformamos a Promise do getValidToken em Observable
     return from(this.keycloakService.getValidToken()).pipe(
       mergeMap(token => {
-        if (token) {
-          // Clona a requisição adicionando o Authorization
-          const cloned = req.clone({
-            setHeaders: {
-              Authorization: `Bearer ${token}`
+        const request = token
+          ? req.clone({
+              setHeaders: {
+                Authorization: `Bearer ${token}`
+              }
+            })
+          : req;
+
+        return next.handle(request).pipe(
+          catchError(error => {
+            if (error.status === 401) {
+              this.keycloakService.handleUnauthorized();
             }
-          });
-          return next.handle(cloned);
-        }
-        // Se não tiver token, segue a requisição normal
-        return next.handle(req);
+            return throwError(() => error);
+          })
+        );
       })
     );
   }

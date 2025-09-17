@@ -5,10 +5,10 @@
   <app-sidebar></app-sidebar>
 
   <!-- Overlay (apenas mobile, fecha o sidebar ao clicar) -->
-  <div class="sidebar-overlay" (click)="closeSidebar()"></div>
+  <div class="sidebar-overlay" (click)="closeSidebar()" aria-hidden="true" tabindex="-1"></div>
 
   <!-- Conteúdo principal -->
-  <main class="flex-grow-1 p-4 app-content">
+  <main id="main-content" role="main" aria-label="Conteúdo principal do sistema" class="flex-grow-1 p-4 app-content">
     <app-alert
       *ngIf="alert$ | async as alert"
       [type]="mapAlertType(alert.type)"
@@ -21,7 +21,7 @@
   </main>
 </div>
 
-<footer class="footer mt-auto">
+<footer class="footer mt-auto" role="contentinfo" aria-label="Rodapé institucional">
   <div class="container text-center">
     <span class="text-muted" style="color: white !important; ">
       © 2025 Corregedoria - Sistema de Gestão de Agentes Voluntários

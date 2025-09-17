@@ -92,6 +92,8 @@ export interface Usuario {
   email: string;
   perfil: string;        // ex.: 'AGENTE', 'ADMIN', etc.
   token: string;         // access token vigente
+  cpf?: string;
+  telefone?: string;
 }
 
 export enum StatusAgente {
