@@ -1,0 +1,46 @@
+.badge {
+  font-size: 0.75rem;
+}
+
+.table th {
+  border-top: none;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.table td {
+  font-size: 0.875rem;
+  vertical-align: middle;
+}
+
+.btn-group-sm .btn {
+  padding: 0.25rem 0.5rem;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .card,
+  .card-header,
+  .card-body,
+  .card-footer,
+  .table,
+  .table th,
+  .table td {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  .btn,
+  .pagination {
+    display: none !important;
+  }
+}
+
+@media (max-width: 992px) {
+  .card-header .d-flex.gap-2 {
+    flex-wrap: wrap;
+  }
+}
