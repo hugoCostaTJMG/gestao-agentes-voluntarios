@@ -1,97 +1,72 @@
 import { Injectable } from '@angular/core';
-import Keycloak from 'keycloak-js';
-import type { KeycloakInstance, KeycloakProfile } from 'keycloak-js';
 import { AuthService } from './auth.service';
-import { ApiService } from './api.service';
 import { Usuario } from '../models/interfaces';
 import { Router } from '@angular/router';
+import { environment } from '../../environments/environment';
+import { ApiService } from './api.service';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class KeycloakService {
-  private keycloak!: KeycloakInstance;
   private isLoggingOut = false;
       
   constructor(
     private authService: AuthService,
     private router: Router,
-    private apiService: ApiService
+    private api: ApiService
   ) {}
 
   async init(): Promise<boolean> {
-    this.keycloak = new Keycloak({
-      url: 'http://localhost:8084/auth',
-      realm: 'tjmg',
-      clientId: 'agentes-voluntarios'
-    });
+    // Captura token retornado pelo backend após login (query param "token" ou fragment)
+    const url = new URL(window.location.href);
+    const tokenFromQuery = url.searchParams.get('token');
+    const tokenFromHash = new URLSearchParams(url.hash?.replace(/^#/, ''))?.get('token') || undefined;
+    const token = tokenFromQuery || tokenFromHash;
 
-    const authenticated = await this.keycloak.init({
-      onLoad: 'check-sso',   // 🔑 check-sso: só verifica, sem forçar login
-      checkLoginIframe: false,
-      pkceMethod: 'S256',
-      silentCheckSsoRedirectUri: window.location.origin + '/assets/silent-check-sso.html'
-    });
+    if (token) {
+      // 1) salva token provisoriamente para que Authorization funcione
+      const provisional: Usuario = { keycloakId: '', nome: '', email: '', perfil: '', token };
+      this.authService.setCurrentUser(provisional);
 
-    if (authenticated) {
-      const profile = await this.keycloak.loadUserProfile();
-      const token = this.keycloak.token || '';
-      const realmRoles = this.getRealmRoles().map(role => role.toUpperCase());
-      const clientRoles = this.getClientRoles().map(role => role.toUpperCase());
-      const allRoles = new Set<string>([...realmRoles, ...clientRoles]);
-
-      let perfil = '';
-      if (allRoles.has('ADMIN')) {
-        perfil = 'ADMIN';
-      } else if (allRoles.has('AGENTE')) {
-        perfil = 'AGENTE';
-      }
-
-      const baseUser: Usuario = {
-        keycloakId: profile.id!, 
-        nome: `${profile.firstName || ''} ${profile.lastName || ''}`.trim(),
-        email: profile.email || '',
-        perfil,
-        token
-      };
-
-      this.authService.setCurrentUser(baseUser);
-
-      if (perfil === 'AGENTE') {
-        const cpf = this.extractCpf(profile as KeycloakProfile);
-        let enrichedUser: Usuario = baseUser;
-
-        if (cpf) {
-          try {
-            const agente = await firstValueFrom(this.apiService.buscarAgentePorCpf(cpf));
-            enrichedUser = {
-              ...baseUser,
-              id: agente.id,
-              nome: agente.nomeCompleto,
-              email: agente.email || baseUser.email,
-              cpf: agente.cpf,
-              telefone: agente.telefone
-            };
-          } catch (error) {
-            console.error('Não foi possível carregar os dados do usuário via CPF', error);
-          }
-        } else {
-          console.warn('CPF não disponível no perfil do usuário autenticado.');
+      // 2) tenta enriquecer com dados do backend (/auth/me) incluindo validação via CPF
+      try {
+        const me = await firstValueFrom(this.api.get<Usuario>('/auth/me'));
+        const enriched: Usuario = { ...provisional, ...me, token };
+        this.authService.setCurrentUser(enriched);
+      } catch (e: any) {
+        // Se não é agente cadastrado (404), encerra sessão local e volta para login
+        if (e && e.status === 404) {
+          this.authService.logout();
+          // Mantém token fora do storage ao retornar para o login
+          const base = window.location.origin + '/login?notRegistered=1';
+          window.location.replace(base);
+          return false;
         }
-
-        this.authService.setCurrentUser(enrichedUser);
+        // fallback: tenta inferir perfil via token
+        const perfil = this.inferPerfilFromToken(token) || '';
+        const fallback: Usuario = { ...provisional, perfil };
+        this.authService.setCurrentUser(fallback);
       }
 
-      // 🔑 aqui você redireciona pra área logada
-      if (this.router.url === '/login') {
+      // 3) Limpa o token da URL por segurança
+      url.searchParams.delete('token');
+      history.replaceState({}, document.title, url.pathname + url.search);
+
+      // 4) Redireciona para home se estiver no /login
+      if (this.router.url.startsWith('/login')) {
         this.router.navigate(['/']);
       }
+      return true;
     }
 
-    return authenticated;
+    // Sem token retornado agora. Mantém estado atual.
+    return this.authService.isLoggedIn();
   }
 
   login(): void {
-    this.keycloak.login({ redirectUri: window.location.origin });
+    // Redireciona para o backend iniciar o fluxo OIDC
+    // Usa force=true para obrigar o Keycloak a pedir credenciais novamente
+    window.location.href = `${environment.apiUrl}/auth/keycloak/login?force=true`;
   }
 
   logout(): void {
@@ -100,66 +75,78 @@ export class KeycloakService {
     }
 
     this.isLoggingOut = true;
+    // Limpa o estado local do SPA
     this.authService.logout();
+    // Melhor esforço: limpar cookies do domínio atual (não HttpOnly)
+    try {
+      this.clearClientCookies([
+        'ID_TOKEN_HINT',
+        'KEYCLOAK_SESSION',
+        'KEYCLOAK_IDENTITY',
+        'KEYCLOAK_REMEMBER_ME',
+        'AUTH_SESSION_ID',
+        'AUTH_SESSION_ID_LEGACY',
+        'kc_locale'
+      ]);
+    } catch {}
+    // Inicia logout no Keycloak via backend (encerra SSO de verdade)
+    window.location.href = `${environment.apiUrl}/auth/keycloak/logout`;
+  }
 
-    if (this.keycloak) {
-      this.keycloak.logout({ redirectUri: window.location.origin })
-        .then(() => {
-          this.isLoggingOut = false;
-        })
-        .catch(error => {
-          console.error('Erro ao efetuar logout no Keycloak', error);
-          this.isLoggingOut = false;
-        });
-    } else {
-      this.isLoggingOut = false;
-    }
+  private clearClientCookies(names?: string[]) {
+    const paths = ['/', '/auth', '/auth/', '/auth/keycloak', '/auth/keycloak/'];
+    const all = document.cookie.split(';').map(c => c.trim());
+    const toDelete = (names && names.length)
+      ? all.filter(c => names!.some(n => c.startsWith(`${n}=`)))
+      : all;
+
+    toDelete.forEach(c => {
+      const name = c.split('=')[0];
+      paths.forEach(p => {
+        document.cookie = `${name}=; Path=${p}; Expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+        // Tentativa com SameSite para navegadores mais restritivos
+        document.cookie = `${name}=; Path=${p}; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
+      });
+    });
+    try { sessionStorage.clear(); } catch {}
+    try { localStorage.removeItem('currentUser'); } catch {}
   }
 
   async getValidToken(): Promise<string | undefined> {
-    if (!this.keycloak) return undefined;
-    try {
-      await this.keycloak.updateToken(60);
-      return this.keycloak.token;
-    } catch {
-      return undefined;
-    }
+    return this.authService.getToken() || undefined;
   }
 
   getToken(): string | undefined {
-    return this.keycloak?.token;
+    return this.authService.getToken() || undefined;
   }
 
   getRealmRoles(): string[] {
-    if (!this.keycloak?.realmAccess?.roles) {
-      return [];
-    }
-
-    return [...this.keycloak.realmAccess.roles];
+    // Com login no backend, as roles são lidas diretamente do JWT no frontend
+    return [];
   }
 
   getClientRoles(): string[] {
-    if (!this.keycloak?.resourceAccess) {
-      return [];
-    }
-
-    const roles = new Set<string>();
-    Object.values(this.keycloak.resourceAccess).forEach(access => {
-      access?.roles?.forEach(role => roles.add(role));
-    });
-
-    return Array.from(roles);
+    // Com login no backend, as roles são lidas diretamente do JWT no frontend
+    return [];
   }
 
-  private extractCpf(profile: KeycloakProfile): string | null {
-    const attributes = profile.attributes as Record<string, string[] | undefined> | undefined;
-    if (attributes?.cpf?.length) {
-      return attributes.cpf[0];
+  private inferPerfilFromToken(token: string): string | null {
+    try {
+      const payloadSegment = token.split('.')[1];
+      if (!payloadSegment) return null;
+      const base64 = payloadSegment.replace(/-/g, '+').replace(/_/g, '/');
+      const padded = base64 + '==='.slice((base64.length + 3) % 4);
+      const payload = JSON.parse(atob(padded));
+      const roles = new Set<string>();
+      payload?.realm_access?.roles?.forEach((r: string) => roles.add(r.toUpperCase()));
+      const resourceAccess = payload?.resource_access ?? {};
+      Object.values(resourceAccess).forEach((access: any) => access?.roles?.forEach((r: string) => roles.add(r.toUpperCase())));
+      if (roles.has('ADMIN')) return 'ADMIN';
+      if (roles.has('AGENTE')) return 'AGENTE';
+      return null;
+    } catch {
+      return null;
     }
-
-    const tokenParsed = this.keycloak.tokenParsed as Record<string, unknown> | undefined;
-    const cpfFromToken = tokenParsed?.['cpf'];
-    return typeof cpfFromToken === 'string' ? cpfFromToken : null;
   }
 
   handleUnauthorized(): void {

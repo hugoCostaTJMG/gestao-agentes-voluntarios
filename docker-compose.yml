@@ -37,7 +37,8 @@ services:
       - KEYCLOAK_USER=admin
       - KEYCLOAK_PASSWORD=admin
       - DB_VENDOR=h2
-      # - KEYCLOAK_FRONTEND_URL=http://keycloak:8080/auth
+      # URL pública do Keycloak (usada pelo navegador e no issuer dos tokens)
+      - KEYCLOAK_FRONTEND_URL=${KEYCLOAK_PUBLIC_BASE_URL:-http://localhost:8084/auth}
     volumes:
       - ./.docker/dbdata2:/opt/jboss/keycloak/standalone/data
     entrypoint:
@@ -76,6 +77,14 @@ services:
       - GOVBR_CLIENT_ID=${GOVBR_CLIENT_ID}
       - GOVBR_CLIENT_SECRET=${GOVBR_CLIENT_SECRET}
       - GOVBR_REDIRECT_URI=${GOVBR_REDIRECT_URI}
+      # Keycloak OAuth2 Client (backend faz o login)
+      - KEYCLOAK_CLIENT_ID=${KEYCLOAK_CLIENT_ID:-agentes-voluntarios}
+      - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET}
+      - KEYCLOAK_REALM=${KEYCLOAK_REALM:-tjmg}
+      - KEYCLOAK_PUBLIC_BASE_URL=${KEYCLOAK_PUBLIC_BASE_URL:-http://localhost:8084/auth}
+      - KEYCLOAK_INTERNAL_BASE_URL=${KEYCLOAK_INTERNAL_BASE_URL:-http://keycloak:8080/auth}
+      # Para onde o backend redireciona após sucesso no login
+      - FRONTEND_REDIRECT_URI=${FRONTEND_REDIRECT_URI:-http://localhost:80/login}
     ports:
       - "8080:8080"
     depends_on:
@@ -98,6 +107,8 @@ services:
       context: ./frontend/agentes-frontend
       dockerfile: Dockerfile
     container_name: agentes-frontend
+    environment:
+      - API_URL=${API_URL:-http://backend:8080}
     ports:
       - "80:80"
       - "443:443"

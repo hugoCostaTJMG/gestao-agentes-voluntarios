@@ -24,12 +24,20 @@ import {
   providedIn: 'root'
 })
 export class ApiService {
-  private baseUrl = environment.apiUrl;
+  private baseUrl: string = environment.apiUrl;
 
   constructor(
     private http: HttpClient,
     private authService: AuthService
-  ) { }
+  ) {
+    try {
+      const w: any = window as any;
+      const runtime = w.APP_CONFIG?.apiUrl || w.__APP_CONFIG__?.apiUrl || w.__env?.API_URL;
+      if (runtime && typeof runtime === 'string') {
+        this.baseUrl = runtime;
+      }
+    } catch {}
+  }
 
   // ===== HEADERS =====
   getAuthHeaders(): HttpHeaders {

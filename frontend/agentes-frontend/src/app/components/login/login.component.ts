@@ -37,10 +37,18 @@ export class LoginComponent implements OnInit {
       return;
     }
 
-    // Captura retorno do gov.br (código de autorização)
+    // Captura retorno do gov.br (código de autorização) ou do Keycloak (token)
     this.route.queryParams.subscribe(params => {
       if (params['code']) {
         this.processarRetornoGovBr(params['code']);
+        return;
+      }
+      if (params['notRegistered']) {
+        this.showError = true;
+        this.errorMessage = 'Seu CPF não está cadastrado como Agente Voluntário.';
+      }
+      if (params['token']) {
+        this.keycloak.init().then(() => this.router.navigate(['/']));
       }
     });
   }
@@ -48,9 +56,7 @@ export class LoginComponent implements OnInit {
   async loginKeycloak() {
     this.showInfo = true;
     this.infoMessage = 'Redirecionando para o Keycloak...';
-
-    await this.keycloak.init();
-    this.keycloak.login(); // redireciona para o Keycloak
+    this.keycloak.login(); // backend inicia o fluxo OIDC do Keycloak
   }
 
   loginGovBr(): void {
@@ -96,6 +102,8 @@ export class LoginComponent implements OnInit {
       return undefined;
     }
   }
+
+  // inferPerfilFromToken agora é tratado no KeycloakService
 
   private processarRetornoGovBr(code: string): void {
     this.loading = true;
