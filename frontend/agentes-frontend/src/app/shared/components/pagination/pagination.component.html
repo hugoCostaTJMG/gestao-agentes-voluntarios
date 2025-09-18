@@ -1,0 +1,140 @@
+<nav
+  *ngIf="variant === 'nav'; else tableBar"
+  class="pagination nav"
+  role="navigation"
+  [attr.aria-label]="ariaLabel"
+  [ngClass]="{ 'is-disabled': disabled, 'is-compact': compact }"
+>
+  <button
+    *ngIf="showFirstLast"
+    class="control first"
+    type="button"
+    [disabled]="disabled || page === 1"
+    (click)="goTo(1)"
+    aria-label="Primeira página"
+  >
+    «
+  </button>
+
+  <button
+    class="control prev"
+    type="button"
+    [disabled]="disabled || page === 1"
+    (click)="goTo(page - 1)"
+    aria-label="Página anterior"
+  >
+    ‹
+  </button>
+
+  <ul class="pages" role="list">
+    <li *ngFor="let item of navItems" role="listitem">
+      <ng-container *ngIf="isPageNumber(item); else ellipsisTpl">
+        <button
+          type="button"
+          [disabled]="disabled"
+          (click)="goTo(item)"
+          [attr.aria-current]="item === page ? 'page' : null"
+          [attr.aria-label]="item === page ? pageWord + ' ' + item : 'Ir para página ' + item"
+        >
+          {{ item }}
+        </button>
+      </ng-container>
+    </li>
+  </ul>
+
+  <button
+    class="control next"
+    type="button"
+    [disabled]="disabled || page === totalPages"
+    (click)="goTo(page + 1)"
+    aria-label="Próxima página"
+  >
+    ›
+  </button>
+
+  <button
+    *ngIf="showFirstLast"
+    class="control last"
+    type="button"
+    [disabled]="disabled || page === totalPages"
+    (click)="goTo(totalPages)"
+    aria-label="Última página"
+  >
+    »
+  </button>
+
+  <span class="sr-only" aria-live="polite">{{ pageWord }} {{ page }} {{ ofLabel }} {{ totalPages }}</span>
+
+  <ng-template #ellipsisTpl>
+    <span class="ellipsis" aria-hidden="true">…</span>
+  </ng-template>
+</nav>
+
+<ng-template #tableBar>
+  <div
+    class="pagination table-bar"
+    role="navigation"
+    [attr.aria-label]="ariaLabel"
+    [ngClass]="{ 'is-disabled': disabled, 'is-compact': compact }"
+  >
+    <div class="ppg">
+      <label [attr.for]="ids.pageSize">{{ itemsLabel }}</label>
+      <div class="select">
+        <select
+          [id]="ids.pageSize"
+          [disabled]="disabled"
+          [value]="pageSize"
+          (change)="onPageSizeChange(($event.target as HTMLSelectElement).value)"
+          aria-label="Itens por página"
+        >
+          <option *ngFor="let opt of pageSizeOptions" [value]="opt">{{ opt }}</option>
+        </select>
+        <span class="chevron" aria-hidden="true">▾</span>
+      </div>
+    </div>
+
+    <div class="range" aria-live="polite">
+      {{ rangeStart }}–{{ rangeEnd }} {{ ofLabel }} {{ totalItems }} {{ itemsWord }}
+    </div>
+
+    <div class="page-select">
+      <label [attr.for]="ids.pageSelect" class="sr-only">{{ pageWord }}</label>
+      <div class="select">
+        <select
+          [id]="ids.pageSelect"
+          [disabled]="disabled || totalPages === 0"
+          [value]="page"
+          (change)="goTo(($event.target as HTMLSelectElement).value)"
+          [attr.aria-label]="page + ' ' + ofLabel + ' ' + totalPages + ' pages'"
+        >
+          <option *ngFor="let p of pages" [value]="p">{{ p }}</option>
+        </select>
+        <span class="suffix"> {{ ofLabel }} {{ totalPages }} pages</span>
+        <span class="chevron" aria-hidden="true">▾</span>
+      </div>
+
+      <div class="controls">
+        <button
+          class="control prev"
+          type="button"
+          [disabled]="disabled || page === 1"
+          (click)="goTo(page - 1)"
+          aria-label="Página anterior"
+        >
+          ‹
+        </button>
+        <button
+          class="control next"
+          type="button"
+          [disabled]="disabled || page === totalPages"
+          (click)="goTo(page + 1)"
+          aria-label="Próxima página"
+        >
+          ›
+        </button>
+      </div>
+    </div>
+
+    <span class="sr-only" aria-live="polite">{{ pageWord }} {{ page }} {{ ofLabel }} {{ totalPages }}</span>
+  </div>
+</ng-template>
