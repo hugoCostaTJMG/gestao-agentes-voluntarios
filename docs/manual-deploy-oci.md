@@ -112,16 +112,11 @@ OCI_NAMESPACE=axhheqi2ofpb
 
 # OCI Vault Secrets
 OCI_VAULT_DB_PASSWORD_SECRET_ID=ocid1.vaultsecret.oc1..aaaa...
-OCI_VAULT_GOVBR_SECRET_ID=ocid1.vaultsecret.oc1..aaaa...
 
 # Application
 APP_BASE_URL=https://agentes.tjmg.jus.br
 KEYCLOAK_ISSUER_URI=https://sso.tjmg.jus.br/realms/agentes-voluntarios
 
-# gov.br
-GOVBR_CLIENT_ID=seu-client-id
-GOVBR_CLIENT_SECRET=seu-client-secret
-GOVBR_REDIRECT_URI=https://agentes.tjmg.jus.br/auth/govbr/callback
 ```
 
 ### 3. Configuração do Oracle Database
@@ -373,4 +368,3 @@ oci lb backend-health get --load-balancer-id <lb-id> --backend-set-name <backend
 **Data:** 17/06/2025  
 **Compatibilidade:** Oracle Cloud Infrastructure (OCI)  
 **Autor:** Equipe de Desenvolvimento TJMG
-

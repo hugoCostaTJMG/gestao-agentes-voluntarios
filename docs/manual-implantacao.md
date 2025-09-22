@@ -34,7 +34,7 @@ O sistema tem como principais objetivos:
 - Emitir credenciais digitais com QR Code para verificação
 - Permitir consulta pública da validade das credenciais
 - Controlar o ciclo de vida dos agentes (status cadastral)
-- Integrar com sistemas de autenticação gov.br e Keycloak
+- Integrar com sistema de autenticação Keycloak
 - Fornecer auditoria completa das operações
 
 ### 1.2 Características Técnicas
@@ -42,7 +42,7 @@ O sistema tem como principais objetivos:
 - **Backend:** Java 17, Spring Boot 3.x, Spring Security, JPA/Hibernate
 - **Frontend:** Angular 17, Bootstrap 5, TypeScript
 - **Banco de Dados:** Oracle Database 21c
-- **Autenticação:** Keycloak (administrativo) e gov.br (agentes)
+- **Autenticação:** Keycloak
 - **Containerização:** Docker e Docker Compose
 - **Infraestrutura:** Oracle Cloud Infrastructure (OCI)
 
@@ -101,7 +101,6 @@ Para um ambiente de produção que suporte até 1.000 usuários simultâneos, re
 - 8180: Keycloak
 
 **Conectividade Externa:**
-- Acesso à internet para integração com gov.br
 - Acesso aos repositórios Docker Hub e Oracle Container Registry
 - Conectividade com serviços de DNS públicos
 
@@ -143,7 +142,7 @@ O sistema utiliza uma arquitetura de microsserviços containerizada, com os segu
 
 **Frontend (Angular):**
 - Interface web responsiva
-- Autenticação via Keycloak e gov.br
+- Autenticação via Keycloak
 - Comunicação com backend via REST APIs
 - Servido por Nginx com proxy reverso
 
@@ -172,7 +171,7 @@ O sistema utiliza uma arquitetura de microsserviços containerizada, com os segu
 
 O fluxo típico de dados no sistema segue o padrão:
 
-1. **Autenticação:** Usuário se autentica via Keycloak ou gov.br
+1. **Autenticação:** Usuário se autentica via Keycloak
 2. **Autorização:** Token JWT é validado pelo backend
 3. **Processamento:** Backend processa a requisição e aplica regras de negócio
 4. **Persistência:** Dados são armazenados no Oracle Database
@@ -248,11 +247,6 @@ nano .env
 **Variáveis Obrigatórias:**
 
 ```bash
-# Configurações do gov.br (obter no portal do desenvolvedor gov.br)
-GOVBR_CLIENT_ID=seu-client-id-real
-GOVBR_CLIENT_SECRET=seu-client-secret-real
-GOVBR_REDIRECT_URI=https://seu-dominio.gov.br/auth/govbr/callback
-
 # Configurações do Oracle Database
 ORACLE_PWD=SenhaSegura123!
 ORACLE_CHARACTERSET=AL32UTF8
@@ -277,8 +271,8 @@ POSTGRES_PASSWORD=SenhaPostgres123!
 mkdir -p ssl/
 
 # Copiar certificados (exemplo com Let's Encrypt)
-sudo cp /etc/letsencrypt/live/seu-dominio.gov.br/fullchain.pem ssl/
-sudo cp /etc/letsencrypt/live/seu-dominio.gov.br/privkey.pem ssl/
+sudo cp /etc/letsencrypt/live/seu-dominio.example/fullchain.pem ssl/
+sudo cp /etc/letsencrypt/live/seu-dominio.example/privkey.pem ssl/
 sudo chown $USER:$USER ssl/*
 ```
 
@@ -287,7 +281,7 @@ sudo chown $USER:$USER ssl/*
 ```nginx
 server {
     listen 443 ssl http2;
-    server_name seu-dominio.gov.br;
+    server_name seu-dominio.example;
     
     ssl_certificate /etc/ssl/certs/fullchain.pem;
     ssl_certificate_key /etc/ssl/private/privkey.pem;
@@ -356,4 +350,3 @@ chmod +x scripts/backup-oracle.sh
 ```
 
 ---
-

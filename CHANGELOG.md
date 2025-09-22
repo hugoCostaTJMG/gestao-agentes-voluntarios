@@ -97,11 +97,10 @@
 - Cadastro básico de agentes
 - Emissão de credenciais com QR Code
 - Consulta pública
-- Autenticação gov.br
+ 
 - Interface administrativa
 
 ---
 
 **Desenvolvido para:** Tribunal de Justiça de Minas Gerais (TJMG)  
 **Tecnologias:** Java 17, Spring Boot 3.2, Angular 17, Bootstrap 5
-

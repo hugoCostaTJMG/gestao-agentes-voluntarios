@@ -74,9 +74,6 @@ services:
       - ORACLE_DB_USER=agentes_user
       - ORACLE_DB_PASSWORD=agentes_pass
       - ORACLE_DB_SCHEMA=AGENTES_USER
-      - GOVBR_CLIENT_ID=${GOVBR_CLIENT_ID}
-      - GOVBR_CLIENT_SECRET=${GOVBR_CLIENT_SECRET}
-      - GOVBR_REDIRECT_URI=${GOVBR_REDIRECT_URI}
       # Keycloak OAuth2 Client (backend faz o login)
       - KEYCLOAK_CLIENT_ID=${KEYCLOAK_CLIENT_ID:-agentes-voluntarios}
       - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET}

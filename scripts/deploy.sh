@@ -19,20 +19,6 @@ if ! command -v docker-compose &> /dev/null; then
 fi
 
 # Verificar variáveis de ambiente necessárias
-if [ -z "$GOVBR_CLIENT_ID" ]; then
-    echo "⚠️  GOVBR_CLIENT_ID não definido. Usando valor padrão para desenvolvimento."
-    export GOVBR_CLIENT_ID="seu-client-id"
-fi
-
-if [ -z "$GOVBR_CLIENT_SECRET" ]; then
-    echo "⚠️  GOVBR_CLIENT_SECRET não definido. Usando valor padrão para desenvolvimento."
-    export GOVBR_CLIENT_SECRET="seu-client-secret"
-fi
-
-if [ -z "$GOVBR_REDIRECT_URI" ]; then
-    echo "⚠️  GOVBR_REDIRECT_URI não definido. Usando valor padrão para desenvolvimento."
-    export GOVBR_REDIRECT_URI="http://localhost:4200/auth/govbr/callback"
-fi
 
 # Parar containers existentes
 echo "🛑 Parando containers existentes..."
@@ -90,4 +76,3 @@ echo "   Grafana Admin:  admin / admin123"
 echo "   Oracle DB:      system / OraclePassword123"
 echo ""
 echo "📚 Para mais informações, consulte a documentação em docs/"
-

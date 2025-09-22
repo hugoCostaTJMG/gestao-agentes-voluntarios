@@ -13,7 +13,7 @@ import {
   AreaAtuacao,
   Credencial,
   ConsultaPublica,
-  LoginGovBr,
+ 
   Usuario,
   PaginatedResponse,
   AutoInfracao,
@@ -79,23 +79,6 @@ verificarStatusCarteirinha(agenteId: number): Observable<{ podeGerar: boolean, m
   // e assim por diante...
 
   // ===== AUTENTICAÇÃO =====
-  loginGovBr(loginData: LoginGovBr): Observable<AgenteVoluntario> {
-    return this.http.post<AgenteVoluntario>(`${this.baseUrl}/auth/govbr/login`, loginData);
-  }
-
-  verificarCpfCadastrado(cpf: string): Observable<boolean> {
-    return this.http.get<boolean>(`${this.baseUrl}/auth/govbr/verificar-cpf/${cpf}`);
-  }
-
-  gerarUrlAutorizacaoGovBr(redirectUri: string): Observable<{ authorizeUrl: string }> {
-    const params = new HttpParams().set('redirectUri', redirectUri);
-    return this.http.get<{ authorizeUrl: string }>(`${this.baseUrl}/auth/govbr/authorize-url`, { params });
-  }
-
-  trocarCodigoPorToken(code: string, redirectUri: string): Observable<{ accessToken: string }> {
-    const params = new HttpParams().set('code', code).set('redirectUri', redirectUri);
-    return this.http.post<{ accessToken: string }>(`${this.baseUrl}/auth/govbr/token`, null, { params });
-  }
 
   logout(): void {
     this.authService.logout();

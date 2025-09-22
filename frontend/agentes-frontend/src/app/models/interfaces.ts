@@ -12,7 +12,7 @@ export interface AgenteVoluntario {
   usuarioCadastro?: string;
   comarcas?: Comarca[];
   areasAtuacao?: AreaAtuacao[];
-  keycloakId?: string; // identificado quando vinculado ao Keycloak/gov.br
+  keycloakId?: string; // identificado quando vinculado ao Keycloak
 }
 
 export interface AgenteVoluntarioDTO {
@@ -78,16 +78,9 @@ export interface ConsultaPublica {
   comarcasAtuacao: string;
 }
 
-export interface LoginGovBr {
-  cpf: string;
-  govBrToken: string;
-  nomeCompleto?: string;
-  email?: string;
-}
-
 export interface Usuario {
   id?: number;           // opcional: o backend preenche depois
-  keycloakId: string;    // obrigatório: UUID do Keycloak OU 'sub' do token do gov.br
+  keycloakId: string;    // obrigatório: UUID do Keycloak
   nome: string;
   email: string;
   perfil: string;        // ex.: 'AGENTE', 'ADMIN', etc.

@@ -26,7 +26,7 @@
 
 A API REST do Sistema de Gestão de Agentes Voluntários fornece acesso programático a todas as funcionalidades do sistema. A API segue os padrões REST e utiliza JSON para troca de dados.
 
-**URL Base:** `https://sistema-agentes.corregedoria.gov.br/api`
+**URL Base:** `https://sistema-agentes.corregedoria.tjmg.jus.br/api`
 
 **Versão Atual:** v1
 
@@ -46,8 +46,8 @@ A API REST do Sistema de Gestão de Agentes Voluntários fornece acesso program�
 ### 1.3 Documentação Interativa
 
 A documentação interativa da API está disponível em:
-- **Swagger UI:** `https://sistema-agentes.corregedoria.gov.br/swagger-ui.html`
-- **OpenAPI Spec:** `https://sistema-agentes.corregedoria.gov.br/v3/api-docs`
+- **Swagger UI:** `https://sistema-agentes.corregedoria.tjmg.jus.br/swagger-ui.html`
+- **OpenAPI Spec:** `https://sistema-agentes.corregedoria.tjmg.jus.br/v3/api-docs`
 
 ---
 
@@ -62,26 +62,16 @@ A API suporta dois métodos de autenticação:
 Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
-**JWT Token (gov.br):**
-```http
-Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
-```
 
 ### 2.2 Obtenção do Token
 
 **Via Keycloak:**
 ```bash
-curl -X POST "https://keycloak.corregedoria.gov.br/realms/agentes-voluntarios/protocol/openid-connect/token" \
+curl -X POST "https://keycloak.corregedoria.tjmg.jus.br/realms/agentes-voluntarios/protocol/openid-connect/token" \
   -H "Content-Type: application/x-www-form-urlencoded" \
   -d "grant_type=password&client_id=agentes-api&username=usuario&password=senha"
 ```
 
-**Via gov.br:**
-```bash
-curl -X POST "https://sistema-agentes.corregedoria.gov.br/auth/govbr/login" \
-  -H "Content-Type: application/json" \
-  -d '{"cpf": "12345678901", "govBrToken": "token-do-govbr"}'
-```
 
 ### 2.3 Perfis de Autorização
 
@@ -94,10 +84,9 @@ curl -X POST "https://sistema-agentes.corregedoria.gov.br/auth/govbr/login" \
 ### 2.4 Exemplo de Requisição Autenticada
 
 ```bash
-curl -X GET "https://sistema-agentes.corregedoria.gov.br/api/agentes" \
+curl -X GET "https://sistema-agentes.corregedoria.tjmg.jus.br/api/agentes" \
   -H "Authorization: Bearer SEU_TOKEN_JWT" \
   -H "Content-Type: application/json"
 ```
 
 ---
-

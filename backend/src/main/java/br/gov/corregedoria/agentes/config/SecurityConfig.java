@@ -81,7 +81,6 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/public/**").permitAll()
-                        .requestMatchers("/auth/govbr/**").permitAll()
                         .requestMatchers("/auth/keycloak/**").permitAll()
                         .requestMatchers("/login/**", "/oauth2/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()

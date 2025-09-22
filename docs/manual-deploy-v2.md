@@ -10,7 +10,7 @@ Este manual contém as instruções completas para deploy do Sistema de Gestão 
 - **Backend:** Java 17 + Spring Boot 3.x
 - **Frontend:** Angular 16+ 
 - **Banco de Dados:** PostgreSQL 14+
-- **Autenticação:** Keycloak + Login gov.br
+- **Autenticação:** Keycloak
 - **Containerização:** Docker + Docker Compose
 
 ## 📦 Pré-requisitos
@@ -84,10 +84,7 @@ KEYCLOAK_URL=https://sso.tjmg.jus.br
 KEYCLOAK_REALM=agentes-voluntarios
 KEYCLOAK_CLIENT_ID=agentes-app
 
-# Login gov.br
-GOVBR_CLIENT_ID=seu_client_id
-GOVBR_CLIENT_SECRET=seu_client_secret
-GOVBR_REDIRECT_URI=https://agentes.tjmg.jus.br/auth/govbr/callback
+ 
 
 # SSL/TLS
 SSL_ENABLED=true
@@ -317,4 +314,3 @@ sudo chmod -R 755 /var/www/agentes
 **Versão:** 2.0  
 **Data:** 17/06/2025  
 **Autor:** Equipe de Desenvolvimento
-

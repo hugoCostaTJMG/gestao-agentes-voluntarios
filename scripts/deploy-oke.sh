@@ -144,8 +144,6 @@ create_secrets() {
         --namespace=$NAMESPACE \
         --from-literal=ORACLE_DB_USER="${ORACLE_DB_USER}" \
         --from-literal=ORACLE_DB_PASSWORD="${ORACLE_DB_PASSWORD}" \
-        --from-literal=GOVBR_CLIENT_ID="${GOVBR_CLIENT_ID}" \
-        --from-literal=GOVBR_CLIENT_SECRET="${GOVBR_CLIENT_SECRET}" \
         --dry-run=client -o yaml | kubectl apply -f -
     
     # Secret para configuração OCI
@@ -253,4 +251,3 @@ main() {
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     main "$@"
 fi
-

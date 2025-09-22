@@ -65,18 +65,13 @@ O sistema oferece duas modalidades de autenticação:
 - Utiliza credenciais institucionais
 - Acesso completo às funcionalidades administrativas
 
-**Acesso via gov.br:**
-- Para agentes voluntários cadastrados
-- Utiliza conta gov.br do cidadão
-- Validação automática do CPF com a base de dados
+ 
 
 ### 2.2 Como Fazer Login
 
 **Passo 1:** Acesse o endereço do sistema no navegador
 
-**Passo 2:** Na tela inicial, escolha o tipo de acesso:
-- Clique em "Entrar com Keycloak" para acesso administrativo
-- Clique em "Entrar com gov.br" para agentes voluntários
+**Passo 2:** Na tela inicial, clique em "Entrar com Keycloak" para acessar o sistema
 
 **Passo 3:** Complete a autenticação conforme o método escolhido
 
@@ -92,13 +87,6 @@ Para o primeiro acesso administrativo:
 
 ### 2.4 Primeiro Acesso - Agentes Voluntários
 
-Para agentes voluntários:
-
-1. Certifique-se de que possui conta gov.br ativa
-2. Verifique se seu CPF está cadastrado no sistema
-3. Clique em "Entrar com gov.br"
-4. Complete a autenticação no portal gov.br
-5. Será redirecionado automaticamente para suas informações
+O acesso dos agentes é realizado via Keycloak, conforme orientações da administração do sistema.
 
 ---
-

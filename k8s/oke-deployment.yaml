@@ -65,8 +65,6 @@ data:
   # Base64 encoded values - substituir pelos valores reais
   ORACLE_DB_USER: YWdlbnRlc191c2Vy  # agentes_user
   ORACLE_DB_PASSWORD: YWdlbnRlc19wYXNz  # agentes_pass
-  GOVBR_CLIENT_ID: c2V1LWNsaWVudC1pZA==  # seu-client-id
-  GOVBR_CLIENT_SECRET: c2V1LWNsaWVudC1zZWNyZXQ=  # seu-client-secret
 
 ---
 # PersistentVolumeClaim para logs
@@ -167,16 +165,6 @@ spec:
             secretKeyRef:
               name: agentes-secrets
               key: ORACLE_DB_PASSWORD
-        - name: GOVBR_CLIENT_ID
-          valueFrom:
-            secretKeyRef:
-              name: agentes-secrets
-              key: GOVBR_CLIENT_ID
-        - name: GOVBR_CLIENT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: agentes-secrets
-              key: GOVBR_CLIENT_SECRET
         
         # Health checks
         livenessProbe:
@@ -441,4 +429,3 @@ spec:
       port: 53    # DNS
     - protocol: UDP
       port: 53    # DNS
-

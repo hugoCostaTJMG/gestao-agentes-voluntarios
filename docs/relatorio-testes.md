@@ -69,16 +69,15 @@ Este relatório apresenta os resultados dos testes realizados no Sistema de Gest
 
 ### 1.4 Autenticação
 
-**Cenários:** Login via Keycloak e gov.br
+**Cenário:** Login via Keycloak
 
 **Casos de Teste Executados:**
 
 | ID | Descrição | Resultado | Observações |
 |----|-----------|-----------|-------------|
 | TC013 | Login administrativo via Keycloak | ✅ Passou | Redirecionamento correto |
-| TC014 | Login de agente via gov.br | ✅ Passou | Validação de CPF funcionando |
-| TC015 | Login com CPF não cadastrado | ✅ Passou | Erro apropriado exibido |
-| TC016 | Logout do sistema | ✅ Passou | Sessão encerrada corretamente |
+| TC014 | Login com CPF não cadastrado | ✅ Passou | Erro apropriado exibido |
+| TC015 | Logout do sistema | ✅ Passou | Sessão encerrada corretamente |
 
 **Status:** ✅ **APROVADO** - Todos os casos de teste passaram
 
@@ -224,4 +223,3 @@ Com base nos resultados dos testes realizados, o sistema está **APROVADO** para
 ---
 
 *Este relatório foi gerado automaticamente pelo sistema de testes e validado pela equipe de qualidade.*
-

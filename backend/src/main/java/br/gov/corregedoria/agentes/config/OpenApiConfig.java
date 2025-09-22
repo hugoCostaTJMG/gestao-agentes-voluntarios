@@ -28,10 +28,10 @@ public class OpenApiConfig {
                         .version("1.0.0")
                         .contact(new Contact()
                                 .name("Corregedoria")
-                                .email("suporte@corregedoria.gov.br"))
+                                .email("suporte@corregedoria.tjmg.jus.br"))
                         .license(new License()
                                 .name("Propriedade da Corregedoria")
-                                .url("https://corregedoria.gov.br")))
+                                .url("https://corregedoria.tjmg.jus.br")))
                 .servers(List.of(
                         new Server().url(baseUrl).description("Servidor de Produção"),
                         new Server().url("http://localhost:8080").description("Servidor de Desenvolvimento")))
@@ -45,4 +45,3 @@ public class OpenApiConfig {
                                         .description("Token JWT obtido via Keycloak")));
     }
 }
-

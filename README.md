@@ -22,7 +22,7 @@ Sistema completo para gestão de agentes voluntários e registro de autos de inf
 - Exportação para CSV/PDF
 
 ### 🔐 Segurança e Controle
-- Autenticação via Keycloak + Login gov.br
+- Autenticação via Keycloak
 - Controle de acesso por perfil (Agente/Supervisor/Admin)
 - Auditoria completa de operações
 - Criptografia de dados sensíveis
@@ -248,4 +248,3 @@ Todos os direitos reservados.
 **Versão:** 2.0  
 **Data:** 17/06/2025  
 **Equipe:** Desenvolvimento TJMG
-

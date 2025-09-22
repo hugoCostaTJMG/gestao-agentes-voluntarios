@@ -240,7 +240,7 @@ type: Opaque
 data:
   db-password: <base64-encoded-password>
   jwt-secret: <base64-encoded-jwt-secret>
-  govbr-client-secret: <base64-encoded-govbr-secret>
+  
 ```
 
 ### **2. Configurações de Rede:**
@@ -416,4 +416,3 @@ kubectl patch deployment agentes-backend -p '{"spec":{"template":{"spec":{"conta
 **📅 Data de Criação:** $(date)  
 **👨‍💻 Versão:** 2.1  
 **🏢 Organização:** Tribunal de Justiça de Minas Gerais
-

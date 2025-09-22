@@ -104,11 +104,14 @@ export class PaginationComponent implements OnChanges {
         items.push(i);
       }
 
-      if (items[items.length - 1] < total - 1) {
+      const lastItem = items[items.length - 1];
+      if (typeof lastItem === 'number' && lastItem < total - 1) {
         items.push('ellipsis-right');
       }
 
-      if (items[items.length - 1] !== total) {
+      const lastAfterEllipsis = items[items.length - 1];
+      const isLastTotal = typeof lastAfterEllipsis === 'number' && lastAfterEllipsis === total;
+      if (!isLastTotal) {
         items.push(total);
       }
 
