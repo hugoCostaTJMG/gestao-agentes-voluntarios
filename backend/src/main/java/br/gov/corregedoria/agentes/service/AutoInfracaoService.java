@@ -104,6 +104,33 @@ public class AutoInfracaoService {
     }
 
     /**
+     * Registra um auto de infração (status RASCUNHO -> REGISTRADO) e gera número único.
+     * RN010 - Imutabilidade do Auto Registrado
+     */
+    public AutoInfracao registrar(Long id, String usuarioLogado, String perfilUsuario) {
+        AutoInfracao auto = autoRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Auto não encontrado: " + id));
+
+        if (auto.getStatus() != StatusAutoInfracao.RASCUNHO) {
+            throw new IllegalStateException("Apenas autos em rascunho podem ser registrados");
+        }
+
+        // Muda status para REGISTRADO
+        auto.registrar();
+
+        // Gera número único do auto (padrão: AI-YYYYMMDD-ID)
+        if (auto.getNumeroAuto() == null || auto.getNumeroAuto().isBlank()) {
+            String data = java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.BASIC_ISO_DATE);
+            auto.setNumeroAuto("AI-" + data + "-" + auto.getId());
+        }
+
+        auto = autoRepository.save(auto);
+        logRepository.save(LogAuditoriaAutoInfracao.criarLogEdicao(id, usuarioLogado, perfilUsuario, null, "REGISTRO"));
+        auditoriaUtil.registrarLog(usuarioLogado, "REGISTRO_AUTO", "Auto registrado: " + id + " numero=" + auto.getNumeroAuto());
+        return auto;
+    }
+
+    /**
      * Exclui um auto de infração em rascunho.
      * RN010 - Autos registrados não podem ser excluídos.
      */
@@ -152,7 +179,7 @@ public class AutoInfracaoService {
 
         // RN011 e RN012
         if (auto.getStatus() == StatusAutoInfracao.RASCUNHO) {
-            if (!auto.getAgente().getId().equals(agenteId)) {
+            if (agenteId == null || auto.getAgente() == null || auto.getAgente().getId() == null || !auto.getAgente().getId().equals(agenteId)) {
                 throw new IllegalStateException("Acesso negado ao rascunho");
             }
         } else {
@@ -163,4 +190,3 @@ public class AutoInfracaoService {
         return auto;
     }
 }
-

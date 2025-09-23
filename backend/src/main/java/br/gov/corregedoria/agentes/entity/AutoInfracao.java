@@ -27,6 +27,9 @@ public class AutoInfracao {
     @SequenceGenerator(name = "S_AUTO_INFRACAO", sequenceName = "S_AUTO_INFRACAO", allocationSize = 1)
     @Column(name = "id", updatable = false, nullable = false)
     private Long id;
+
+    @Column(name = "numero_auto", unique = true, length = 30)
+    private String numeroAuto;
     
     // === DADOS DO AUTUADO (Obrigatórios) ===
     
@@ -234,6 +237,14 @@ public class AutoInfracao {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getNumeroAuto() {
+        return numeroAuto;
+    }
+
+    public void setNumeroAuto(String numeroAuto) {
+        this.numeroAuto = numeroAuto;
     }
     
     public String getNomeAutuado() {
@@ -460,4 +471,3 @@ public class AutoInfracao {
         this.anexos = anexos;
     }
 }
-

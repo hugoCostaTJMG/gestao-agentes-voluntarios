@@ -163,3 +163,28 @@ export interface AutoInfracao {
   justificativaCancelamento?: string;
   anexos?: AnexoAutoInfracao[];
 }
+
+// ===== DASHBOARD =====
+
+export interface DashboardOverview {
+  totalAgentes: number;
+  agentesAtivos: number;
+  autosTotal: number;
+  comarcasTotal: number;
+  statusSummary: DashboardStatusItem[];
+  activities: DashboardActivity[];
+}
+
+export interface DashboardStatusItem {
+  label: string;
+  count: number;
+  badgeVariant: string;
+}
+
+export interface DashboardActivity {
+  title: string;
+  description: string;
+  time: string;
+  status: string;
+  badgeVariant: string;
+}

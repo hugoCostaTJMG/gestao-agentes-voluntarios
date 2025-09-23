@@ -34,7 +34,9 @@ export class ApiService {
       const w: any = window as any;
       const runtime = w.APP_CONFIG?.apiUrl || w.__APP_CONFIG__?.apiUrl || w.__env?.API_URL;
       if (runtime && typeof runtime === 'string') {
-        this.baseUrl = runtime;
+        // Evita hosts internos de Docker (ex.: http://backend:8080) que não são resolvíveis no navegador
+        const looksLikeDockerHost = /:\/\/backend(?::\d+)?\/?$/i.test(runtime) || /:\/\/backend(?::\d+)?/i.test(runtime);
+        this.baseUrl = looksLikeDockerHost ? '' : runtime;
       }
     } catch {}
   }
@@ -142,6 +144,13 @@ verificarStatusCarteirinha(agenteId: number): Observable<{ podeGerar: boolean, m
 
   buscarAgentePorCpf(cpf: string): Observable<AgenteVoluntarioResponseDTO> {
     return this.http.get<AgenteVoluntarioResponseDTO>(`${this.baseUrl}/api/agentes/cpf/${cpf}`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  // ===== DASHBOARD =====
+  getDashboardOverview(): Observable<import('../models/interfaces').DashboardOverview> {
+    return this.http.get<import('../models/interfaces').DashboardOverview>(`${this.baseUrl}/api/dashboard/overview`, {
       headers: this.getAuthHeaders()
     });
   }

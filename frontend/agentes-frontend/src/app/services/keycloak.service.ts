@@ -150,8 +150,19 @@ export class KeycloakService {
   }
 
   handleUnauthorized(): void {
-    if (!this.isLoggingOut && this.authService.isLoggedIn()) {
+    if (this.isLoggingOut) {
+      return;
+    }
+    if (this.authService.isLoggedIn()) {
       this.logout();
+      return;
+    }
+    try {
+      // Sem sessão local: garante ida para tela de login
+      this.router.navigate(['/login']);
+    } catch {
+      // fallback duro
+      window.location.href = '/login';
     }
   }
 }

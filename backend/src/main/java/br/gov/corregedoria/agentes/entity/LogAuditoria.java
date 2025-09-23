@@ -25,7 +25,8 @@ public class LogAuditoria {
     @Column(name = "tipo_operacao", nullable = false, length = 50)
     private String tipoOperacao;
 
-    @Column(name = "detalhes", columnDefinition = "TEXT")
+    @Lob
+    @Column(name = "detalhes")
     private String detalhes;
 
     @Column(name = "ip_origem", length = 45)
@@ -113,4 +114,3 @@ public class LogAuditoria {
                 '}';
     }
 }
-

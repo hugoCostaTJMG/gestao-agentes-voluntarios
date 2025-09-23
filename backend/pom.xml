@@ -72,6 +72,16 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- Flyway for DB migrations (Oracle) -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-oracle</artifactId>
+        </dependency>
+
         <!-- H2 Database (para testes) -->
         <dependency>
             <groupId>com.h2database</groupId>
@@ -102,9 +112,13 @@
         <!-- PDF Generation -->
         <dependency>
             <groupId>com.itextpdf</groupId>
-            <artifactId>itext7-core</artifactId>
+            <artifactId>kernel</artifactId>
             <version>7.2.5</version>
-            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>layout</artifactId>
+            <version>7.2.5</version>
         </dependency>
 
         <!-- Logging -->
@@ -155,4 +169,3 @@
         </plugins>
     </build>
 </project>
-

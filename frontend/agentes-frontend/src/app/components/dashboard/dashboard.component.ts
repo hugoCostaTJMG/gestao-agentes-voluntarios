@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonComponent } from '../../shared/components/buttons/button/button.component';
 import { BadgeComponent } from '../../shared/components/badge/badge.component';
+import { ApiService } from '../../services/api.service';
+import { DashboardOverview } from '../../models/interfaces';
 
 type MetricColor = 'primary' | 'success' | 'warning' | 'info';
 
@@ -35,53 +37,69 @@ interface StatusSummary {
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit {
   refreshing = false;
 
-  metrics: MetricCard[] = [
-    { icon: 'fas fa-users', value: 3, label: 'Total de Agentes', color: 'primary' },
-    { icon: 'fas fa-user-check', value: 2, label: 'Agentes Ativos', color: 'success' },
-    { icon: 'fas fa-file-alt', value: 2, label: 'Autos de Infração', color: 'warning' },
-    { icon: 'fas fa-map-marker-alt', value: 298, label: 'Comarcas MG', color: 'info' }
-  ];
+  metrics: MetricCard[] = [];
 
-  activities: RecentActivity[] = [
-    {
-      title: 'Maria Silva Santos',
-      description: 'Credencial emitida',
-      time: 'Hoje às 14:30',
-      status: 'Concluído',
-      badgeVariant: 'success'
-    },
-    {
-      title: 'João Carlos Oliveira',
-      description: 'Cadastro em análise',
-      time: 'Ontem às 16:45',
-      status: 'Em Análise',
-      badgeVariant: 'warning'
-    },
-    {
-      title: 'Auto AI-2024-001',
-      description: 'Registrado',
-      time: '15/06/2024 às 10:20',
-      status: 'Registrado',
-      badgeVariant: 'primary'
-    }
-  ];
+  activities: RecentActivity[] = [];
 
-  statusSummary: StatusSummary[] = [
-    { label: 'Ativos', count: 2, badgeVariant: 'success' },
-    { label: 'Em Análise', count: 1, badgeVariant: 'warning' },
-    { label: 'Inativos', count: 0, badgeVariant: 'danger' }
-  ];
+  statusSummary: StatusSummary[] = [];
+
+  constructor(private api: ApiService) {}
+
+  ngOnInit(): void {
+    this.load();
+  }
+
+  private load(): void {
+    this.api.getDashboardOverview().subscribe({
+      next: (data: DashboardOverview) => {
+        this.metrics = [
+          { icon: 'fas fa-users', value: data.totalAgentes, label: 'Total de Agentes', color: 'primary' },
+          { icon: 'fas fa-user-check', value: data.agentesAtivos, label: 'Agentes Ativos', color: 'success' },
+          { icon: 'fas fa-file-alt', value: data.autosTotal, label: 'Autos de Infração', color: 'warning' },
+          { icon: 'fas fa-map-marker-alt', value: data.comarcasTotal, label: 'Comarcas MG', color: 'info' }
+        ];
+        this.activities = (data.activities || []).map(a => ({
+          title: a.title,
+          description: a.description,
+          time: a.time,
+          status: a.status,
+          badgeVariant: a.badgeVariant as BadgeVariant
+        }));
+        this.statusSummary = (data.statusSummary || []).map(s => ({
+          label: s.label,
+          count: s.count,
+          badgeVariant: s.badgeVariant as BadgeVariant
+        }));
+      },
+      error: () => {
+        // mantém silencioso; a UI já tem estados vazios.
+      }
+    });
+  }
 
   refreshDashboard(): void {
     if (this.refreshing) {
       return;
     }
     this.refreshing = true;
-    window.setTimeout(() => {
-      this.refreshing = false;
-    }, 800);
+    this.api.getDashboardOverview().subscribe({
+      next: (data) => {
+        this.metrics = [
+          { icon: 'fas fa-users', value: data.totalAgentes, label: 'Total de Agentes', color: 'primary' },
+          { icon: 'fas fa-user-check', value: data.agentesAtivos, label: 'Agentes Ativos', color: 'success' },
+          { icon: 'fas fa-file-alt', value: data.autosTotal, label: 'Autos de Infração', color: 'warning' },
+          { icon: 'fas fa-map-marker-alt', value: data.comarcasTotal, label: 'Comarcas MG', color: 'info' }
+        ];
+        this.activities = (data.activities || []) as any;
+        this.statusSummary = (data.statusSummary || []) as any;
+        this.refreshing = false;
+      },
+      error: () => {
+        this.refreshing = false;
+      }
+    });
   }
 }

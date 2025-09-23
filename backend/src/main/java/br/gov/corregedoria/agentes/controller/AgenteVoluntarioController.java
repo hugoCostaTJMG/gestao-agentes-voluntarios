@@ -115,7 +115,7 @@ public class AgenteVoluntarioController {
         @ApiResponse(responseCode = "200", description = "Lista de agentes ativos"),
         @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
-    @PreAuthorize("hasRole('uma_authorization')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA') or hasRole('COFIJ')")
     @GetMapping("/ativos")
     public ResponseEntity<List<AgenteVoluntarioResponseDTO>> listarAgentesAtivos() {
         List<AgenteVoluntarioResponseDTO> response = agenteService.listarAgentesAtivos();

@@ -30,9 +30,36 @@ export class CarteirinhaComponent implements OnInit {
 
   ngOnInit(): void {
     const usuario = this.authService.getCurrentUser();
+    const maybeId = usuario?.id;
+    if (maybeId && typeof maybeId === 'number') {
+      this.carregarDadosAgente(maybeId);
+      this.verificarStatus(maybeId);
+      return;
+    }
 
-    this.carregarDadosAgente(1);
-    this.verificarStatus(1);
+    // Fallback: tentar por CPF
+    if (usuario?.cpf) {
+      this.loadingDados = true;
+      this.apiService.buscarAgentePorCpf(usuario.cpf).pipe(take(1)).subscribe({
+        next: (ag) => {
+          const id = ag.id;
+          if (id) {
+            this.agente = ag as any;
+            this.carregarDadosAgente(id);
+            this.verificarStatus(id);
+          } else {
+            this.mensagemErro = 'Não foi possível identificar seu cadastro de agente.';
+          }
+          this.loadingDados = false;
+        },
+        error: () => {
+          this.mensagemErro = 'Seu CPF não está vinculado a um agente voluntário.';
+          this.loadingDados = false;
+        }
+      });
+    } else {
+      this.mensagemErro = 'Não foi possível identificar o usuário atual.';
+    }
   }
 
   get nomeCompleto(): string {

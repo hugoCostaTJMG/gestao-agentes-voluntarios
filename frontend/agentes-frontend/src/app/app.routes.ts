@@ -23,7 +23,7 @@ export const routes: Routes = [
     data: { roles: ['AGENTE'] }
   },
   {
-    path: 'carteirinha-agemtes',
+    path: 'carteirinha-agentes',
     loadComponent: () =>
       import('./components/carteirinha/carteirinha.component').then(m => m.CarteirinhaComponent),
     canActivate: [AuthGuard, RoleGuard],
@@ -55,7 +55,7 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./components/credencial-emissao/credencial-emissao.component').then(m => m.CredencialEmissaoComponent),
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['ADMIN'] }
+    data: { roles: ['ADMIN', 'COFIJ'] }
   },
   {
     path: 'autos',
