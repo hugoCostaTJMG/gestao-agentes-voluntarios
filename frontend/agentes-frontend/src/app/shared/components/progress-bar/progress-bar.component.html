@@ -1,0 +1,104 @@
+<div
+  [attr.id]="id"
+  class="pb"
+  [ngClass]="{
+    'pb-inline': inline,
+    'pb-skeleton': skeleton,
+    'pb-indeterminate': indeterminate,
+    'pb-animated': animated,
+    'pb-no-animate': !animated,
+    'pb-striped': striped && isDeterminate && !segmented,
+    'pb-segmented': segmented,
+    'pb-size-sm': size === 'sm',
+    'pb-size-lg': size === 'lg',
+    'pb-status-success': status === 'success',
+    'pb-status-error': status === 'error',
+    'pb-status-neutral': status === 'neutral',
+    'pb-has-helper': !!helperText,
+    'pb-show-percentage': showPercentage && isDeterminate,
+    'pb-stacked-labels': stackedLabels && segmented && showItemLabels
+  }"
+  role="progressbar"
+  tabindex="0"
+  [attr.aria-busy]="ariaBusy"
+  [attr.aria-valuemin]="ariaValueMin"
+  [attr.aria-valuemax]="ariaValueMax"
+  [attr.aria-valuenow]="ariaValueNow"
+  [attr.aria-label]="ariaLabelAttr"
+  [attr.aria-labelledby]="ariaLabelledby"
+  [attr.aria-describedby]="ariaDescribedByAttr"
+>
+  <span
+    class="sr-only pb-live"
+    [attr.id]="liveRegionId"
+    aria-live="polite"
+    aria-atomic="true"
+  >
+    {{ liveMessage }}
+  </span>
+
+  <div class="pb-main">
+    <div class="pb-header" *ngIf="label || statusIcon || (showPercentage && isDeterminate)">
+      <div class="pb-header-main">
+        <label *ngIf="label" class="pb-label" [attr.id]="labelId">
+          {{ label }}
+        </label>
+        <span class="pb-status-icon" *ngIf="statusIcon" aria-hidden="true">{{ statusIcon }}</span>
+      </div>
+      <span class="pb-percentage" *ngIf="showPercentage && isDeterminate">
+        {{ percentageText }}
+      </span>
+    </div>
+
+    <div class="pb-track" role="presentation">
+      <ng-container *ngIf="segmented; else determinateBar">
+        <div class="pb-segments" role="presentation">
+          <div
+            class="pb-segment"
+            *ngFor="let segment of segments"
+            role="presentation"
+            [ngClass]="['pb-segment-status-' + segment.status]"
+            [style.flex-basis.%]="segment.percent"
+            [attr.title]="segment.tooltip || null"
+            [attr.data-label]="segment.label || segment.ariaLabel || null"
+          ></div>
+        </div>
+      </ng-container>
+      <ng-template #determinateBar>
+        <div
+          class="pb-fill"
+          [ngClass]="{
+            'pb-fill-indeterminate': indeterminate,
+            'pb-fill-striped': striped && isDeterminate,
+            'pb-fill-skeleton': skeleton
+          }"
+          [style.--pb]="percentStyle"
+        ></div>
+      </ng-template>
+    </div>
+  </div>
+
+  <div class="pb-item-labels" *ngIf="segmented && showItemLabels && segments.length">
+    <div class="pb-item-label" *ngFor="let segment of segments">
+      <div class="pb-item-label-text">
+        <span class="pb-item-icon" *ngIf="segment.icon" [class]="segment.icon" aria-hidden="true"></span>
+        <span>{{ segment.label || segment.ariaLabel || 'Segmento' }}</span>
+      </div>
+      <span class="pb-item-label-value">{{ segment.percent | number: '1.0-0' }}%</span>
+    </div>
+  </div>
+
+  <p class="pb-helper" *ngIf="helperText" [attr.id]="helperId">
+    {{ helperText }}
+  </p>
+
+  <ul class="pb-segment-list sr-only" role="list" *ngIf="segmented && segments.length">
+    <li role="listitem" *ngFor="let segment of segments">
+      {{ segment.ariaLabel || segment.label || 'Segmento' }}: {{ segment.percent | number: '1.0-0' }}%
+    </li>
+  </ul>
+
+  <div class="pb-item-host" aria-hidden="true">
+    <ng-content select="app-progress-bar-item"></ng-content>
+  </div>
+</div>

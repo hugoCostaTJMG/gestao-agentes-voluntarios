@@ -1,0 +1,386 @@
+@import "../../general/colors/colors.scss";
+
+:host {
+  display: block;
+  width: 100%;
+  --pb-h-sm: 4px;
+  --pb-h-md: 8px;
+  --pb-h-lg: 12px;
+  --pb-radius: 999px;
+  --pb-ease: cubic-bezier(0.2, 0, 0.38, 0.9);
+  --pb-dur: 150ms;
+  --pb-height: var(--pb-h-md);
+  --pb-color: $blue-600;
+  --pb-helper-color: $neutral-400;
+  --pb-label-size: 0.875rem;
+  --pb-helper-size: 0.75rem;
+}
+
+:host(.pb-size-sm) {
+  --pb-height: var(--pb-h-sm);
+  --pb-label-size: 0.75rem;
+  --pb-helper-size: 0.6875rem;
+}
+
+:host(.pb-size-lg) {
+  --pb-height: var(--pb-h-lg);
+  --pb-label-size: 1rem;
+  --pb-helper-size: 0.875rem;
+}
+
+:host(.pb-status-success) {
+  --pb-color: $green-600;
+  --pb-helper-color: $green-600;
+}
+
+:host(.pb-status-error) {
+  --pb-color: $red-600;
+  --pb-helper-color: $red-600;
+}
+
+:host(.pb-status-neutral) {
+  --pb-color: $neutral-400;
+  --pb-helper-color: $neutral-400;
+}
+
+.pb {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  outline: none;
+}
+
+.pb:focus-visible {
+  outline: 2px solid $blue-600;
+  outline-offset: 2px;
+}
+
+.pb-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pb-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.pb-header-main {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pb-label {
+  font-size: var(--pb-label-size);
+  font-weight: 600;
+  color: $neutral-600;
+}
+
+.pb-status-icon {
+  font-size: var(--pb-label-size);
+  color: var(--pb-color);
+}
+
+.pb-percentage {
+  font-size: var(--pb-label-size);
+  font-weight: 600;
+  color: $neutral-600;
+  white-space: nowrap;
+}
+
+.pb-track {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: var(--pb-height);
+  background-color: $neutral-200;
+  border-radius: var(--pb-radius);
+  overflow: hidden;
+}
+
+.pb-fill {
+  position: relative;
+  height: 100%;
+  width: var(--pb, 0);
+  max-width: 100%;
+  background-color: var(--pb-color);
+  transition: width var(--pb-dur) var(--pb-ease), background-color var(--pb-dur) var(--pb-ease);
+}
+
+.pb-fill.pb-fill-skeleton {
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    $neutral-200 0%,
+    $neutral-300 50%,
+    $neutral-200 100%
+  );
+  animation: pb-shimmer 1.5s infinite;
+}
+
+.pb-fill.pb-fill-indeterminate {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 35%;
+  transform: translateX(-100%);
+  animation: pb-indeterminate 1.2s infinite;
+}
+
+.pb.pb-no-animate .pb-fill,
+.pb.pb-no-animate .pb-segment,
+.pb.pb-no-animate .pb-fill-indeterminate,
+.pb.pb-no-animate .pb-fill-skeleton {
+  transition: none;
+  animation: none;
+}
+
+.pb.pb-no-animate .pb-fill.pb-fill-indeterminate {
+  transform: translateX(0);
+  width: 100%;
+}
+
+.pb-fill.pb-fill-striped {
+  background-image: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.15) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.15) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 1rem 1rem;
+}
+
+.pb.pb-animated .pb-fill.pb-fill-striped {
+  animation: pb-stripes 1.2s linear infinite;
+}
+
+.pb-segments {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.pb-segment {
+  flex: 0 0 auto;
+  height: 100%;
+  transition: flex-basis var(--pb-dur) var(--pb-ease), background-color var(--pb-dur) var(--pb-ease);
+  min-width: 0;
+}
+
+.pb-segment-status-default {
+  background-color: $blue-600;
+}
+
+.pb-segment-status-success {
+  background-color: $green-600;
+}
+
+.pb-segment-status-error {
+  background-color: $red-600;
+}
+
+.pb-segment-status-neutral {
+  background-color: $neutral-400;
+}
+
+.pb.pb-skeleton .pb-track {
+  background: $neutral-200;
+}
+
+.pb.pb-skeleton .pb-segment {
+  background: linear-gradient(
+    90deg,
+    $neutral-200 0%,
+    $neutral-300 50%,
+    $neutral-200 100%
+  );
+  animation: pb-shimmer 1.5s infinite;
+}
+
+.pb.pb-skeleton .pb-status-icon,
+.pb.pb-skeleton .pb-percentage {
+  color: $neutral-400;
+}
+
+.pb-item-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.pb-item-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-width: 120px;
+  color: $neutral-600;
+  font-size: 0.75rem;
+}
+
+.pb-item-label-text {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.pb-item-icon {
+  font-size: 0.75rem;
+  color: inherit;
+}
+
+.pb-item-label-value {
+  font-weight: 600;
+}
+
+.pb.pb-stacked-labels .pb-item-labels {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.pb-helper {
+  margin: 0;
+  font-size: var(--pb-helper-size);
+  color: var(--pb-helper-color);
+}
+
+.pb.pb-status-error .pb-helper {
+  color: $red-600;
+}
+
+.pb.pb-status-success .pb-helper {
+  color: $green-600;
+}
+
+.pb.pb-status-neutral .pb-helper {
+  color: $neutral-500;
+}
+
+.pb-item-host {
+  display: none;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.pb.pb-inline {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-auto-rows: auto;
+  column-gap: 0.75rem;
+  row-gap: 0.5rem;
+  align-items: center;
+}
+
+.pb.pb-inline .pb-main {
+  display: contents;
+}
+
+.pb.pb-inline .pb-header {
+  display: contents;
+}
+
+.pb.pb-inline .pb-header-main {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.pb.pb-inline .pb-percentage {
+  grid-column: 3;
+  grid-row: 1;
+  justify-self: end;
+}
+
+.pb.pb-inline .pb-track {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.pb.pb-inline .pb-helper,
+.pb.pb-inline .pb-item-labels,
+.pb.pb-inline .pb-segment-list {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 480px) {
+  .pb {
+    row-gap: 0.5rem;
+  }
+
+  .pb-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .pb.pb-inline {
+    grid-template-columns: 1fr;
+    grid-auto-flow: row;
+  }
+
+  .pb.pb-inline .pb-percentage {
+    justify-self: start;
+  }
+
+  .pb-item-labels {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .pb-helper {
+    white-space: normal;
+  }
+}
+
+@keyframes pb-indeterminate {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(30%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes pb-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes pb-stripes {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 1rem 0;
+  }
+}
