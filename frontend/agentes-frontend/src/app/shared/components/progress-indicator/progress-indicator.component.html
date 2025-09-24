@@ -1,0 +1,41 @@
+<div
+  class="progress-indicator"
+  [ngClass]="[
+    'orientation-' + orientation,
+    'size-' + size,
+    showLabels ? 'with-labels' : 'without-labels',
+    skeleton ? 'is-skeleton' : ''
+  ]"
+  role="list"
+  [attr.aria-label]="ariaLabel"
+  (keydown)="onKeydown($event)"
+>
+  <div class="progress-indicator__track" aria-hidden="true"></div>
+  <div class="progress-indicator__items">
+    <ng-container *ngFor="let item of renderedItems; let i = index; trackBy: trackByIndex">
+      <app-progress-indicator-item
+        [index]="i"
+        [label]="item.label"
+        [optionalLabel]="item.optionalLabel"
+        [state]="item.state || 'incomplete'"
+        [tooltip]="item.tooltip"
+        [href]="item.href"
+        [size]="size"
+        [orientation]="orientation"
+        [clickable]="clickable && !skeleton"
+        [skeleton]="skeleton"
+        [showLabels]="showLabels"
+        [isFirst]="i === 0"
+        [isLast]="i === renderedItems.length - 1"
+        [tabStop]="focusedIndex === i"
+        [itemId]="getItemId(i, item)"
+        [tooltipId]="getTooltipId(i, item) || undefined"
+        [total]="renderedItems.length"
+        [position]="i + 1"
+        (activate)="onItemActivate(i)"
+        (focused)="onItemFocus(i)"
+      ></app-progress-indicator-item>
+    </ng-container>
+  </div>
+  <div class="visually-hidden" [id]="liveRegionId" aria-live="polite">{{ liveMessage }}</div>
+</div>
