@@ -4,6 +4,7 @@ import { ButtonComponent } from '../../shared/components/buttons/button/button.c
 import { BadgeComponent } from '../../shared/components/badge/badge.component';
 import { ApiService } from '../../services/api.service';
 import { DashboardOverview } from '../../models/interfaces';
+import { PermissionService } from '../../services/permission.service';
 
 type MetricColor = 'primary' | 'success' | 'warning' | 'info';
 
@@ -40,27 +41,41 @@ interface StatusSummary {
 export class DashboardComponent implements OnInit {
   refreshing = false;
 
+  isAdmin = false;
+  isAgente = false;
+  statusPanelTitle = 'Status';
+
   metrics: MetricCard[] = [];
 
   activities: RecentActivity[] = [];
 
   statusSummary: StatusSummary[] = [];
 
-  constructor(private api: ApiService) {}
+  constructor(private api: ApiService, private permission: PermissionService) {}
 
   ngOnInit(): void {
+    const roles = this.permission.getUserRoles().map(r => r.toUpperCase());
+    this.isAdmin = roles.includes('ADMIN');
+    this.isAgente = roles.includes('AGENTE') && !this.isAdmin;
+    this.statusPanelTitle = this.isAdmin ? 'Status dos Agentes' : 'Status dos Meus Autos';
     this.load();
   }
 
   private load(): void {
     this.api.getDashboardOverview().subscribe({
       next: (data: DashboardOverview) => {
-        this.metrics = [
-          { icon: 'fas fa-users', value: data.totalAgentes, label: 'Total de Agentes', color: 'primary' },
-          { icon: 'fas fa-user-check', value: data.agentesAtivos, label: 'Agentes Ativos', color: 'success' },
-          { icon: 'fas fa-file-alt', value: data.autosTotal, label: 'Autos de Infração', color: 'warning' },
-          { icon: 'fas fa-map-marker-alt', value: data.comarcasTotal, label: 'Comarcas MG', color: 'info' }
-        ];
+        if (this.isAdmin) {
+          this.metrics = [
+            { icon: 'fas fa-users', value: data.totalAgentes, label: 'Total de Agentes', color: 'primary' },
+            { icon: 'fas fa-user-check', value: data.agentesAtivos, label: 'Agentes Ativos', color: 'success' },
+            { icon: 'fas fa-file-alt', value: data.autosTotal, label: 'Autos de Infração', color: 'warning' },
+            { icon: 'fas fa-map-marker-alt', value: data.comarcasTotal, label: 'Comarcas MG', color: 'info' }
+          ];
+        } else {
+          this.metrics = [
+            { icon: 'fas fa-file-alt', value: data.autosTotal, label: 'Meus Autos', color: 'primary' }
+          ];
+        }
         this.activities = (data.activities || []).map(a => ({
           title: a.title,
           description: a.description,
@@ -87,12 +102,18 @@ export class DashboardComponent implements OnInit {
     this.refreshing = true;
     this.api.getDashboardOverview().subscribe({
       next: (data) => {
-        this.metrics = [
-          { icon: 'fas fa-users', value: data.totalAgentes, label: 'Total de Agentes', color: 'primary' },
-          { icon: 'fas fa-user-check', value: data.agentesAtivos, label: 'Agentes Ativos', color: 'success' },
-          { icon: 'fas fa-file-alt', value: data.autosTotal, label: 'Autos de Infração', color: 'warning' },
-          { icon: 'fas fa-map-marker-alt', value: data.comarcasTotal, label: 'Comarcas MG', color: 'info' }
-        ];
+        if (this.isAdmin) {
+          this.metrics = [
+            { icon: 'fas fa-users', value: data.totalAgentes, label: 'Total de Agentes', color: 'primary' },
+            { icon: 'fas fa-user-check', value: data.agentesAtivos, label: 'Agentes Ativos', color: 'success' },
+            { icon: 'fas fa-file-alt', value: data.autosTotal, label: 'Autos de Infração', color: 'warning' },
+            { icon: 'fas fa-map-marker-alt', value: data.comarcasTotal, label: 'Comarcas MG', color: 'info' }
+          ];
+        } else {
+          this.metrics = [
+            { icon: 'fas fa-file-alt', value: data.autosTotal, label: 'Meus Autos', color: 'primary' }
+          ];
+        }
         this.activities = (data.activities || []) as any;
         this.statusSummary = (data.statusSummary || []) as any;
         this.refreshing = false;

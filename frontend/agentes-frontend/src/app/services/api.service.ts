@@ -65,6 +65,8 @@ verificarStatusCarteirinha(agenteId: number): Observable<{ podeGerar: boolean, m
       responseType: 'blob'
     });
   }
+  
+  // ===== DASHBOARD =====
   // api.service.ts
   get<T>(endpoint: string): Observable<T> {
     return this.http.get<T>(`${this.baseUrl}${endpoint}`, {

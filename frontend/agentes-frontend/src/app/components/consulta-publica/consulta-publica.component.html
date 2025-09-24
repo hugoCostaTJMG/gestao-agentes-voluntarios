@@ -13,6 +13,7 @@
     [type]="mensagem.tipo === 'success' ? 'success' : 'danger'"
     [message]="mensagem.texto"
     [dismissible]="true"
+    [autoCloseMs]="10000"
     (dismissed)="limparMensagem()"
   ></app-alert>
 

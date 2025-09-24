@@ -51,6 +51,13 @@ export const routes: Routes = [
     data: { roles: ['ADMIN'] }
   },
   {
+    path: 'agentes/:id/editar',
+    loadComponent: () =>
+      import('./components/agente-cadastro/agente-cadastro.component').then(m => m.AgenteCadastroComponent),
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['ADMIN'] }
+  },
+  {
     path: 'credenciais',
     loadComponent: () =>
       import('./components/credencial-emissao/credencial-emissao.component').then(m => m.CredencialEmissaoComponent),
@@ -82,8 +89,7 @@ export const routes: Routes = [
     path: 'consulta-publica',
     loadComponent: () =>
       import('./components/consulta-publica/consulta-publica.component').then(m => m.ConsultaPublicaComponent),
-    canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['ADMIN', 'AGENTE'] }
+    // Página pública – sem guards
   },
   { path: '**', redirectTo: '' }
 ];

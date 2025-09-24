@@ -4,6 +4,7 @@
     [type]="alertType"
     [message]="alertMessage"
     [dismissible]="true"
+    [autoCloseMs]="10000"
     (dismissed)="showAlert = false"
   ></app-alert>
   <div class="row">
@@ -131,6 +132,13 @@
                         title="Visualizar"
                       >
                         <i class="fas fa-eye"></i>
+                      </button>
+                      <button
+                        class="btn btn-outline-warning"
+                        (click)="editarAgente(agente.id)"
+                        title="Alterar dados do agente"
+                      >
+                        <i class="fas fa-pen"></i>
                       </button>
                       <button
                         class="btn btn-outline-success"

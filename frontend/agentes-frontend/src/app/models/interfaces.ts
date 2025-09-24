@@ -166,6 +166,8 @@ export interface AutoInfracao {
 
 // ===== DASHBOARD =====
 
+// ===== DASHBOARD =====
+
 export interface DashboardOverview {
   totalAgentes: number;
   agentesAtivos: number;

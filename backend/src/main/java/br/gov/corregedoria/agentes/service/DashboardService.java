@@ -4,6 +4,7 @@ import br.gov.corregedoria.agentes.dto.ActivityDTO;
 import br.gov.corregedoria.agentes.dto.DashboardOverviewDTO;
 import br.gov.corregedoria.agentes.dto.StatusSummaryDTO;
 import br.gov.corregedoria.agentes.entity.LogAuditoria;
+import br.gov.corregedoria.agentes.entity.StatusAutoInfracao;
 import br.gov.corregedoria.agentes.entity.StatusAgente;
 import br.gov.corregedoria.agentes.repository.AgenteVoluntarioRepository;
 import br.gov.corregedoria.agentes.repository.AutoInfracaoRepository;
@@ -12,8 +13,11 @@ import br.gov.corregedoria.agentes.repository.LogAuditoriaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +35,14 @@ public class DashboardService {
 
     private static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-    public DashboardOverviewDTO overview() {
+    public DashboardOverviewDTO overview(Authentication authentication) {
+        if (authentication != null && hasRole(authentication, "ROLE_AGENTE") && !hasRole(authentication, "ROLE_ADMIN")) {
+            return overviewForAgente(authentication.getName());
+        }
+        return overviewForAdmin();
+    }
+
+    private DashboardOverviewDTO overviewForAdmin() {
         DashboardOverviewDTO dto = new DashboardOverviewDTO();
         dto.setTotalAgentes(agenteRepository.count());
         dto.setAgentesAtivos(agenteRepository.countByStatus(StatusAgente.ATIVO));
@@ -52,6 +63,46 @@ public class DashboardService {
             dto.setActivities(List.of());
         }
         return dto;
+    }
+
+    private DashboardOverviewDTO overviewForAgente(String usuario) {
+        DashboardOverviewDTO dto = new DashboardOverviewDTO();
+        // Para AGENTE, mostramos apenas métricas relacionadas ao próprio usuário
+        long meusAutos = autoRepository.countByMatriculaAgente(usuario);
+        dto.setTotalAgentes(0); // não exibido no frontend para AGENTE
+        dto.setAgentesAtivos(0); // não exibido para AGENTE
+        dto.setAutosTotal(meusAutos);
+        dto.setComarcasTotal(0); // não exibido para AGENTE
+
+        List<StatusSummaryDTO> status = new ArrayList<>();
+        status.add(new StatusSummaryDTO("Rascunho", autoRepository.countByMatriculaAgenteAndStatus(usuario, StatusAutoInfracao.RASCUNHO), "neutral"));
+        status.add(new StatusSummaryDTO("Registrado", autoRepository.countByMatriculaAgenteAndStatus(usuario, StatusAutoInfracao.REGISTRADO), "primary"));
+        status.add(new StatusSummaryDTO("Concluído", autoRepository.countByMatriculaAgenteAndStatus(usuario, StatusAutoInfracao.CONCLUIDO), "success"));
+        status.add(new StatusSummaryDTO("Cancelado", autoRepository.countByMatriculaAgenteAndStatus(usuario, StatusAutoInfracao.CANCELADO), "danger"));
+        dto.setStatusSummary(status);
+
+        try {
+            // Últimos logs do próprio usuário no último ano
+            var logs = logRepository.findByUsuarioAndPeriodo(
+                    usuario,
+                    LocalDateTime.now().minusYears(1),
+                    LocalDateTime.now(),
+                    PageRequest.of(0, 5)
+            );
+            dto.setActivities(logs.map(this::toActivity).getContent());
+        } catch (Exception e) {
+            dto.setActivities(List.of());
+        }
+        return dto;
+    }
+
+    private boolean hasRole(Authentication auth, String role) {
+        for (GrantedAuthority ga : auth.getAuthorities()) {
+            if (role.equalsIgnoreCase(ga.getAuthority())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private ActivityDTO toActivity(LogAuditoria log) {

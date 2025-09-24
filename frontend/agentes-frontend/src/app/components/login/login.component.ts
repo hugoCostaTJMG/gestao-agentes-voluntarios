@@ -40,6 +40,7 @@ export class LoginComponent implements OnInit {
       if (params['notRegistered']) {
         this.showError = true;
         this.errorMessage = 'Seu CPF não está cadastrado como Agente Voluntário.';
+        setTimeout(() => { if (this.showError) this.showError = false; }, 10000);
       }
       if (params['token']) {
         this.keycloak.init().then(() => this.router.navigate(['/']));
@@ -50,6 +51,7 @@ export class LoginComponent implements OnInit {
   async loginKeycloak() {
     this.showInfo = true;
     this.infoMessage = 'Redirecionando para o Keycloak...';
+    setTimeout(() => { if (this.showInfo) this.showInfo = false; }, 10000);
     this.keycloak.login(); // backend inicia o fluxo OIDC do Keycloak
   }
 

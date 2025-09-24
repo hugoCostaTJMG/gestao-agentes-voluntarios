@@ -142,6 +142,11 @@ public interface AutoInfracaoRepository extends JpaRepository<AutoInfracao, Long
     long countByStatus(StatusAutoInfracao status);
     
     /**
+     * Conta autos de infração de um agente por status
+     */
+    long countByMatriculaAgenteAndStatus(String matriculaAgente, StatusAutoInfracao status);
+    
+    /**
      * Conta autos de infração por agente
      */
     long countByMatriculaAgente(String matriculaAgente);
@@ -172,4 +177,3 @@ public interface AutoInfracaoRepository extends JpaRepository<AutoInfracao, Long
      */
     Page<AutoInfracao> findByBaseLegalContainingIgnoreCaseOrderByDataCadastroDesc(String baseLegal, Pageable pageable);
 }
-

@@ -26,8 +26,7 @@ public class DashboardController {
     @Operation(summary = "Overview do Dashboard")
     @GetMapping("/overview")
     @PreAuthorize("hasRole('ADMIN') or hasRole('AGENTE') or hasRole('CORREGEDORIA') or hasRole('COFIJ')")
-    public ResponseEntity<DashboardOverviewDTO> overview() {
-        return ResponseEntity.ok(dashboardService.overview());
+    public ResponseEntity<DashboardOverviewDTO> overview(org.springframework.security.core.Authentication authentication) {
+        return ResponseEntity.ok(dashboardService.overview(authentication));
     }
 }
-

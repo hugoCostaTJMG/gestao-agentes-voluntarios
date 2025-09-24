@@ -9,12 +9,23 @@ import { firstValueFrom } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class KeycloakService {
   private isLoggingOut = false;
+  private isHandling401 = false;
+  private backendBaseUrl: string = environment.apiUrl;
       
   constructor(
     private authService: AuthService,
     private router: Router,
     private api: ApiService
-  ) {}
+  ) {
+    // Detecta URL do backend em runtime (mesma lógica do ApiService)
+    try {
+      const w: any = window as any;
+      const runtime = w.APP_CONFIG?.apiUrl || w.__APP_CONFIG__?.apiUrl || w.__env?.API_URL;
+      if (runtime && typeof runtime === 'string') {
+        this.backendBaseUrl = runtime;
+      }
+    } catch {}
+  }
 
   async init(): Promise<boolean> {
     // Captura token retornado pelo backend após login (query param "token" ou fragment)
@@ -64,9 +75,9 @@ export class KeycloakService {
   }
 
   login(): void {
-    // Redireciona para o backend iniciar o fluxo OIDC
+    // Redireciona para o backend iniciar o fluxo OIDC (preferindo localhost:8080 no dev)
     // Usa force=true para obrigar o Keycloak a pedir credenciais novamente
-    window.location.href = `${environment.apiUrl}/auth/keycloak/login?force=true`;
+    window.location.href = this.makeBackendUrl('/auth/keycloak/login?force=true');
   }
 
   logout(): void {
@@ -90,7 +101,24 @@ export class KeycloakService {
       ]);
     } catch {}
     // Inicia logout no Keycloak via backend (encerra SSO de verdade)
-    window.location.href = `${environment.apiUrl}/auth/keycloak/logout`;
+    window.location.href = this.makeBackendUrl('/auth/keycloak/logout');
+  }
+
+  /**
+   * Logout suave para 401: limpa apenas estado local e vai para /login,
+   * sem encerrar a sessão SSO no Keycloak.
+   */
+  softLogoutToLogin(): void {
+    try { this.authService.logout(); } catch {}
+    try { sessionStorage.clear(); } catch {}
+    try { localStorage.removeItem('currentUser'); } catch {}
+    try {
+      if (!this.router.url.startsWith('/login')) {
+        this.router.navigate(['/login']);
+      }
+    } catch {
+      try { window.location.replace('/login'); } catch {}
+    }
   }
 
   private clearClientCookies(names?: string[]) {
@@ -150,19 +178,42 @@ export class KeycloakService {
   }
 
   handleUnauthorized(): void {
-    if (this.isLoggingOut) {
+    if (this.isLoggingOut || this.isHandling401) {
       return;
     }
-    if (this.authService.isLoggedIn()) {
-      this.logout();
-      return;
-    }
+    this.isHandling401 = true;
     try {
-      // Sem sessão local: garante ida para tela de login
-      this.router.navigate(['/login']);
+      // Limpa estado local e inicia logout completo (encerra SSO no Keycloak)
+      try { this.authService.logout(); } catch {}
+      this.logout(); // redireciona para backend /auth/keycloak/logout
     } catch {
-      // fallback duro
-      window.location.href = '/login';
+      // fallback para login direto
+      try { this.softLogoutToLogin(); } catch {}
+    } finally {
+      setTimeout(() => { this.isHandling401 = false; }, 1000);
+    }
+  }
+
+  /**
+   * Monta URL absoluta para o backend, preferindo http://localhost:8080
+   * quando o APP_CONFIG usar host de rede interna (ex.: http://backend:8080)
+   */
+  private makeBackendUrl(path: string): string {
+    try {
+      const p = path.startsWith('/') ? path : `/${path}`;
+      const lower = (this.backendBaseUrl || '').toLowerCase();
+
+      // Caso container esteja expondo "backend:8080", preferir localhost:8080 no browser
+      if (lower.includes('backend:8080') || lower.includes('backend')) {
+        return `http://localhost:8080${p}`;
+      }
+
+      // Caso já seja localhost:8080 ou outro host válido, respeitar
+      const sep = this.backendBaseUrl.endsWith('/') ? '' : '/';
+      return `${this.backendBaseUrl}${sep}${p.replace(/^\//, '')}`;
+    } catch {
+      // Fallback: caminho relativo (será proxied pelo Nginx quando houver)
+      return path;
     }
   }
 }

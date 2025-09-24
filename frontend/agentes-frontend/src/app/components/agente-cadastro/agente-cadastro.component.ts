@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { Comarca, AreaAtuacao, AgenteVoluntarioDTO } from '../../models/interfaces';
 import { CommonModule } from '@angular/common';
@@ -24,6 +24,8 @@ export class AgenteCadastroComponent implements OnInit {
   areasAtuacao: AreaAtuacao[] = [];
   estados: Estado[] = [];
   loading = false;
+  isEditMode = false;
+  agenteId?: number;
   showSuccess = false;
   showError = false;
   successMessage = '';
@@ -33,7 +35,8 @@ export class AgenteCadastroComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private apiService: ApiService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     this.agenteForm = this.createForm();
   }
@@ -42,6 +45,14 @@ export class AgenteCadastroComponent implements OnInit {
     this.carregarComarcas();
     this.carregarAreasAtuacao();
     this.carregarEstados();
+    this.route.paramMap.subscribe((params: ParamMap) => {
+      const id = params.get('id');
+      if (id) {
+        this.isEditMode = true;
+        this.agenteId = Number(id);
+        this.carregarAgente(this.agenteId);
+      }
+    });
   }
 
   private createForm(): FormGroup {
@@ -155,10 +166,10 @@ export class AgenteCadastroComponent implements OnInit {
       this.loading = true;
       this.hideMessages();
 
-      const formValue = this.agenteForm.value;
+      const formValue = this.agenteForm.getRawValue();
       
       // Limpar CPF (remover pontos e traços)
-      const cpfLimpo = formValue.cpf.replace(/\D/g, '');
+      const cpfLimpo = (formValue.cpf || '').toString().replace(/\D/g, '');
       
       const agenteData: AgenteVoluntarioDTO = {
         nomeCompleto: formValue.nomeCompleto,
@@ -179,15 +190,23 @@ export class AgenteCadastroComponent implements OnInit {
       };
 
       // Converter foto para base64 se selecionada
+      const proceed = (dto: AgenteVoluntarioDTO) => {
+        if (this.isEditMode && this.agenteId) {
+          this.atualizarAgente(this.agenteId, dto);
+        } else {
+          this.enviarDados(dto);
+        }
+      };
+
       if (this.selectedFile) {
         const reader = new FileReader();
         reader.onload = () => {
           agenteData.fotoBase64 = reader.result as string;
-          this.enviarDados(agenteData);
+          proceed(agenteData);
         };
         reader.readAsDataURL(this.selectedFile);
       } else {
-        this.enviarDados(agenteData);
+        proceed(agenteData);
       }
     } else {
       this.markFormGroupTouched();
@@ -222,6 +241,48 @@ export class AgenteCadastroComponent implements OnInit {
     });
   }
 
+  private atualizarAgente(id: number, agenteData: AgenteVoluntarioDTO): void {
+    this.apiService.atualizarAgente(id, agenteData).subscribe({
+      next: () => {
+        this.loading = false;
+        this.mostrarSucesso('Dados do agente atualizados com sucesso!');
+        setTimeout(() => {
+          this.router.navigate(['/agentes']);
+        }, 1500);
+      },
+      error: (error) => {
+        this.loading = false;
+        console.error('Erro ao atualizar agente:', error);
+        this.mostrarErro('Erro ao atualizar agente. Tente novamente');
+      }
+    });
+  }
+
+  private carregarAgente(id: number): void {
+    this.apiService.buscarAgentePorId(id).subscribe({
+      next: (agente) => {
+        // Mapeia dados do agente para o formulário
+        const comarcasIds = (agente.comarcas || []).map(c => Number(c.id));
+        const areasIds = (agente.areasAtuacao || []).map(a => Number(a.id));
+        this.agenteForm.patchValue({
+          nomeCompleto: agente.nomeCompleto || agente.nome || '',
+          cpf: (agente.cpf || '').replace(/\D/g, ''),
+          telefone: agente.telefone || '',
+          email: agente.email || '',
+          disponibilidade: agente.disponibilidade || '',
+          comarcasIds,
+          areasAtuacaoIds: areasIds
+        });
+        // Em modo edição, impedir alteração do CPF
+        this.agenteForm.get('cpf')?.disable();
+      },
+      error: (err) => {
+        console.error('Erro ao carregar agente:', err);
+        this.mostrarErro('Não foi possível carregar os dados do agente.');
+      }
+    });
+  }
+
   limparFormulario(): void {
     this.agenteForm.reset();
     this.agenteForm.patchValue({
@@ -247,12 +308,18 @@ export class AgenteCadastroComponent implements OnInit {
     this.successMessage = mensagem;
     this.showSuccess = true;
     this.showError = false;
+    setTimeout(() => {
+      if (this.showSuccess) this.showSuccess = false;
+    }, 10000);
   }
 
   private mostrarErro(mensagem: string): void {
     this.errorMessage = mensagem;
     this.showError = true;
     this.showSuccess = false;
+    setTimeout(() => {
+      if (this.showError) this.showError = false;
+    }, 10000);
   }
 
   private hideMessages(): void {
@@ -260,5 +327,3 @@ export class AgenteCadastroComponent implements OnInit {
     this.showError = false;
   }
 }
-
-

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { AgenteVoluntario } from '../../models/interfaces';
 import { AlertComponent } from '../../shared/components/alert/alert.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-painel-agentes',
@@ -33,7 +34,7 @@ export class PainelAgentesComponent implements OnInit {
   alertType: 'primary' | 'secondary' | 'danger' | 'ghost' = 'primary';
   showAlert = false;
 
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService, private router: Router) {}
 
   ngOnInit(): void {
     this.carregarAgentes();
@@ -161,7 +162,20 @@ export class PainelAgentesComponent implements OnInit {
   }
 
   formatarData(data: string): string {
-    return new Date(data).toLocaleDateString('pt-BR');
+    if (!data) return '-';
+    const d = new Date(data);
+    if (isNaN(d.getTime())) {
+      // tenta formato yyyy-mm-dd
+      const m = String(data).match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (m) {
+        return `${m[3]}/${m[2]}/${m[1]}`;
+      }
+      return String(data);
+    }
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    return `${dd}/${mm}/${yyyy}`;
   }
 
   emitirCredencial(id: number): void {
@@ -202,5 +216,9 @@ export class PainelAgentesComponent implements OnInit {
 
   imprimir(): void {
     window.print();
+  }
+
+  editarAgente(id: number): void {
+    this.router.navigate([`/agentes/${id}/editar`]);
   }
 }

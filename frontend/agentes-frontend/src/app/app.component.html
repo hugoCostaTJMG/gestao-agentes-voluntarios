@@ -14,6 +14,7 @@
       [type]="mapAlertType(alert.type)"
       [message]="alert.text"
       [dismissible]="true"
+      [autoCloseMs]="10000"
       (dismissed)="clearAlert()"
       class="mb-3"
     ></app-alert>

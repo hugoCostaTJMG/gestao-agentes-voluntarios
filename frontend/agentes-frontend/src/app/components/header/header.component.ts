@@ -37,7 +37,7 @@ export class HeaderComponent implements OnInit {
   ngOnInit(): void {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
-      this.isLoggedIn = this.currentUserSubject.value !== null;
+      this.isLoggedIn = user !== null;
     });
   }
   toggleSidebar() {
