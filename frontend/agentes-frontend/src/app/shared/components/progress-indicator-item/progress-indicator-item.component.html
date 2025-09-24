@@ -1,0 +1,97 @@
+<div
+  class="progress-indicator-item"
+  [ngClass]="[
+    'orientation-' + orientation,
+    'size-' + size,
+    'state-' + state,
+    isCurrent ? 'is-current' : '',
+    isComplete ? 'is-complete' : '',
+    isError ? 'is-error' : '',
+    isDisabledState ? 'is-disabled' : '',
+    skeleton ? 'is-skeleton' : '',
+    tooltipVisible ? 'tooltip-open' : ''
+  ]"
+  role="listitem"
+  [attr.aria-setsize]="total || null"
+  [attr.aria-posinset]="position || null"
+  [class.is-clickable]="clickable && !isDisabledState && !skeleton"
+>
+  <div
+    #interactive
+    class="progress-indicator-item__interactive"
+    [attr.id]="itemId"
+    [attr.role]="interactiveRole"
+    [attr.tabindex]="tabIndex"
+    [attr.aria-current]="isCurrent ? 'step' : null"
+    [attr.aria-disabled]="ariaDisabled"
+    [attr.aria-describedby]="tooltip ? tooltipId : null"
+    (click)="onClick($event)"
+    (keydown)="onKeydown($event)"
+    (focus)="onFocus()"
+    (blur)="onBlur()"
+    (mouseenter)="onMouseEnter()"
+    (mouseleave)="onMouseLeave()"
+  >
+    <span
+      class="progress-indicator-item__connector progress-indicator-item__connector--before"
+      aria-hidden="true"
+      [class.is-hidden]="isFirst"
+    ></span>
+    <span class="progress-indicator-item__bullet" aria-hidden="true">
+      <span class="progress-indicator-item__bullet-inner" *ngIf="!skeleton">
+        <svg
+          *ngIf="isComplete"
+          class="progress-indicator-item__icon"
+          width="12"
+          height="12"
+          viewBox="0 0 16 16"
+          focusable="false"
+          aria-hidden="true"
+        >
+          <path
+            d="M6.4 10.6 3.8 8l-1.1 1.1L6.4 12l7-7-1.1-1.1z"
+            fill="currentColor"
+          ></path>
+        </svg>
+        <svg
+          *ngIf="isError"
+          class="progress-indicator-item__icon"
+          width="12"
+          height="12"
+          viewBox="0 0 16 16"
+          focusable="false"
+          aria-hidden="true"
+        >
+          <path
+            d="M7.3 2.3 1.4 13a1 1 0 0 0 .9 1.5h11.4a1 1 0 0 0 .9-1.5L8.7 2.3a1 1 0 0 0-1.4 0Zm.7 3.2a.7.7 0 0 1 .7.7v3.4a.7.7 0 0 1-1.4 0V6.2a.7.7 0 0 1 .7-.7Zm0 6.5a.8.8 0 1 1 0 1.5.8.8 0 0 1 0-1.5Z"
+            fill="currentColor"
+          ></path>
+        </svg>
+      </span>
+      <span class="progress-indicator-item__bullet-skeleton" *ngIf="skeleton"></span>
+    </span>
+    <span
+      class="progress-indicator-item__connector progress-indicator-item__connector--after"
+      aria-hidden="true"
+      [class.is-hidden]="isLast"
+    ></span>
+  </div>
+
+  <div class="progress-indicator-item__labels" *ngIf="showLabels && !skeleton">
+    <span class="progress-indicator-item__label">{{ label }}</span>
+    <span class="progress-indicator-item__optional" *ngIf="optionalLabel">{{ optionalLabel }}</span>
+  </div>
+
+  <div class="progress-indicator-item__skeleton-label" *ngIf="skeleton && showLabels" aria-hidden="true"></div>
+
+  <div
+    class="progress-indicator-item__tooltip"
+    *ngIf="tooltip"
+    [id]="tooltipId"
+    role="tooltip"
+    [class.is-visible]="tooltipVisible"
+    [attr.aria-hidden]="tooltipVisible ? 'false' : 'true'"
+  >
+    <span class="progress-indicator-item__tooltip-text">{{ tooltip }}</span>
+  </div>
+</div>

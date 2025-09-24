@@ -1,0 +1,130 @@
+@import "../../general/colors/colors.scss";
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.progress-indicator {
+  --pi-bullet-size: 1rem;
+  --pi-connector: 2px;
+  --pi-gap-horizontal: 1.75rem;
+  --pi-gap-vertical: 1.25rem;
+
+  position: relative;
+  width: 100%;
+  color: $neutral-700;
+
+  &.size-sm {
+    --pi-bullet-size: 0.75rem;
+  }
+
+  &.size-md {
+    --pi-bullet-size: 1rem;
+  }
+
+  &__items {
+    position: relative;
+    display: flex;
+    gap: var(--pi-gap-horizontal);
+    z-index: 1;
+    width: 100%;
+  }
+
+  &__track {
+    position: absolute;
+    pointer-events: none;
+    background-color: $neutral-200;
+    border-radius: 999px;
+    z-index: 0;
+    transition: background-color 150ms cubic-bezier(0.2, 0, 0.38, 0.9);
+  }
+
+  &.orientation-horizontal {
+    padding-top: calc(var(--pi-bullet-size) + 0.5rem);
+    padding-bottom: 0.25rem;
+
+    .progress-indicator__items {
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    .progress-indicator__items > * {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+
+    .progress-indicator__track {
+      top: calc(var(--pi-bullet-size) / 2);
+      left: calc(var(--pi-bullet-size) / 2);
+      right: calc(var(--pi-bullet-size) / 2);
+      height: var(--pi-connector);
+    }
+  }
+
+  &.orientation-horizontal.without-labels {
+    padding-top: calc(var(--pi-bullet-size) + 0.25rem);
+    padding-bottom: 0;
+  }
+
+  &.orientation-vertical {
+    padding-left: calc(var(--pi-bullet-size) + 1.5rem);
+
+    .progress-indicator__items {
+      flex-direction: column;
+      gap: var(--pi-gap-vertical);
+      align-items: stretch;
+    }
+
+    .progress-indicator__track {
+      top: calc(var(--pi-bullet-size) / 2);
+      bottom: calc(var(--pi-bullet-size) / 2);
+      left: calc(var(--pi-bullet-size) / 2);
+      width: var(--pi-connector);
+    }
+  }
+
+  &.is-skeleton {
+    .progress-indicator__track {
+      background-color: $neutral-200;
+    }
+  }
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  overflow: hidden;
+}
+
+@media (max-width: 480px) {
+  .progress-indicator.orientation-horizontal {
+    padding-left: calc(var(--pi-bullet-size) + 1.5rem);
+    padding-top: 0;
+
+    .progress-indicator__items {
+      flex-direction: column;
+      gap: var(--pi-gap-vertical);
+      align-items: stretch;
+    }
+
+    .progress-indicator__items > * {
+      flex: none;
+    }
+
+    .progress-indicator__track {
+      top: calc(var(--pi-bullet-size) / 2);
+      bottom: calc(var(--pi-bullet-size) / 2);
+      left: calc(var(--pi-bullet-size) / 2);
+      right: auto;
+      width: var(--pi-connector);
+      height: auto;
+    }
+  }
+}
