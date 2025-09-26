@@ -129,8 +129,8 @@ public class AgenteVoluntarioController {
         @ApiResponse(responseCode = "404", description = "Agente não encontrado"),
         @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
-    @PatchMapping("/{id}/status")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA')")
+    @PatchMapping(value = "/{id}/status", params = "status")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AgenteVoluntarioResponseDTO> atualizarStatus(
             @Parameter(description = "ID do agente") @PathVariable Long id,
             @Parameter(description = "Novo status") @RequestParam StatusAgente status,
@@ -138,6 +138,28 @@ public class AgenteVoluntarioController {
         
         String usuarioLogado = authentication.getName();
         AgenteVoluntarioResponseDTO response = agenteService.atualizarStatus(id, status, usuarioLogado);
+        return ResponseEntity.ok(response);
+    }
+
+    // Alternativa: aceitar JSON no corpo em vez de query param
+    public static class UpdateStatusRequest {
+        private StatusAgente status;
+        public StatusAgente getStatus() { return status; }
+        public void setStatus(StatusAgente status) { this.status = status; }
+    }
+
+    @PatchMapping(value = "/{id}/status", consumes = org.springframework.http.MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<AgenteVoluntarioResponseDTO> atualizarStatusJson(
+            @Parameter(description = "ID do agente") @PathVariable Long id,
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Objeto com o novo status")
+            @RequestBody UpdateStatusRequest body,
+            Authentication authentication) {
+        if (body == null || body.getStatus() == null) {
+            throw new IllegalArgumentException("Campo 'status' é obrigatório");
+        }
+        String usuarioLogado = authentication.getName();
+        AgenteVoluntarioResponseDTO response = agenteService.atualizarStatus(id, body.getStatus(), usuarioLogado);
         return ResponseEntity.ok(response);
     }
 

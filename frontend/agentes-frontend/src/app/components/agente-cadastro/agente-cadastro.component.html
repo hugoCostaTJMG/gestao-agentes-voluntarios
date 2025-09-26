@@ -7,12 +7,6 @@
             <i class="fas" [ngClass]="isEditMode ? 'fa-user-edit' : 'fa-user-plus'"></i>
             <span class="ms-2">{{ isEditMode ? 'Alterar Dados do Agente' : 'Cadastrar Agente Voluntário' }}</span>
           </h5>
-          <app-button
-            label="Voltar"
-            type="secondary"
-            iconLeft="fas fa-arrow-left"
-            (clicked)="voltar()"
-          ></app-button>
         </div>
         <div class="card-body">
           
@@ -21,7 +15,7 @@
             <!-- Dados Pessoais -->
             <div class="row mb-4">
               <div class="col-12">
-                <h6 class="text-primary border-bottom pb-2">
+                <h6 class=" border-bottom pb-2">
                   <i class="fas fa-user me-2"></i>
                   Dados Pessoais
                 </h6>
@@ -97,7 +91,7 @@
             <!-- Documentação -->
             <div class="row mb-4">
               <div class="col-12">
-                <h6 class="text-primary border-bottom pb-2">
+                <h6 class=" border-bottom pb-2">
                   <i class="fas fa-id-card me-2"></i>
                   Documentação
                 </h6>
@@ -135,7 +129,7 @@
             <!-- Filiação -->
             <div class="row mb-4">
               <div class="col-12">
-                <h6 class="text-primary border-bottom pb-2">
+                <h6 class=" border-bottom pb-2">
                   <i class="fas fa-users me-2"></i>
                   Filiação
                 </h6>
@@ -157,7 +151,7 @@
             <!-- Atuação -->
             <div class="row mb-4">
               <div class="col-12">
-                <h6 class="text-primary border-bottom pb-2">
+                <h6 class=" border-bottom pb-2">
                   <i class="fas fa-map-marker-alt me-2"></i>
                   Área de Atuação
                 </h6>

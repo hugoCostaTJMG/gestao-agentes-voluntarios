@@ -65,6 +65,13 @@ export const routes: Routes = [
     data: { roles: ['ADMIN', 'COFIJ'], title: 'Emissão de Credencial', icon: 'fas fa-id-card' }
   },
   {
+    path: 'situacao-cadastral',
+    loadComponent: () =>
+      import('./components/situacao-cadastral/situacao-cadastral.component').then(m => m.SituacaoCadastralComponent),
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['ADMIN'], title: 'Atualização da Situação Cadastral', icon: 'fas fa-user-check', showBack: true }
+  },
+  {
     path: 'autos',
     loadComponent: () =>
       import('./components/auto-infracao-lista/auto-infracao-lista.component').then(m => m.AutoInfracaoListaComponent),
