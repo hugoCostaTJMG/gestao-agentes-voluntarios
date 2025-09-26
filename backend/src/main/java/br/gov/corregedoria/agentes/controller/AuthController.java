@@ -6,6 +6,7 @@ import br.gov.corregedoria.agentes.repository.AgenteVoluntarioRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import br.gov.corregedoria.agentes.util.DocumentoUtil;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -63,14 +64,15 @@ public class AuthController {
             // fallback para possíveis mapeamentos customizados
             cpf = getStringClaim(jwt, "documento");
         }
-        dto.setCpf(cpf);
+        String cpfClean = DocumentoUtil.cleanDigits(cpf);
+        dto.setCpf(cpfClean);
 
         // Se perfil AGENTE, valida existência no banco por CPF
         if ("AGENTE".equalsIgnoreCase(dto.getPerfil())) {
-            if (cpf == null || cpf.isBlank()) {
+            if (cpfClean == null || cpfClean.isBlank()) {
                 return ResponseEntity.status(404).build();
             }
-            return agenteRepository.findByCpf(cpf)
+            return agenteRepository.findByCpf(cpfClean)
                     .map(agente -> {
                         fillFromAgente(dto, agente);
                         return ResponseEntity.ok(dto);

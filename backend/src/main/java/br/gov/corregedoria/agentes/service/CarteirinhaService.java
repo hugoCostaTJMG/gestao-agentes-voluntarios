@@ -43,12 +43,12 @@ public class CarteirinhaService {
     private SpringTemplateEngine templateEngine;
 
     public Verificacao verificar(Long agenteId) {
-        Optional<AgenteVoluntario> opt = agenteRepository.findById(agenteId);
-        if (opt.isEmpty()) {
+        Optional<AgenteVoluntario> agenteOptional = agenteRepository.findById(agenteId);
+        if (agenteOptional.isEmpty()) {
             return new Verificacao(false, "Agente não encontrado");
         }
-        AgenteVoluntario ag = opt.get();
-        if (ag.getStatus() != StatusAgente.ATIVO) {
+        AgenteVoluntario agente = agenteOptional.get();
+        if (agente.getStatus() != StatusAgente.ATIVO) {
             return new Verificacao(false, "Agente precisa estar ATIVO para emitir a carteirinha");
         }
         boolean temCredencial = !credencialRepository.findByAgenteId(agenteId).isEmpty();
@@ -59,63 +59,63 @@ public class CarteirinhaService {
     }
 
     public byte[] gerarPdf(Long agenteId, boolean inline) throws IOException, WriterException {
-        AgenteVoluntario ag = agenteRepository.findById(agenteId)
+        AgenteVoluntario agente = agenteRepository.findById(agenteId)
                 .orElseThrow(() -> new IllegalArgumentException("Agente não encontrado: " + agenteId));
-        Optional<Credencial> credOpt = credencialRepository.findCredencialMaisRecenteByAgenteId(agenteId);
-        if (credOpt.isEmpty()) {
+        Optional<Credencial> credencialOptional = credencialRepository.findCredencialMaisRecenteByAgenteId(agenteId);
+        if (credencialOptional.isEmpty()) {
             throw new IllegalStateException("Credencial não encontrada para o agente");
         }
-        Credencial cred = credOpt.get();
-        String qrBase64 = qrCodeUtil.gerarQRCode(cred.getQrCodeUrl());
+        Credencial credencial = credencialOptional.get();
+        String qrBase64 = qrCodeUtil.gerarQRCode(credencial.getQrCodeUrl());
         String qrDataUri = qrBase64 != null && !qrBase64.isBlank() ? "data:image/png;base64," + qrBase64 : null;
 
         String fotoDataUri = null;
-        if (ag.getFoto() != null && ag.getFoto().length > 0) {
-            String mime = guessImageMime(ag.getFoto());
-            fotoDataUri = "data:" + mime + ";base64," + Base64.getEncoder().encodeToString(ag.getFoto());
+        if (agente.getFoto() != null && agente.getFoto().length > 0) {
+            String mime = deduzirMimeImagem(agente.getFoto());
+            fotoDataUri = "data:" + mime + ";base64," + Base64.getEncoder().encodeToString(agente.getFoto());
         }
 
-        String logoDataUri = loadLogoDataUri();
+        String logoDataUri = carregarLogoComoDataUri();
 
         // Variáveis do template
-        String nomeCompleto = safe(ag.getNomeCompleto());
-        String comarca = ag.getComarcas().stream().findFirst().map(c -> c.getNomeComarca()).orElse("NÃO INFORMADO");
-        String ci = safe(ag.getNumeroCarteiraIdentidade());
-        String uf = safe(ag.getUf());
-        String cpf = safe(formatCpf(ag.getCpf()));
-        String nacionalidade = safe(ag.getNacionalidade());
-        String naturalidade = safe(ag.getNaturalidade());
-        String dataNascimento = ag.getDataNascimento() != null ? ag.getDataNascimento().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "";
-        String dataExpedicao = ag.getDataExpedicaoCI() != null ? ag.getDataExpedicaoCI().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "";
-        String filiacao = (safe(ag.getFiliacaoPai()).isBlank() && safe(ag.getFiliacaoMae()).isBlank()) ? "" : ("Pai: " + safe(ag.getFiliacaoPai()) + "  |  Mãe: " + safe(ag.getFiliacaoMae()));
-        String numeroCredencial = padNumero(cred.getId());
-        String codigoControle = "Cód.: " + cred.getId();
+        String nomeCompleto = safe(agente.getNomeCompleto());
+        String comarca = agente.getComarcas().stream().findFirst().map(c -> c.getNomeComarca()).orElse("NÃO INFORMADO");
+        String ci = safe(agente.getNumeroCarteiraIdentidade());
+        String uf = safe(agente.getUf());
+        String cpf = safe(formatarCpf(agente.getCpf()));
+        String nacionalidade = safe(agente.getNacionalidade());
+        String naturalidade = safe(agente.getNaturalidade());
+        String dataNascimento = agente.getDataNascimento() != null ? agente.getDataNascimento().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "";
+        String dataExpedicao = agente.getDataExpedicaoCI() != null ? agente.getDataExpedicaoCI().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "";
+        String filiacao = (safe(agente.getFiliacaoPai()).isBlank() && safe(agente.getFiliacaoMae()).isBlank()) ? "" : ("Pai: " + safe(agente.getFiliacaoPai()) + "  |  Mãe: " + safe(agente.getFiliacaoMae()));
+        String numeroCredencial = formatarNumeroComQuatroDigitos(credencial.getId());
+        String codigoControle = "Cód.: " + credencial.getId();
         String versao = "v2.0";
         String provimento = "art. 362, §1º do Provimento nº 355/2018";
-        String dataEmissao = cred.getDataEmissao() != null ? cred.getDataEmissao().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "";
+        String dataEmissao = credencial.getDataEmissao() != null ? credencial.getDataEmissao().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "";
 
-        Context ctx = new Context();
-        ctx.setVariable("logo", logoDataUri);
-        ctx.setVariable("foto", fotoDataUri);
-        ctx.setVariable("qr", qrDataUri);
-        ctx.setVariable("qrCode", qrDataUri); // compatibilidade com template
-        ctx.setVariable("codigoControle", codigoControle);
-        ctx.setVariable("versao", versao);
-        ctx.setVariable("provimento", provimento);
-        ctx.setVariable("dataEmissao", dataEmissao);
-        ctx.setVariable("nomeCompleto", nomeCompleto);
-        ctx.setVariable("comarca", comarca);
-        ctx.setVariable("ci", ci);
-        ctx.setVariable("uf", uf);
-        ctx.setVariable("cpf", cpf);
-        ctx.setVariable("nacionalidade", nacionalidade);
-        ctx.setVariable("naturalidade", naturalidade);
-        ctx.setVariable("dataNascimento", dataNascimento);
-        ctx.setVariable("dataExpedicao", dataExpedicao);
-        ctx.setVariable("filiacao", filiacao);
-        ctx.setVariable("numeroCredencial", numeroCredencial);
+        Context templateContext = new Context();
+        templateContext.setVariable("logo", logoDataUri);
+        templateContext.setVariable("foto", fotoDataUri);
+        templateContext.setVariable("qr", qrDataUri);
+        templateContext.setVariable("qrCode", qrDataUri); // compatibilidade com template
+        templateContext.setVariable("codigoControle", codigoControle);
+        templateContext.setVariable("versao", versao);
+        templateContext.setVariable("provimento", provimento);
+        templateContext.setVariable("dataEmissao", dataEmissao);
+        templateContext.setVariable("nomeCompleto", nomeCompleto);
+        templateContext.setVariable("comarca", comarca);
+        templateContext.setVariable("ci", ci);
+        templateContext.setVariable("uf", uf);
+        templateContext.setVariable("cpf", cpf);
+        templateContext.setVariable("nacionalidade", nacionalidade);
+        templateContext.setVariable("naturalidade", naturalidade);
+        templateContext.setVariable("dataNascimento", dataNascimento);
+        templateContext.setVariable("dataExpedicao", dataExpedicao);
+        templateContext.setVariable("filiacao", filiacao);
+        templateContext.setVariable("numeroCredencial", numeroCredencial);
 
-        String html = templateEngine.process("carteirinha_agente", ctx);
+        String html = templateEngine.process("carteirinha_agente", templateContext);
 
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             PdfRendererBuilder builder = new PdfRendererBuilder();
@@ -131,35 +131,39 @@ public class CarteirinhaService {
 
     private static String safe(String s) { return s == null ? "" : s; }
 
-    private static String guessImageMime(byte[] data) {
+    private static String deduzirMimeImagem(byte[] data) {
         if (data == null || data.length < 4) return "image/jpeg";
         if ((data[0] & 0xFF) == 0x89 && data[1] == 0x50 && data[2] == 0x4E && data[3] == 0x47) return "image/png";
         if ((data[0] & 0xFF) == 0xFF && (data[1] & 0xFF) == 0xD8) return "image/jpeg";
         return "image/jpeg";
     }
 
-    private String loadLogoDataUri() throws IOException {
-        // Preferir SVG -> PNG (para evitar problemas do renderer com SVG em fast-mode)
-        String svgPath = "/reports/Brasão_de_Minas_Gerais_P&B.svg";
-        String pngFromSvg = trySvgToPngDataUri(svgPath, 160f);
-        if (pngFromSvg != null) return pngFromSvg;
-
+    private String carregarLogoComoDataUri() throws IOException {
+        // Preferir PNG direto (brasão raster) e manter fallback para SVG com rasterização
         String[][] candidates = new String[][]{
+                {"/reports/icoMG.png", "image/png"},
+                {"/reports/brasao.png", "image/png"},
+                {"/reports/brasao_mg.png", "image/png"},
+                {"/reports/Brasao_de_Minas_Gerais_PB.png", "image/png"},
+                {"/reports/Brasão_de_Minas_Gerais_P&B.png", "image/png"},
                 {"/reports/logo_tjmg.png", "image/png"},
                 {"/reports/logo.png", "image/png"},
+                {"/reports/icoMG.svg", "image/svg+xml"},
+                {"/reports/Brasao_de_Minas_Gerais_PB.svg", "image/svg+xml"},
+                {"/reports/Brasão_de_Minas_Gerais_P&B.svg", "image/svg+xml"},
                 {"/reports/logo_tjmg.svg", "image/svg+xml"},
                 {"/reports/logo.svg", "image/svg+xml"}
         };
         for (String[] c : candidates) {
             try (var is = getClass().getResourceAsStream(c[0])) {
                 if (is != null) {
-                    // Se for SVG, também tenta rasterizar
                     if ("image/svg+xml".equals(c[1])) {
-                        String res = trySvgToPngDataUri(c[0], 160f);
+                        String res = converterSvgParaPngDataUri(c[0], 160f);
                         if (res != null) return res;
+                    } else {
+                        byte[] bytes = is.readAllBytes();
+                        return "data:" + c[1] + ";base64," + Base64.getEncoder().encodeToString(bytes);
                     }
-                    byte[] bytes = is.readAllBytes();
-                    return "data:" + c[1] + ";base64," + Base64.getEncoder().encodeToString(bytes);
                 }
             }
         }
@@ -167,7 +171,7 @@ public class CarteirinhaService {
     }
 
     // Converte um SVG de resources para PNG (Data URI) usando Batik
-    private String trySvgToPngDataUri(String classpathSvg, float widthPx) {
+    private String converterSvgParaPngDataUri(String classpathSvg, float widthPx) {
         try (var is = getClass().getResourceAsStream(classpathSvg)) {
             if (is == null) return null;
             // Batik transcoder
@@ -188,12 +192,12 @@ public class CarteirinhaService {
 
     
 
-    private static String padNumero(Long id) {
+    private static String formatarNumeroComQuatroDigitos(Long id) {
         if (id == null) return "0000";
         try { return String.format("%04d", id); } catch (Exception e) { return String.valueOf(id); }
     }
 
-    private static String formatCpf(String cpf) {
+    private static String formatarCpf(String cpf) {
         if (cpf == null) return "";
         String digits = cpf.replaceAll("\\D", "");
         if (digits.length() == 11) {

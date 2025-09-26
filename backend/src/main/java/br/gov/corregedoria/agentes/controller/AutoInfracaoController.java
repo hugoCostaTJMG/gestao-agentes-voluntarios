@@ -85,29 +85,29 @@ public class AutoInfracaoController {
     }
 
     private AutoInfracao mapearAuto(java.util.Map<String, Object> payload) {
-        AutoInfracao a = new AutoInfracao();
-        a.setNomeAutuado((String) payload.get("nomeAutuado"));
-        a.setCpfCnpjAutuado((String) payload.get("cpfCnpjAutuado"));
-        a.setEnderecoAutuado((String) payload.get("enderecoAutuado"));
-        a.setContatoAutuado((String) payload.get("contatoAutuado"));
-        a.setBaseLegal((String) payload.get("baseLegal"));
-        a.setLocalInfracao((String) payload.get("localInfracao"));
-        a.setDescricaoConduta((String) payload.get("descricaoConduta"));
+        AutoInfracao auto = new AutoInfracao();
+        auto.setNomeAutuado((String) payload.get("nomeAutuado"));
+        auto.setCpfCnpjAutuado((String) payload.get("cpfCnpjAutuado"));
+        auto.setEnderecoAutuado((String) payload.get("enderecoAutuado"));
+        auto.setContatoAutuado((String) payload.get("contatoAutuado"));
+        auto.setBaseLegal((String) payload.get("baseLegal"));
+        auto.setLocalInfracao((String) payload.get("localInfracao"));
+        auto.setDescricaoConduta((String) payload.get("descricaoConduta"));
         Object iniciais = payload.get("iniciaisCrianca");
-        if (iniciais instanceof String s) a.setIniciaisCrianca(s);
+        if (iniciais instanceof String s) auto.setIniciaisCrianca(s);
         Object idade = payload.get("idadeCrianca");
-        if (idade instanceof Number n) a.setIdadeCrianca(n.intValue());
+        if (idade instanceof Number n) auto.setIdadeCrianca(n.intValue());
         Object sexo = payload.get("sexoCrianca");
-        if (sexo instanceof String s) a.setSexoCrianca(s);
+        if (sexo instanceof String s) auto.setSexoCrianca(s);
 
         // Datas e horas
         Object dataInfracao = payload.get("dataInfracao");
         if (dataInfracao instanceof String ds && !ds.isBlank()) {
-            a.setDataInfracao(java.time.LocalDate.parse(ds));
+            auto.setDataInfracao(java.time.LocalDate.parse(ds));
         }
         Object horaInfracao = payload.get("horaInfracao");
         if (horaInfracao instanceof String hs && !hs.isBlank()) {
-            a.setHoraInfracao(java.time.LocalTime.parse(hs));
+            auto.setHoraInfracao(java.time.LocalTime.parse(hs));
         }
 
         // Comarca
@@ -116,9 +116,9 @@ public class AutoInfracaoController {
             Long comarcaId = n.longValue();
             Comarca c = comarcaRepository.findById(comarcaId)
                     .orElseThrow(() -> new IllegalArgumentException("Comarca inválida: " + comarcaId));
-            a.setComarca(c);
+            auto.setComarca(c);
         }
-        return a;
+        return auto;
     }
 
     @Operation(summary = "Excluir auto de infração")

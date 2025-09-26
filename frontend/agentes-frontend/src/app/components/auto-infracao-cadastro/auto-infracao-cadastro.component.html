@@ -22,6 +22,10 @@
               <div class="col-md-6">
                 <label class="form-label">CPF/CNPJ</label>
                 <input class="form-control" formControlName="cpfCnpjAutuado">
+                <div class="invalid-feedback" *ngIf="form.get('cpfCnpjAutuado')?.invalid && form.get('cpfCnpjAutuado')?.touched">
+                  <span *ngIf="form.get('cpfCnpjAutuado')?.errors?.['required']">Documento é obrigatório</span>
+                  <span *ngIf="form.get('cpfCnpjAutuado')?.errors?.['cpfCnpjInvalido']">CPF/CNPJ inválido</span>
+                </div>
               </div>
               <div class="col-md-6">
                 <label class="form-label">Endereço</label>

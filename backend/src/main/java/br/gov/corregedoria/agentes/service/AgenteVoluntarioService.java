@@ -4,6 +4,7 @@ import br.gov.corregedoria.agentes.dto.*;
 import br.gov.corregedoria.agentes.entity.*;
 import br.gov.corregedoria.agentes.repository.*;
 import br.gov.corregedoria.agentes.util.AuditoriaUtil;
+import br.gov.corregedoria.agentes.util.DocumentoUtil;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -38,6 +39,12 @@ public class AgenteVoluntarioService {
      * Cadastra um novo agente voluntário
      */
     public AgenteVoluntarioResponseDTO cadastrarAgente(AgenteVoluntarioDTO dto, String usuarioLogado) {
+        // Sanitiza e valida CPF
+        String cpf = DocumentoUtil.cleanDigits(dto.getCpf());
+        if (!DocumentoUtil.isValidCPF(cpf)) {
+            throw new IllegalArgumentException("CPF inválido");
+        }
+        dto.setCpf(cpf);
         // RN002 - Validação de CPF Único
         if (agenteRepository.existsByCpf(dto.getCpf())) {
             throw new IllegalArgumentException("CPF já cadastrado no sistema");
@@ -50,6 +57,17 @@ public class AgenteVoluntarioService {
         agente.setTelefone(dto.getTelefone());
         agente.setEmail(dto.getEmail());
         agente.setDisponibilidade(dto.getDisponibilidade());
+        agente.setNumeroCarteiraIdentidade(dto.getNumeroCarteiraIdentidade());
+        agente.setDataExpedicaoCI(dto.getDataExpedicaoCI());
+        agente.setNacionalidade(dto.getNacionalidade());
+        agente.setNaturalidade(dto.getNaturalidade());
+        agente.setUf(dto.getUf());
+        agente.setDataNascimento(dto.getDataNascimento());
+        agente.setFiliacaoPai(dto.getFiliacaoPai());
+        agente.setFiliacaoMae(dto.getFiliacaoMae());
+        if (dto.getFotoBase64() != null && !dto.getFotoBase64().isBlank()) {
+            agente.setFoto(decodeBase64(dto.getFotoBase64()));
+        }
         agente.setUsuarioCadastro(usuarioLogado);
         agente.setStatus(StatusAgente.EM_ANALISE); // RN007 - Status inicial
         agente.setDataCadastro(java.time.LocalDateTime.now());
@@ -76,7 +94,7 @@ public class AgenteVoluntarioService {
         // auditoriaUtil.registrarLog(usuarioLogado, "CADASTRO_AGENTE", 
         //         "Agente cadastrado: " + agente.getId() + " - " + agente.getNomeCompleto());
 
-        return converterParaResponseDTO(agente);
+        return converterParaAgenteResponseDTO(agente);
     }
 
     /**
@@ -86,7 +104,7 @@ public class AgenteVoluntarioService {
     public AgenteVoluntarioResponseDTO buscarPorId(Long id) {
         AgenteVoluntario agente = agenteRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Agente não encontrado: " + id));
-        return converterParaResponseDTO(agente);
+        return converterParaAgenteResponseDTO(agente);
     }
 
     /**
@@ -95,7 +113,7 @@ public class AgenteVoluntarioService {
     @Transactional(readOnly = true)
     public Page<AgenteVoluntarioResponseDTO> listarAgentes(Pageable pageable) {
         return agenteRepository.findAll(pageable)
-                .map(this::converterParaResponseDTO);
+                .map(this::converterParaAgenteResponseDTO);
     }
 
     /**
@@ -104,7 +122,7 @@ public class AgenteVoluntarioService {
     @Transactional(readOnly = true)
     public List<AgenteVoluntarioResponseDTO> listarPorStatus(StatusAgente status) {
         return agenteRepository.findByStatus(status).stream()
-                .map(this::converterParaResponseDTO)
+                .map(this::converterParaAgenteResponseDTO)
                 .collect(Collectors.toList());
     }
 
@@ -114,7 +132,7 @@ public class AgenteVoluntarioService {
     @Transactional(readOnly = true)
     public List<AgenteVoluntarioResponseDTO> listarAgentesAtivos() {
         return agenteRepository.findAgentesAtivos().stream()
-                .map(this::converterParaResponseDTO)
+                .map(this::converterParaAgenteResponseDTO)
                 .collect(Collectors.toList());
     }
 
@@ -131,11 +149,11 @@ public class AgenteVoluntarioService {
         agente = agenteRepository.save(agente);
 
         // Registrar auditoria
-        auditoriaUtil.registrarLog(usuarioLogado, "ATUALIZACAO_STATUS", 
-                String.format("Status do agente %s alterado de %s para %s", 
-                        agente.getId(), statusAnterior, novoStatus));
+        // auditoriaUtil.registrarLog(usuarioLogado, "ATUALIZACAO_STATUS", 
+        //         String.format("Status do agente %s alterado de %s para %s", 
+        //                 agente.getId(), statusAnterior, novoStatus));
 
-        return converterParaResponseDTO(agente);
+        return converterParaAgenteResponseDTO(agente);
     }
 
     /**
@@ -145,17 +163,34 @@ public class AgenteVoluntarioService {
         AgenteVoluntario agente = agenteRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Agente não encontrado: " + id));
 
+        // Sanitiza e valida CPF informado
+        String novoCpf = DocumentoUtil.cleanDigits(dto.getCpf());
+        if (!DocumentoUtil.isValidCPF(novoCpf)) {
+            throw new IllegalArgumentException("CPF inválido");
+        }
+
         // Verificar se CPF foi alterado e se já existe
-        if (!agente.getCpf().equals(dto.getCpf()) && agenteRepository.existsByCpf(dto.getCpf())) {
+        if (!agente.getCpf().equals(novoCpf) && agenteRepository.existsByCpf(novoCpf)) {
             throw new IllegalArgumentException("CPF já cadastrado no sistema");
         }
 
         // Atualizar dados
         agente.setNomeCompleto(dto.getNomeCompleto());
-        agente.setCpf(dto.getCpf());
+        agente.setCpf(novoCpf);
         agente.setTelefone(dto.getTelefone());
         agente.setEmail(dto.getEmail());
         agente.setDisponibilidade(dto.getDisponibilidade());
+        agente.setNumeroCarteiraIdentidade(dto.getNumeroCarteiraIdentidade());
+        agente.setDataExpedicaoCI(dto.getDataExpedicaoCI());
+        agente.setNacionalidade(dto.getNacionalidade());
+        agente.setNaturalidade(dto.getNaturalidade());
+        agente.setUf(dto.getUf());
+        agente.setDataNascimento(dto.getDataNascimento());
+        agente.setFiliacaoPai(dto.getFiliacaoPai());
+        agente.setFiliacaoMae(dto.getFiliacaoMae());
+        if (dto.getFotoBase64() != null && !dto.getFotoBase64().isBlank()) {
+            agente.setFoto(decodeBase64(dto.getFotoBase64()));
+        }
 
         // Atualizar comarcas
         Set<Comarca> comarcas = dto.getComarcasIds().stream()
@@ -174,10 +209,10 @@ public class AgenteVoluntarioService {
         agente = agenteRepository.save(agente);
 
         // Registrar auditoria
-        auditoriaUtil.registrarLog(usuarioLogado, "ATUALIZACAO_AGENTE", 
-                "Agente atualizado: " + agente.getId() + " - " + agente.getNomeCompleto());
+        // auditoriaUtil.registrarLog(usuarioLogado, "ATUALIZACAO_AGENTE", 
+        //         "Agente atualizado: " + agente.getId() + " - " + agente.getNomeCompleto());
 
-        return converterParaResponseDTO(agente);
+        return converterParaAgenteResponseDTO(agente);
     }
 
     /**
@@ -186,7 +221,7 @@ public class AgenteVoluntarioService {
     @Transactional(readOnly = true)
     public List<AgenteVoluntarioResponseDTO> buscarPorNome(String nome) {
         return agenteRepository.findByNomeCompletoContainingIgnoreCase(nome).stream()
-                .map(this::converterParaResponseDTO)
+                .map(this::converterParaAgenteResponseDTO)
                 .collect(Collectors.toList());
     }
 
@@ -195,9 +230,13 @@ public class AgenteVoluntarioService {
      */
     @Transactional(readOnly = true)
     public AgenteVoluntarioResponseDTO buscarPorCpf(String cpf) {
-        AgenteVoluntario agente = agenteRepository.findByCpf(cpf)
+        String clean = DocumentoUtil.cleanDigits(cpf);
+        if (!DocumentoUtil.isValidCPF(clean)) {
+            throw new IllegalArgumentException("CPF inválido");
+        }
+        AgenteVoluntario agente = agenteRepository.findByCpf(clean)
                 .orElseThrow(() -> new EntityNotFoundException("Agente não encontrado para o CPF: " + cpf));
-        return converterParaResponseDTO(agente);
+        return converterParaAgenteResponseDTO(agente);
     }
 
     /**
@@ -214,7 +253,7 @@ public class AgenteVoluntarioService {
     /**
      * Converte entidade para DTO de resposta
      */
-    private AgenteVoluntarioResponseDTO converterParaResponseDTO(AgenteVoluntario agente) {
+    private AgenteVoluntarioResponseDTO converterParaAgenteResponseDTO(AgenteVoluntario agente) {
         AgenteVoluntarioResponseDTO dto = new AgenteVoluntarioResponseDTO();
         dto.setId(agente.getId());
         dto.setNomeCompleto(agente.getNomeCompleto());
@@ -225,19 +264,43 @@ public class AgenteVoluntarioService {
         dto.setStatus(agente.getStatus().getDescricao());
         dto.setDataCadastro(agente.getDataCadastro().format(DATE_FORMATTER));
         dto.setUsuarioCadastro(agente.getUsuarioCadastro());
+        // Campos adicionais (para edição)
+        dto.setNumeroCarteiraIdentidade(agente.getNumeroCarteiraIdentidade());
+        dto.setDataExpedicaoCI(agente.getDataExpedicaoCI());
+        dto.setNacionalidade(agente.getNacionalidade());
+        dto.setNaturalidade(agente.getNaturalidade());
+        dto.setUf(agente.getUf());
+        dto.setDataNascimento(agente.getDataNascimento());
+        dto.setFiliacaoPai(agente.getFiliacaoPai());
+        dto.setFiliacaoMae(agente.getFiliacaoMae());
 
         // Converter comarcas
         Set<ComarcaDTO> comarcasDTO = agente.getComarcas().stream()
                 .map(comarca -> new ComarcaDTO(comarca.getId(), comarca.getNomeComarca()))
                 .collect(Collectors.toSet());
         dto.setComarcas(comarcasDTO);
+        dto.setComarcasIds(agente.getComarcas().stream().map(Comarca::getId).collect(Collectors.toSet()));
 
         // Converter áreas de atuação
         Set<AreaAtuacaoDTO> areasDTO = agente.getAreasAtuacao().stream()
                 .map(area -> new AreaAtuacaoDTO(area.getId(), area.getNomeAreaAtuacao()))
                 .collect(Collectors.toSet());
         dto.setAreasAtuacao(areasDTO);
+        dto.setAreasAtuacaoIds(agente.getAreasAtuacao().stream().map(AreaAtuacao::getId).collect(Collectors.toSet()));
 
         return dto;
+    }
+
+    private byte[] decodeBase64(String base64) {
+        try {
+            String data = base64;
+            int comma = data.indexOf(',');
+            if (data.startsWith("data:") && comma > 0) {
+                data = data.substring(comma + 1);
+            }
+            return java.util.Base64.getDecoder().decode(data);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

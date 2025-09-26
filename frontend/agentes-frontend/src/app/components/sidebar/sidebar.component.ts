@@ -29,7 +29,7 @@ export class SidebarComponent implements OnInit {
     { label: 'Dashboard', icon: 'fas fa-tachometer-alt', link: '/', roles: ['ADMIN', 'AGENTE'], exact: true },
     { label: 'Carteirinha', icon: 'fas fa-id-badge', link: '/carteirinha', roles: ['AGENTE'] },
     { label: 'Agentes Voluntários', icon: 'fas fa-users', link: '/agentes', roles: ['ADMIN'] },
-    { label: 'Emissão de Carteirinhas', icon: 'fas fa-id-badge', link: '/carteirinha-agentes', roles: ['ADMIN'] },
+    { label: 'Impressão Carteirinhas', icon: 'fas fa-id-badge', link: '/carteirinha-agentes', roles: ['ADMIN'] },
     { label: 'Cadastrar Agente', icon: 'fas fa-user-plus', link: '/agentes/cadastro', roles: ['ADMIN'] },
     { label: 'Emissão de Credencial', icon: 'fas fa-id-card', link: '/credenciais', roles: ['ADMIN'] },
     { label: 'Autos de Infração', icon: 'fas fa-file-alt', link: '/autos', roles: ['ADMIN'] },
@@ -50,7 +50,22 @@ export class SidebarComponent implements OnInit {
   }
 
   get visibleMenuItems(): MenuItem[] {
-    return this.menuItems.filter(item => this.canShow(item));
+    const items = this.menuItems.filter(item => this.canShow(item));
+    // Reordena especificamente para ADMIN
+    if (this.permissionService.hasAnyRole(['ADMIN'])) {
+      const weight: Record<string, number> = {
+        '/': 10,
+        '/agentes': 20,
+        '/agentes/cadastro': 30,
+        '/credenciais': 40,
+        '/carteirinha-agentes': 50,
+        '/autos': 60,
+        '/autos/cadastro': 70,
+        '/consulta-publica': 80,
+      };
+      return items.slice().sort((a, b) => (weight[a.link] ?? 1000) - (weight[b.link] ?? 1000));
+    }
+    return items;
   }
 
   private canShow(item: MenuItem): boolean {

@@ -6,6 +6,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -22,11 +24,13 @@ public class AuditoriaUtil {
      * Registra um log de auditoria
      * RNF003 - Toda ação realizada no sistema deve ser registrada em logs de auditoria
      */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void registrarLog(String usuario, String tipoOperacao, String detalhes) {
         String ipOrigem = obterIpOrigem();
         try {
             LogAuditoria log = new LogAuditoria(usuario, tipoOperacao, detalhes, ipOrigem);
-            logRepository.save(log);
+            // salva e força flush para capturar erros aqui e não no commit da transação chamadora
+            logRepository.saveAndFlush(log);
         } catch (Exception e) {
             // Não deve derrubar o fluxo de negócio por falha de auditoria (ex.: schema incorreto em DEV)
             try {

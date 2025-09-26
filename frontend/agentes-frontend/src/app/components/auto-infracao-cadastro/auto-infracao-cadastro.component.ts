@@ -18,10 +18,10 @@ export class AutoInfracaoCadastroComponent implements OnInit {
   selectedFile: File | null = null;
   loading = false;
 
-  constructor(private fb: FormBuilder, private api: ApiService, private router: Router) {
+  constructor(private fb: FormBuilder, private apiService: ApiService, private router: Router) {
     this.form = this.fb.group({
       nomeAutuado: ['', Validators.required],
-      cpfCnpjAutuado: ['', Validators.required],
+      cpfCnpjAutuado: ['', [Validators.required, this.cpfCnpjValidator()]],
       enderecoAutuado: ['', Validators.required],
       contatoAutuado: ['', Validators.required],
       comarcaId: ['', Validators.required],
@@ -34,7 +34,7 @@ export class AutoInfracaoCadastroComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.api.listarComarcas().subscribe(cs => this.comarcas = cs);
+    this.apiService.listarComarcas().subscribe(comarcas => this.comarcas = comarcas);
   }
 
   onFileChange(event: any): void {
@@ -55,11 +55,18 @@ export class AutoInfracaoCadastroComponent implements OnInit {
       comarcaId: Number(this.form.value.comarcaId)
     } as AutoInfracao;
 
+    // Sanitiza CPF/CNPJ antes do envio
+    auto.cpfCnpjAutuado = String(this.form.value.cpfCnpjAutuado || '').replace(/\D/g, '');
+    if (!this.isValidCpfCnpj(auto.cpfCnpjAutuado)) {
+      this.form.get('cpfCnpjAutuado')?.setErrors({ cpfCnpjInvalido: true });
+      return;
+    }
+
     this.loading = true;
-    this.api.cadastrarAuto(auto).subscribe({
-      next: a => {
+    this.apiService.cadastrarAuto(auto).subscribe({
+      next: autoCriado => {
         if (this.selectedFile) {
-          this.api.uploadAnexo(a.id!, this.selectedFile!).subscribe({
+          this.apiService.uploadAnexo(autoCriado.id!, this.selectedFile!).subscribe({
             next: () => this.router.navigate(['/autos']),
             error: () => this.loading = false
           });
@@ -69,6 +76,53 @@ export class AutoInfracaoCadastroComponent implements OnInit {
       },
       error: () => this.loading = false
     });
+  }
+
+  // ===== Validações CPF/CNPJ =====
+  private cpfCnpjValidator() {
+    return (control: any) => {
+      const v = (control?.value || '').toString();
+      const digits = v.replace(/\D/g, '');
+      if (!digits) return { cpfCnpjInvalido: true };
+      return this.isValidCpfCnpj(digits) ? null : { cpfCnpjInvalido: true };
+    };
+  }
+
+  private isValidCpfCnpj(doc: string): boolean {
+    const digits = (doc || '').replace(/\D/g, '');
+    if (digits.length === 11) return this.isValidCPF(digits);
+    if (digits.length === 14) return this.isValidCNPJ(digits);
+    return false;
+  }
+
+  private isValidCPF(cpf: string): boolean {
+    const s = (cpf || '').replace(/\D/g, '');
+    if (s.length !== 11) return false;
+    if (/^(\d)\1{10}$/.test(s)) return false;
+    const calc = (base: string, start: number) => {
+      let sum = 0; for (let i = 0; i < base.length; i++) sum += parseInt(base[i], 10) * (start - i);
+      const mod = sum % 11; return mod < 2 ? 0 : 11 - mod;
+    };
+    const d1 = calc(s.substring(0, 9), 10);
+    const d2 = calc(s.substring(0, 9) + String(d1), 11);
+    return s === s.substring(0, 9) + String(d1) + String(d2);
+  }
+
+  private isValidCNPJ(cnpj: string): boolean {
+    const s = (cnpj || '').replace(/\D/g, '');
+    if (s.length !== 14) return false;
+    if (/^(\d)\1{13}$/.test(s)) return false;
+    const calc = (base: string) => {
+      const weights = [6,5,4,3,2,9,8,7,6,5,4,3,2];
+      let sum = 0;
+      for (let i = 0; i < base.length; i++) {
+        sum += parseInt(base[i], 10) * weights[weights.length - base.length + i];
+      }
+      const mod = sum % 11; return mod < 2 ? 0 : 11 - mod;
+    };
+    const d1 = calc(s.substring(0, 12));
+    const d2 = calc(s.substring(0, 12) + String(d1));
+    return s === s.substring(0, 12) + String(d1) + String(d2);
   }
 
   cancelar(): void {

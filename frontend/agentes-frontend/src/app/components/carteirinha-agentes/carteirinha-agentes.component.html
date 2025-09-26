@@ -1,0 +1,61 @@
+<div class="container-fluid py-4">
+  
+
+  <div *ngIf="erro" class="alert alert-danger">{{ erro }}</div>
+
+  <div *ngIf="loading" class="text-center text-muted py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <div class="mt-2">Carregando agentes...</div>
+  </div>
+
+  <div class="row g-3" *ngIf="!loading">
+    <div class="col-12" *ngIf="agentes.length === 0">
+      <div class="alert alert-light">Nenhum agente encontrado.</div>
+    </div>
+
+    <div class="col-xl-4 col-lg-6" *ngFor="let ag of agentes">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body d-flex flex-column">
+          <div class="d-flex align-items-center mb-2">
+            <div class="avatar me-2"><i class="fas fa-user-circle"></i></div>
+            <div>
+              <div class="fw-bold">{{ ag.nomeCompleto }}</div>
+              <div class="text-muted small">{{ cpfFormat(ag.cpf) }}</div>
+            </div>
+          </div>
+
+          <div class="small mb-2">
+            <div><strong>Comarca:</strong> {{ ag.comarcas?.[0]?.nomeComarca || '—' }}</div>
+            <div>
+              <strong>Status:</strong>
+              <span class="badge ms-1" [ngClass]="{
+                'bg-success': statusBadge(ag) === 'success',
+                'bg-warning': statusBadge(ag) === 'warning',
+                'bg-secondary': statusBadge(ag) === 'secondary',
+                'bg-danger': statusBadge(ag) === 'danger'
+              }">{{ ag.status }}</span>
+            </div>
+            <div><strong>Credencial:</strong> {{ credencialCodigo(ag) }}</div>
+          </div>
+
+          <div class="mt-auto">
+            <button class="btn btn-outline-primary w-100 mb-2" (click)="preview(ag)" [disabled]="ag.loadingPreview">
+              <i class="fas fa-eye me-2"></i>
+              <span *ngIf="!ag.loadingPreview">Preview</span>
+              <span *ngIf="ag.loadingPreview"><span class="spinner-border spinner-border-sm me-2"></span>Gerando...</span>
+            </button>
+
+            <button class="btn btn-danger w-100" (click)="gerar(ag)" [disabled]="!ag.podeGerar || ag.loadingGerar || ag.verificando">
+              <i class="fas fa-download me-2"></i>
+              <span *ngIf="!ag.loadingGerar">Gerar Carteirinha</span>
+              <span *ngIf="ag.loadingGerar"><span class="spinner-border spinner-border-sm me-2"></span>Gerando...</span>
+            </button>
+
+            <div class="small text-muted mt-2" *ngIf="ag.verificando">Verificando status...</div>
+            <div class="small text-warning mt-2" *ngIf="!ag.verificando && !ag.podeGerar && ag.mensagem">{{ ag.mensagem }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

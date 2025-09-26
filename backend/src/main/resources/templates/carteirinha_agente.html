@@ -14,17 +14,19 @@
       --bar: #dedede;        /* cinza das BARRAS de rótulo */
       --bar-stroke: #cfcfcf; /* linha da barra/campo */
       --field: #ffffff;      /* fundo dos CAMPOS */
-      --font-sans: "Helvetica", Arial, sans-serif; /* troque para 'Montserrat' se importar acima */
+      --font-sans: Arial; /* troque para 'Montserrat' se importar acima */
       --trk: 0.02em;
       --trk-wide: 0.06em;
     }
 
-    @page { size: A4 landscape; margin: 0; }
+    /* Página A4 em modo retrato (portrait) */
+    @page { size: A4 portrait; margin: 0; }
     *{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     html, body { height: 100%; }
-    body { margin: 0; font-family: Helvetica, Arial, sans-serif; color: #222222; }
+    body { margin: 0; font-family: Arial; color: #222222; }
 
-    .page { width: 297mm; height: 210mm; display: table; }
+    /* Dimensões da página A4 em retrato */
+    .page { width: 210mm; height: 297mm; display: table; }
     .pair { display: table-cell; vertical-align: middle; text-align: center; }
     .cards-row { width: 236mm; margin: 0 auto; border-collapse: separate; border-spacing: 8mm 0; }
     .cards-row td { vertical-align: top; }
@@ -34,24 +36,27 @@
       position: relative;
       display: inline-block;
       vertical-align: top;
-      width: 115mm; height: 102mm;
+      /* Tamanho de uma CNH/ID-1: 85,6 × 54 mm */
+      width: 80mm; height: 57mm;
       background: #efefef;
-      border: 3mm solid #d82020;
+      border: 2mm solid #d82020;
+      border-top: 0;
+      border-bottom: 1mm solid #d82020;
       box-sizing: border-box;
       overflow: hidden;
     }
 
     .ribbon {
-      position: absolute; left: -3mm; right: -3mm; height: 6mm;
+      position: absolute; left: -2mm; right: -2mm; height: 3mm;
       background: #d82020; color: #fff; text-align: center; font-weight: 800;
-      font-size: 7pt; line-height: 6mm; letter-spacing: 0.06em; text-transform: uppercase;
+      font-size: 6pt; line-height: 3mm; letter-spacing: 0.06em; text-transform: uppercase;
     }
 
     .inner {
       position: absolute;
-      top: 6mm; right: 0mm; bottom: 0mm; left: 0mm;
+      top: 2.8mm; right: 0mm; bottom: 0mm; left: 0mm;
       background: #efefef;
-      padding: 3mm;
+      padding: 1mm 2mm;
       box-sizing: border-box;
       font-size: 6pt;
     }
@@ -60,68 +65,67 @@
     .table td { vertical-align: top; }
 
     /* Cabeçalho institucional (frente) */
-    .inst { font-size: 3.5mm; line-height: 1.05; color: #0a7a49; text-align: left; font-weight: 700; }
-    .inst .g { color: #0a7a49; font-weight: 700; }
-    .inst .p { color: #0a7a49; font-weight: 700; }
+    .inst { font-size: 2.4mm; line-height: 1.05; color: #000; text-align: left; }
+    .inst .g { color: #000;  }
+    .inst .p { color: #000;  }
 
     /* Título (duas linhas) */
     .title {
-      margin: 2.0mm 0 1.0mm; font-weight: 800; font-size: 10.2pt; line-height: 1.1;
+      margin: 1.0mm 0 0.6mm; font-weight: 800; font-size: 6.8pt; line-height: 1.1;
       letter-spacing: 0.02em; text-transform: uppercase;
     }
 
     /* Barras + Campos (idênticos frente/verso) */
-    .block { margin-top: 1.6mm; }
+    .block { margin-top: 1.0mm; }
     .bar {
-      height: 2.5mm; background: #dedede; color: #444444;
-      display: flex; align-items: center; padding: 0 2mm; box-sizing: border-box;
-      font-weight: 700; font-size: 5pt; letter-spacing: 0.06em; text-transform: uppercase;
-      border: 0.22mm solid #cfcfcf; border-bottom: none;
+      height: 2.1mm; background: #dedede; color: #444444;
+      display: flex; align-items: center; box-sizing: border-box;
+      font-weight: 700; font-size: 4.5pt; letter-spacing: 0.06em; text-transform: uppercase;
+      border: 0.18mm solid #cfcfcf; border-bottom: none;
     }
     .field {
-      background: #ffffff; border: 0.22mm solid #cfcfcf;
-      min-height: 9.5mm; padding: 1.6mm 2mm; line-height: 1.25; box-sizing: border-box;
+      background: #ffffff; border: 0.18mm solid #cfcfcf;
+      min-height: 4mm; padding: 1.0mm 0.5mm; line-height: 1.2; box-sizing: border-box;
     }
-    .field.tall { min-height: 18.5mm; } /* Nome */
-    .field.mid  { min-height: 14.5mm; } /* Filiação */
+    .field.tall { min-height: 10mm; } /* Nome */
+    .field.mid  { min-height: 7mm; }  /* Filiação */
 
-    /* Foto 2 x 2,5 cm */
-    .left-col { width: 36mm; }
+    /* Foto 2 x 2,5 cm (ajustada para caber) */
+    .left-col { width: 28mm; }
     .photo-img, .photo-ph {
-      width: 20mm; height: 25mm; border: 0.28mm solid #000; object-fit: cover; background: #fafafa;
+      width: 16mm; height: 20mm; border: 0.28mm solid #000; object-fit: cover; background: #fafafa;
       display: block; margin: 0 auto; /* centraliza horizontalmente na coluna da foto */
     }
 
     .muted { color: #555555; }
-    .small { font-size: 5pt; line-height: 1.2; }
+    .small { font-size: 4.5pt; line-height: 1.2; }
 
     /* Linhas pretas de legenda (frente/verso) */
-    .rule { margin-top: 14mm; height: 0; border-top: 0.45mm solid #000; }
-    .judge { margin-top: 0.8mm; text-align: center; font-size: 5pt; letter-spacing: 0.06em; text-transform: uppercase; }
-    .legal { margin-top: 1.0mm; font-size: 5pt; }
+    .rule { margin-top: 5mm; height: 0; border-top: 0.35mm solid #000; }
+    .judge { margin-top: 0.6mm; text-align: center; font-size: 4.4pt; letter-spacing: 0.06em; text-transform: uppercase; }
+    .legal { margin-top: 0.6mm; font-size: 4.4pt; }
 
     /* Verso: tabela simples (compatível) */
-    .tgrid { width: 100%; border-collapse: separate; border-spacing: 3mm 2mm; }
-    .tgrid .col-uf { width: 22mm; }
+    .tgrid { width: 100%; border-collapse: separate; border-spacing: 1.6mm 1.2mm; }
+    .tgrid .col-uf { width: 18mm; }
 
     /* ===== Filiação + QR lado a lado ===== */
-    .fil-row {
-      display: flex; gap: 3mm; align-items: stretch; margin-top: 2mm;
-    }
+    .fil-row { display: flex; gap: 2mm; align-items: stretch; margin-top: 1.4mm; }
     .fil-left { flex: 1 1 auto; min-width: 0; }
-    .qr-wrap { flex: 0 0 22mm; display: flex; flex-direction: column; }
-    .qr-bar { height: 5.5mm; background: #dedede; color: #444444; display: flex; align-items: center; padding: 0 2mm; box-sizing: border-box; font-weight: 700; font-size: 5pt; letter-spacing: 0.06em; text-transform: uppercase; border: 0.22mm solid #cfcfcf; border-bottom: none; }
-    .qr-field { background: #ffffff; display: flex; align-items: center; justify-content: center; height: 14.5mm; box-sizing: border-box; }
+    .qr-wrap { flex: 0 0 18mm; display: flex; flex-direction: column; }
+    .qr-bar { height: 4mm; background: #dedede; color: #444444; display: flex; align-items: center; padding: 0 1.6mm; box-sizing: border-box; font-weight: 700; font-size: 4.5pt; letter-spacing: 0.06em; text-transform: uppercase; border: 0.18mm solid #cfcfcf; border-bottom: none; }
+    .qr-field { background: #ffffff; display: flex; align-items: center; justify-content: center; height: 10mm; box-sizing: border-box; }
     .qr-img {
       width: 100%; height: 100%; object-fit: contain;
       image-rendering: pixelated; background: #fff;
     }
 
     /* Assinatura */
-    .sign { margin-top: 9.4mm; }
+    .sign { margin-top: 3.5mm; }
     .sign .rule { margin-top: 0; }
-    .sign-caption { margin-top: 1mm; text-align: center; font-size: 5pt; letter-spacing: 0.02em; text-transform: uppercase; }
+    .sign-caption { margin-top: 0.6mm; text-align: center; font-size: 4pt; letter-spacing: 0.02em; text-transform: uppercase; }
     .right { text-align: right; }
+
 
     /* Nítido na impressão */
     img { image-rendering: -webkit-optimize-contrast; }
@@ -136,9 +140,9 @@
         <div class="inner">
           <table class="table">
             <tr>
-              <td style="width:16mm; padding-right:2mm;">
+              <td style="width:12mm; padding-right:2mm;">
                 <div th:if="${logo != null}">
-                  <img th:src="${logo}" alt="Brasão" style="width:13mm; height:13mm; object-fit:contain;" />
+                  <img th:src="${logo}" alt="Brasão" style="width:9mm; height:9mm; object-fit:contain;" />
                 </div>
               </td>
               <td>
@@ -154,15 +158,12 @@
             e ao Adolescente
           </h1>
 
-          <table class="table" style="margin-top:2mm;">
+          <table class="table" style="margin-top:1mm;">
             <tr>
               <!-- Coluna da foto -->
               <td class="left-col" style="align-items: center;">
-                <div class="small muted" style="margin-bottom:1mm;">Fotografia (2 × 2,5)cm</div>
                 <div th:if="${foto != null}" style="justify-self: center;"><img th:src="${foto}" style="justify-self: center;" alt="Foto" class="photo-img" /></div>
-                <div th:if="${foto == null}" class="photo-ph" style="justify-self: center;"></div>
-                <div class="small muted" style="margin-top:2mm;">Cód.: <span th:text="${codigoControle}"></span></div>
-                <div class="small muted">versão de <span th:text="${dataEmissao}"></span></div>
+                <div th:if="${foto == null}" class="photo-ph" style="justify-self: center; display: none;"></div>
               </td>
               <!-- Coluna direita com comarca + nome empilhados -->
               <td style="padding-left:3mm;">
@@ -229,13 +230,13 @@
               </td>
               <td>
                 <div class="bar">Validade</div>
-                <div class="field" style="text-align:right; font-weight:700;">TEMPO INDETERMINADO</div>
+                <div class="field" style="text-align:right; font-weight:700; font-size: 1.3mm;">TEMPO INDETERMINADO</div>
               </td>
             </tr>
           </table>
 
           <!-- ===== FILIAÇÃO + QR lado a lado (tabela p/ compatibilidade) ===== -->
-          <table class="table" style="margin-top:2mm;">
+          <table class="table" style="margin-top:1mm;">
             <colgroup>
               <col />
               <col style="width:24mm;" />

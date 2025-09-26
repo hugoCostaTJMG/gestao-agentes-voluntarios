@@ -1,0 +1,12 @@
+<header class="page-header" *ngIf="title">
+  <div class="page-header__title">
+    <i *ngIf="icon" [class]="icon" aria-hidden="true"></i>
+    <h1>{{ title }}</h1>
+  </div>
+  <app-button *ngIf="showBack"
+              type="ghost"
+              size="sm"
+              iconLeft="fas fa-arrow-left"
+              label="Voltar"
+              (clicked)="onBack()"></app-button>
+</header>

@@ -119,8 +119,18 @@ export class PainelAgentesComponent implements OnInit {
     }
   }
 
+  private normalizarStatus(status: string | undefined): string {
+    const s = (status || '').toString();
+    // Remove acentos e normaliza caixa e espaços
+    return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/\s+/g, '_');
+  }
+
+  isAgenteAtivo(agente: AgenteVoluntario): boolean {
+    return this.normalizarStatus(agente.status) === 'ATIVO';
+  }
+
   getStatusClass(status: string): string {
-    switch (status) {
+    switch (this.normalizarStatus(status)) {
       case 'ATIVO': return 'bg-success';
       case 'INATIVO': return 'bg-secondary';
       case 'EM_ANALISE': return 'bg-warning';
@@ -130,7 +140,7 @@ export class PainelAgentesComponent implements OnInit {
   }
 
   getStatusLabel(status: string): string {
-    switch (status) {
+    switch (this.normalizarStatus(status)) {
       case 'ATIVO': return 'Ativo';
       case 'INATIVO': return 'Inativo';
       case 'EM_ANALISE': return 'Em Análise';

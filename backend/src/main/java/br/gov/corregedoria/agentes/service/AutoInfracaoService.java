@@ -3,6 +3,7 @@ package br.gov.corregedoria.agentes.service;
 import br.gov.corregedoria.agentes.entity.*;
 import br.gov.corregedoria.agentes.repository.*;
 import br.gov.corregedoria.agentes.util.AuditoriaUtil;
+import br.gov.corregedoria.agentes.util.DocumentoUtil;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,9 @@ public class AutoInfracaoService {
                                   String usuarioLogado) {
         AgenteVoluntario agente = agenteRepository.findById(agenteId)
                 .orElseThrow(() -> new EntityNotFoundException("Agente não encontrado: " + agenteId));
+
+        // Sanitiza e valida CPF/CNPJ e CPF de testemunha (se informado)
+        sanitizeAndValidateDocumentos(auto);
         auto.setAgente(agente);
         auto.setNomeAgente(agente.getNomeCompleto());
         auto.setMatriculaAgente(usuarioLogado); // assume login é a matrícula
@@ -65,6 +69,8 @@ public class AutoInfracaoService {
                                   String usuarioLogado) {
         AutoInfracao existente = obterParaEdicao(id, agenteId, perfilUsuario);
 
+        sanitizeAndValidateDocumentos(dadosAtualizados);
+
         existente.setNomeAutuado(dadosAtualizados.getNomeAutuado());
         existente.setCpfCnpjAutuado(dadosAtualizados.getCpfCnpjAutuado());
         existente.setEnderecoAutuado(dadosAtualizados.getEnderecoAutuado());
@@ -86,6 +92,34 @@ public class AutoInfracaoService {
         logRepository.save(LogAuditoriaAutoInfracao.criarLogEdicao(id, usuarioLogado, perfilUsuario, null, "ATUALIZACAO"));
         auditoriaUtil.registrarLog(usuarioLogado, "ATUALIZACAO_AUTO", "Auto atualizado: " + id);
         return existente;
+    }
+
+    private void sanitizeAndValidateDocumentos(AutoInfracao auto) {
+        // CPF/CNPJ autuado obrigatório
+        String doc = DocumentoUtil.cleanDigits(auto.getCpfCnpjAutuado());
+        if (doc.length() == 11) {
+            if (!DocumentoUtil.isValidCPF(doc)) {
+                throw new IllegalArgumentException("CPF do autuado inválido");
+            }
+        } else if (doc.length() == 14) {
+            if (!DocumentoUtil.isValidCNPJ(doc)) {
+                throw new IllegalArgumentException("CNPJ do autuado inválido");
+            }
+        } else {
+            throw new IllegalArgumentException("Documento do autuado deve ser CPF (11) ou CNPJ (14) válido");
+        }
+        auto.setCpfCnpjAutuado(doc);
+
+        // CPF testemunha opcional
+        if (auto.getCpfTestemunha() != null && !auto.getCpfTestemunha().isBlank()) {
+            String cpfT = DocumentoUtil.cleanDigits(auto.getCpfTestemunha());
+            if (!cpfT.isBlank()) {
+                if (cpfT.length() != 11 || !DocumentoUtil.isValidCPF(cpfT)) {
+                    throw new IllegalArgumentException("CPF da testemunha inválido");
+                }
+                auto.setCpfTestemunha(cpfT);
+            }
+        }
     }
 
     /**

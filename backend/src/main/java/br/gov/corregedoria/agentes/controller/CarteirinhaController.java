@@ -17,11 +17,11 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "*")
 public class CarteirinhaController {
 
-    private final CarteirinhaService service;
+    private final CarteirinhaService carteirinhaService;
     private final AuditoriaUtil auditoriaUtil;
 
-    public CarteirinhaController(CarteirinhaService service, AuditoriaUtil auditoriaUtil) {
-        this.service = service;
+    public CarteirinhaController(CarteirinhaService carteirinhaService, AuditoriaUtil auditoriaUtil) {
+        this.carteirinhaService = carteirinhaService;
         this.auditoriaUtil = auditoriaUtil;
     }
 
@@ -29,19 +29,19 @@ public class CarteirinhaController {
     @GetMapping("/verificar/{agenteId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('AGENTE') or hasRole('CORREGEDORIA') or hasRole('COFIJ')")
     public ResponseEntity<?> verificar(@PathVariable Long agenteId) {
-        var v = service.verificar(agenteId);
+        var verificacao = carteirinhaService.verificar(agenteId);
         return ResponseEntity.ok(java.util.Map.of(
-                "podeGerar", v.podeGerar(),
-                "mensagem", v.mensagem()
+                "podeGerar", verificacao.podeGerar(),
+                "mensagem", verificacao.mensagem()
         ));
     }
 
     @Operation(summary = "Preview da carteirinha (PDF inline)")
     @GetMapping("/preview/{agenteId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('AGENTE') or hasRole('CORREGEDORIA') or hasRole('COFIJ')")
-    public ResponseEntity<byte[]> preview(@PathVariable Long agenteId, Authentication auth) throws Exception {
-        byte[] pdf = service.gerarPdf(agenteId, true);
-        auditoriaUtil.registrarLog(auth != null ? auth.getName() : "anon", "PREVIEW_CARTEIRINHA", "Agente=" + agenteId);
+    public ResponseEntity<byte[]> preview(@PathVariable Long agenteId, Authentication authentication) throws Exception {
+        byte[] pdf = carteirinhaService.gerarPdf(agenteId, true);
+        //auditoriaUtil.registrarLog(authentication != null ? authentication.getName() : "anon", "PREVIEW_CARTEIRINHA", "Agente=" + agenteId);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=carteirinha_preview.pdf")
                 .contentType(MediaType.APPLICATION_PDF)
@@ -51,13 +51,12 @@ public class CarteirinhaController {
     @Operation(summary = "Gerar carteirinha (PDF para download)")
     @GetMapping("/gerar/{agenteId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('AGENTE') or hasRole('CORREGEDORIA') or hasRole('COFIJ')")
-    public ResponseEntity<byte[]> gerar(@PathVariable Long agenteId, Authentication auth) throws Exception {
-        byte[] pdf = service.gerarPdf(agenteId, false);
-        auditoriaUtil.registrarLog(auth != null ? auth.getName() : "anon", "GERAR_CARTEIRINHA", "Agente=" + agenteId);
+    public ResponseEntity<byte[]> gerar(@PathVariable Long agenteId, Authentication authentication) throws Exception {
+        byte[] pdf = carteirinhaService.gerarPdf(agenteId, false);
+        //auditoriaUtil.registrarLog(authentication != null ? authentication.getName() : "anon", "GERAR_CARTEIRINHA", "Agente=" + agenteId);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=carteirinha_" + agenteId + ".pdf")
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(pdf);
     }
 }
-

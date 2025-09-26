@@ -30,21 +30,22 @@ export class CarteirinhaComponent implements OnInit {
 
   ngOnInit(): void {
     const usuario = this.authService.getCurrentUser();
-    const maybeId = usuario?.id;
-    if (maybeId && typeof maybeId === 'number') {
-      this.carregarDadosAgente(maybeId);
-      this.verificarStatus(maybeId);
+    const idUsuarioLogado = usuario?.id;
+    if (idUsuarioLogado && typeof idUsuarioLogado === 'number') {
+      this.carregarDadosAgente(idUsuarioLogado);
+      this.verificarStatus(idUsuarioLogado);
       return;
     }
 
     // Fallback: tentar por CPF
     if (usuario?.cpf) {
       this.loadingDados = true;
-      this.apiService.buscarAgentePorCpf(usuario.cpf).pipe(take(1)).subscribe({
-        next: (ag) => {
-          const id = ag.id;
+      const cpfLimpo = String(usuario.cpf).replace(/\D/g, '');
+      this.apiService.buscarAgentePorCpf(cpfLimpo).pipe(take(1)).subscribe({
+        next: (agente) => {
+          const id = agente.id;
           if (id) {
-            this.agente = ag as any;
+            this.agente = agente as any;
             this.carregarDadosAgente(id);
             this.verificarStatus(id);
           } else {
@@ -67,7 +68,13 @@ export class CarteirinhaComponent implements OnInit {
   }
 
   get cpfFormatado(): string {
-    return this.agente?.cpf ?? '---';
+    const cpf = this.agente?.cpf;
+    if (!cpf) return '---';
+    const digits = String(cpf).replace(/\D/g, '');
+    if (digits.length === 11) {
+      return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    }
+    return cpf;
   }
 
   get comarcaPrincipal(): string {
