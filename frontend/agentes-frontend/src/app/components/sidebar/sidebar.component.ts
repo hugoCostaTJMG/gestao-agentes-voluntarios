@@ -33,8 +33,8 @@ export class SidebarComponent implements OnInit {
     { label: 'Cadastrar Agente', icon: 'fas fa-user-plus', link: '/agentes/cadastro', roles: ['ADMIN'] },
     { label: 'Emissão de Credencial', icon: 'fas fa-id-card', link: '/credenciais', roles: ['ADMIN'] },
     { label: 'Situação Cadastral', icon: 'fas fa-user-check', link: '/situacao-cadastral', roles: ['ADMIN'] },
-    { label: 'Autos de Infração', icon: 'fas fa-file-alt', link: '/autos', roles: ['ADMIN'] },
-    { label: 'Cadastrar Auto', icon: 'fas fa-plus-circle', link: '/autos/cadastro', roles: ['ADMIN'] },
+    // { label: 'Autos de Infração', icon: 'fas fa-file-alt', link: '/autos', roles: ['ADMIN'] },
+    // { label: 'Cadastrar Auto', icon: 'fas fa-plus-circle', link: '/autos/cadastro', roles: ['ADMIN'] },
     { label: 'Consulta Pública', icon: 'fas fa-search', link: '/consulta-publica', roles: ['ADMIN', 'AGENTE'] }
   ];
 

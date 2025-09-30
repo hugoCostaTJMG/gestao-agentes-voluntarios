@@ -1,28 +1,49 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule, NgFor, NgIf } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { AgenteVoluntario, PaginatedResponse } from '../../models/interfaces';
 import { ButtonComponent } from '../../shared/components/buttons/button/button.component';
+import { ModalComponent } from '../../shared/components/modal/modal.component';
+import { CarteirinhaPreviewComponent } from '../carteirinha-preview/carteirinha-preview.component';
 
-type AgenteCard = AgenteVoluntario & { podeGerar?: boolean; verificando?: boolean; mensagem?: string; loadingPreview?: boolean; loadingGerar?: boolean };
+type AgenteCard = AgenteVoluntario & { podeGerar?: boolean; verificando?: boolean; mensagem?: string; loadingPreview?: boolean; loadingGerar?: boolean; fotoUrl?: string; _objectUrl?: string };
 
 @Component({
   selector: 'app-carteirinha-agentes',
   standalone: true,
-  imports: [CommonModule, NgIf, NgFor, ButtonComponent],
+  imports: [CommonModule, FormsModule, NgIf, NgFor, ButtonComponent, ModalComponent, CarteirinhaPreviewComponent],
   templateUrl: './carteirinha-agentes.component.html',
   styleUrls: ['./carteirinha-agentes.component.scss']
 })
-export class CarteirinhaAgentesComponent implements OnInit {
+export class CarteirinhaAgentesComponent implements OnInit, OnDestroy {
   agentes: AgenteCard[] = [];
   loading = false;
   erro = '';
+  previewOpen = false;
+  previewAgente?: AgenteCard;
+  filtroTermo = '';
+  agentesAtivosFiltrados: AgenteCard[] = [];
+  agentesDemaisFiltrados: AgenteCard[] = [];
+  filtroGrupo: 'todos' | 'ativos' | 'demais' | 'selecionados' = 'todos';
+  private selecionados = new Set<number>();
+  loadingLote = false;
 
   constructor(private api: ApiService, private router: Router) {}
 
   ngOnInit(): void {
     this.carregarAgentes();
+  }
+
+  ngOnDestroy(): void {
+    // libera URLs de objeto criadas para fotos
+    this.agentes.forEach(a => {
+      if (a._objectUrl) {
+        try { URL.revokeObjectURL(a._objectUrl); } catch {}
+        a._objectUrl = undefined;
+      }
+    });
   }
 
   carregarAgentes(): void {
@@ -33,7 +54,8 @@ export class CarteirinhaAgentesComponent implements OnInit {
         this.agentes = (resp.content || []).map(a => ({ ...a, verificando: true }));
         this.loading = false;
         // Verifica status de geração por agente
-        this.agentes.forEach(a => this.verificar(a));
+        this.agentes.forEach(a => { this.verificar(a); this.carregarFoto(a); });
+        this.aplicarFiltro();
       },
       error: () => {
         this.loading = false;
@@ -60,16 +82,110 @@ export class CarteirinhaAgentesComponent implements OnInit {
 
   preview(agente: AgenteCard): void {
     if (!agente.id) return;
-    agente.loadingPreview = true;
-    this.api.download(`/carteirinha/preview/${agente.id}`).subscribe({
+    this.previewAgente = agente;
+    this.previewOpen = true;
+  }
+
+  aplicarFiltro(): void {
+    const norm = (s: string = '') => s
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
+
+    const termo = this.filtroTermo.trim();
+    const termoNorm = norm(termo);
+    const termoDigits = termo.replace(/\D/g, '');
+
+    const statusKey = (st?: string) => (st || '')
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/\b(DE|DA|DO|DAS|DOS)\b/g, ' ').replace(/\s+/g, '_');
+
+    const match = (ag: AgenteCard) => {
+      if (!termo) return true;
+      const nome = ag.nomeCompleto || (ag as any).nome || '';
+      const cpf = String(ag.cpf || '');
+      return norm(nome).includes(termoNorm) || cpf.replace(/\D/g, '').includes(termoDigits);
+    };
+
+    const ativos: AgenteCard[] = [];
+    const demais: AgenteCard[] = [];
+
+    for (const ag of this.agentes) {
+      if (!match(ag)) continue;
+      if (statusKey(ag.status) === 'ATIVO') ativos.push(ag); else demais.push(ag);
+    }
+
+    this.agentesAtivosFiltrados = ativos;
+    this.agentesDemaisFiltrados = demais;
+  }
+
+  isSelecionado(ag: AgenteCard): boolean {
+    return !!ag.id && this.selecionados.has(ag.id);
+  }
+
+  toggleSelecionado(ag: AgenteCard): void {
+    if (!ag.id) return;
+    if (this.selecionados.has(ag.id)) this.selecionados.delete(ag.id); else this.selecionados.add(ag.id);
+  }
+
+  get selecionadosCount(): number { return this.selecionados.size; }
+
+  limparSelecao(): void { this.selecionados.clear(); }
+
+  selecionarVisiveis(): void {
+    const visiveis = this.getVisiveis();
+    visiveis.forEach(a => { if (a.id) this.selecionados.add(a.id); });
+  }
+
+  private getVisiveis(): AgenteCard[] {
+    switch (this.filtroGrupo) {
+      case 'ativos':
+        return this.agentesAtivosFiltrados;
+      case 'demais':
+        return this.agentesDemaisFiltrados;
+      case 'selecionados':
+        return [...this.agentesAtivosFiltrados, ...this.agentesDemaisFiltrados]
+          .filter(a => a.id && this.selecionados.has(a.id));
+      default:
+        return [...this.agentesAtivosFiltrados, ...this.agentesDemaisFiltrados];
+    }
+  }
+
+  gerarSelecionadas(): void {
+    if (!this.selecionados.size) return;
+    const ids = Array.from(this.selecionados.values());
+    this.loadingLote = true;
+    this.api.gerarCarteirinhasLote(ids).subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
-        window.open(url, '_blank');
-        agente.loadingPreview = false;
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `carteirinhas_lote_${new Date().toISOString().slice(0,10)}.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+        this.loadingLote = false;
       },
       error: () => {
-        agente.loadingPreview = false;
-        alert('Não foi possível gerar o preview.');
+        this.loadingLote = false;
+        alert('Não foi possível gerar o PDF em lote.');
+      }
+    });
+  }
+
+  private carregarFoto(ag: AgenteCard): void {
+    if (!ag.id) return;
+    this.api.getFotoAgente(ag.id).subscribe({
+      next: (blob) => {
+        if (blob && blob.size > 0) {
+          try {
+            if (ag._objectUrl) { URL.revokeObjectURL(ag._objectUrl); }
+          } catch {}
+          const url = URL.createObjectURL(blob);
+          ag._objectUrl = url;
+          ag.fotoUrl = url;
+        }
+      },
+      error: () => {
+        // sem foto
       }
     });
   }
@@ -117,4 +233,3 @@ export class CarteirinhaAgentesComponent implements OnInit {
     return `AGV-${String(id).padStart(4, '0')}`;
   }
 }
-

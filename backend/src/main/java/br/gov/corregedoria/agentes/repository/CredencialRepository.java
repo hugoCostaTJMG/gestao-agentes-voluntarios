@@ -3,8 +3,6 @@ package br.gov.corregedoria.agentes.repository;
 import br.gov.corregedoria.agentes.entity.Credencial;
 import br.gov.corregedoria.agentes.entity.AgenteVoluntario;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -24,10 +22,10 @@ public interface CredencialRepository extends JpaRepository<Credencial, Long> {
     List<Credencial> findByAgenteId(Long agenteId);
 
     /**
-     * Busca a credencial mais recente de um agente
+     * Busca a credencial mais recente de um agente (seguro para múltiplos resultados)
+     * Observação: usa derivation com FIRST + ORDER BY para gerar LIMIT 1.
      */
-    @Query("SELECT c FROM Credencial c WHERE c.agente.id = :agenteId ORDER BY c.dataEmissao DESC")
-    Optional<Credencial> findCredencialMaisRecenteByAgenteId(@Param("agenteId") Long agenteId);
+    Optional<Credencial> findFirstByAgenteIdOrderByDataEmissaoDescIdDesc(Long agenteId);
 
     /**
      * Busca credencial pela URL do QR Code
@@ -39,4 +37,3 @@ public interface CredencialRepository extends JpaRepository<Credencial, Long> {
      */
     long countByUsuarioEmissao(String usuarioEmissao);
 }
-

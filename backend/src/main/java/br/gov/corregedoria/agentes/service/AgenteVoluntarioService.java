@@ -16,6 +16,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -223,6 +224,14 @@ public class AgenteVoluntarioService {
         return agenteRepository.findByNomeCompletoContainingIgnoreCase(nome).stream()
                 .map(this::converterParaAgenteResponseDTO)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtém os bytes da foto do agente (se existir)
+     */
+    @Transactional(readOnly = true)
+    public Optional<byte[]> obterFotoAgente(Long id) {
+        return agenteRepository.findById(id).map(AgenteVoluntario::getFoto);
     }
 
     /**

@@ -66,14 +66,20 @@ export class PainelAgentesComponent implements OnInit {
   }
 
   aplicarFiltros(): void {
+    const norm = (s: string = '') => s
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
+
     this.agentesFiltrados = this.agentes.filter(agente => {
-      const nomeMatch = !this.filtros.nome ||
-        agente.nomeCompleto.toLowerCase().includes(this.filtros.nome.toLowerCase());
+      const nomeAgente = agente.nomeCompleto || (agente as any).nome || '';
+      const nomeMatch = !this.filtros.nome || norm(nomeAgente).includes(norm(this.filtros.nome));
 
-      const statusMatch = !this.filtros.status || agente.status === this.filtros.status;
+      const statusMatch = !this.filtros.status || this.normalizarStatus(agente.status) === this.filtros.status;
 
-      const comarcaMatch = !this.filtros.comarca ||
-        (agente.comarcas && agente.comarcas.some(c => c.nomeComarca === this.filtros.comarca));
+      const comarcaMatch = !this.filtros.comarca || (
+        agente.comarcas && agente.comarcas.some(c => norm(c.nomeComarca) === norm(this.filtros.comarca))
+      );
 
       const validadeMatch = !this.filtros.validade || this.verificarValidade(agente);
 
@@ -121,8 +127,10 @@ export class PainelAgentesComponent implements OnInit {
 
   private normalizarStatus(status: string | undefined): string {
     const s = (status || '').toString();
-    // Remove acentos e normaliza caixa e espaços
-    return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/\s+/g, '_');
+    // Remove acentos, remove preposições comuns e normaliza caixa/espaços
+    const semAcento = s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
+    const semPreposicoes = semAcento.replace(/\b(DE|DA|DO|DAS|DOS)\b/g, ' ');
+    return semPreposicoes.replace(/\s+/g, '_').trim();
   }
 
   isAgenteAtivo(agente: AgenteVoluntario): boolean {
@@ -134,7 +142,7 @@ export class PainelAgentesComponent implements OnInit {
       case 'ATIVO': return 'bg-success';
       case 'INATIVO': return 'bg-secondary';
       case 'EM_ANALISE': return 'bg-warning';
-      case 'REVOGADO': return 'bg-danger';
+      case 'QUADRO_RESERVA': return 'bg-secondary';
       default: return 'bg-secondary';
     }
   }
@@ -144,7 +152,7 @@ export class PainelAgentesComponent implements OnInit {
       case 'ATIVO': return 'Ativo';
       case 'INATIVO': return 'Inativo';
       case 'EM_ANALISE': return 'Em Análise';
-      case 'REVOGADO': return 'Revogado';
+      case 'QUADRO_RESERVA': return 'Quadro de Reserva';
       default: return status;
     }
   }

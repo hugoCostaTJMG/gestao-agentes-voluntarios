@@ -1,0 +1,49 @@
+<div class="preview-card">
+  <div class="preview-header">
+    <div class="brand">
+      <i class="fas fa-id-card"></i>
+    </div>
+    <div class="title">
+      Carteirinha de Agente Voluntário
+      <small class="subtitle">Pré-visualização</small>
+    </div>
+  </div>
+
+  <div class="preview-body">
+    <div class="avatar" *ngIf="!fotoUrl">
+      <i class="fas fa-user"></i>
+    </div>
+    <img *ngIf="fotoUrl" class="photo" [src]="fotoUrl" alt="Foto do Agente" />
+    <div class="info">
+      <div class="name">{{ nome }}</div>
+      <div class="row">
+        <div class="label">CPF</div>
+        <div class="value">{{ cpf }}</div>
+      </div>
+      <div class="row">
+        <div class="label">Comarca</div>
+        <div class="value">{{ comarca }}</div>
+      </div>
+      <div class="row">
+        <div class="label">Status</div>
+        <div class="value">
+          <app-badge [text]="statusTexto" [variant]="statusVariant" tone="soft"></app-badge>
+        </div>
+      </div>
+      <div class="row">
+        <div class="label">Credencial</div>
+        <div class="value code">{{ codigo }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="preview-footer">
+    <div class="qr-placeholder">
+      <i class="fas fa-qrcode"></i>
+    </div>
+    <div class="notes">
+      <div>Documento ilustrativo para conferência.</div>
+      <small>O PDF oficial será gerado ao clicar em "Gerar Carteirinha".</small>
+    </div>
+  </div>
+</div>

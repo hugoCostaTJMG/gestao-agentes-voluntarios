@@ -4,11 +4,13 @@ import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { take } from 'rxjs/operators';
 import { NgIf } from '@angular/common';
+import { ModalComponent } from '../../shared/components/modal/modal.component';
+import { CarteirinhaPreviewComponent } from '../carteirinha-preview/carteirinha-preview.component';
 
 @Component({
   selector: 'app-impressao-carteirinha',
   standalone: true,
-  imports: [NgIf],
+  imports: [NgIf, ModalComponent, CarteirinhaPreviewComponent],
   templateUrl: './impressao-carteirinha.component.html',
   styleUrls: ['./impressao-carteirinha.component.scss']
 })
@@ -19,6 +21,9 @@ export class ImpressaoCarteirinhaComponent implements OnInit {
   error: string = '';
   podeGerar: boolean = false;
   verificandoStatus: boolean = false;
+  previewOpen = false;
+  fotoUrl?: string;
+  private objectUrl?: string;
 
   constructor(
     private route: ActivatedRoute,
@@ -63,12 +68,36 @@ export class ImpressaoCarteirinhaComponent implements OnInit {
       next: (response) => {
         this.agente = response;
         this.loading = false;
+        this.carregarFoto();
       },
       error: (error) => {
         this.mostrarErro('Erro ao carregar dados do agente');
         console.error('Erro ao carregar agente:', error);
       }
     });
+  }
+
+  private carregarFoto(): void {
+    this.revokeObjectUrl();
+    this.fotoUrl = undefined;
+    this.apiService.getFotoAgente(this.agenteId).pipe(take(1)).subscribe({
+      next: (blob) => {
+        if (blob && blob.size > 0) {
+          this.objectUrl = URL.createObjectURL(blob);
+          this.fotoUrl = this.objectUrl;
+        }
+      },
+      error: () => {
+        this.fotoUrl = undefined;
+      }
+    });
+  }
+
+  private revokeObjectUrl(): void {
+    if (this.objectUrl) {
+      URL.revokeObjectURL(this.objectUrl);
+      this.objectUrl = undefined;
+    }
   }
 
   /**
@@ -98,24 +127,8 @@ export class ImpressaoCarteirinhaComponent implements OnInit {
    * Gera preview da carteirinha em nova aba
    */
   gerarPreview(): void {
-  alert('Gerando preview da carteirinha...');
     if (!this.podeGerar) return;
-
-    this.loading = true;
-    this.error = '';
-
-    this.apiService.download(`/carteirinha/preview/${this.agenteId}`).pipe(take(1)).subscribe({
-      next: (blob) => {
-        const url = window.URL.createObjectURL(blob);
-        window.open(url, '_blank');
-        this.loading = false;
-      },
-      error: (err) => {
-        this.mostrarErro('Erro ao gerar preview da carteirinha');
-        console.error('Erro no preview:', err);
-        this.loading = false;
-      }
-    });
+    this.previewOpen = true;
   }
 
   /**

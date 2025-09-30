@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/carteirinha")
@@ -56,6 +57,21 @@ public class CarteirinhaController {
         //auditoriaUtil.registrarLog(authentication != null ? authentication.getName() : "anon", "GERAR_CARTEIRINHA", "Agente=" + agenteId);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=carteirinha_" + agenteId + ".pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
+    }
+
+    @Operation(summary = "Gerar carteirinhas selecionadas (PDF único)")
+    @PostMapping("/lote")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA') or hasRole('COFIJ')")
+    public ResponseEntity<byte[]> gerarLote(@RequestBody List<Long> agenteIds, Authentication authentication) throws Exception {
+        if (agenteIds == null || agenteIds.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        byte[] pdf = carteirinhaService.gerarPdfLote(agenteIds);
+        //auditoriaUtil.registrarLog(authentication != null ? authentication.getName() : "anon", "GERAR_CARTEIRINHAS_LOTE", "qtde=" + agenteIds.size());
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=carteirinhas_lote.pdf")
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(pdf);
     }

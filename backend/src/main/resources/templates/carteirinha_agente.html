@@ -3,8 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <title>Carteirinha do Agente</title>
-  <!-- Tipografia opcional (offline mantido comentado) -->
-  <!-- <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet" /> -->
+  <!-- Tipografia Montserrat: usamos fontes locais incorporadas no PDF pelo backend -->
   <style>
     :root {
       --brand-red: #d82020;  /* vermelho da moldura/faixa superior */
@@ -14,7 +13,7 @@
       --bar: #dedede;        /* cinza das BARRAS de rótulo */
       --bar-stroke: #cfcfcf; /* linha da barra/campo */
       --field: #ffffff;      /* fundo dos CAMPOS */
-      --font-sans: Arial; /* troque para 'Montserrat' se importar acima */
+      --font-sans: 'Montserrat', Arial, Helvetica, sans-serif;
       --trk: 0.02em;
       --trk-wide: 0.06em;
     }
@@ -23,7 +22,8 @@
     @page { size: A4 portrait; margin: 0; }
     *{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     html, body { height: 100%; }
-    body { margin: 0; font-family: Arial; color: #222222; }
+    /* OpenHTMLToPDF não resolve CSS variables em font-family, então usamos a família diretamente */
+    body { margin: 0; font-family: 'Montserrat', Arial, Helvetica, sans-serif; color: #222222; }
 
     /* Dimensões da página A4 em retrato */
     .page { width: 210mm; height: 297mm; display: table; }
@@ -36,8 +36,8 @@
       position: relative;
       display: inline-block;
       vertical-align: top;
-      /* Tamanho de uma CNH/ID-1: 85,6 × 54 mm */
-      width: 80mm; height: 57mm;
+      /* Tamanho fixo solicitado: 170 mm x 55 mm */
+      width: 85mm; height: 55mm;
       background: #efefef;
       border: 2mm solid #d82020;
       border-top: 0;
@@ -49,14 +49,14 @@
     .ribbon {
       position: absolute; left: -2mm; right: -2mm; height: 3mm;
       background: #d82020; color: #fff; text-align: center; font-weight: 800;
-      font-size: 6pt; line-height: 3mm; letter-spacing: 0.06em; text-transform: uppercase;
+      font-size: 6pt; line-height: 3.5mm; letter-spacing: 0.06em; text-transform: uppercase;
     }
 
     .inner {
       position: absolute;
       top: 2.8mm; right: 0mm; bottom: 0mm; left: 0mm;
       background: #efefef;
-      padding: 1mm 2mm;
+      padding: 0.3mm 0.6mm;
       box-sizing: border-box;
       font-size: 6pt;
     }
@@ -78,17 +78,17 @@
     /* Barras + Campos (idênticos frente/verso) */
     .block { margin-top: 1.0mm; }
     .bar {
-      height: 2.1mm; background: #dedede; color: #444444;
+      height: 2.1mm; color: #444444;
       display: flex; align-items: center; box-sizing: border-box;
-      font-weight: 700; font-size: 4.5pt; letter-spacing: 0.06em; text-transform: uppercase;
-      border: 0.18mm solid #cfcfcf; border-bottom: none;
+      font-weight: 700; font-size: 4.5pt; text-transform: uppercase;
+       border-bottom: none;
     }
     .field {
       background: #ffffff; border: 0.18mm solid #cfcfcf;
       min-height: 4mm; padding: 1.0mm 0.5mm; line-height: 1.2; box-sizing: border-box;
     }
     .field.tall { min-height: 10mm; } /* Nome */
-    .field.mid  { min-height: 7mm; }  /* Filiação */
+    .field.mid  { min-height: 10mm; display: flex; align-items: center; }  /* Filiação - igualar altura ao QR */
 
     /* Foto 2 x 2,5 cm (ajustada para caber) */
     .left-col { width: 28mm; }
@@ -106,13 +106,16 @@
     .legal { margin-top: 0.6mm; font-size: 4.4pt; }
 
     /* Verso: tabela simples (compatível) */
-    .tgrid { width: 100%; border-collapse: separate; border-spacing: 1.6mm 1.2mm; }
+    .tgrid { width: 100%; border-collapse: separate;}
+    /* Igualar alturas dos campos nas três primeiras linhas */
+    .tgrid .field { height: 4.2mm; display: flex; align-items: center; }
+    .tgrid .bar { height: 2.1mm; display: flex; align-items: center; }
     .tgrid .col-uf { width: 18mm; }
 
     /* ===== Filiação + QR lado a lado ===== */
-    .fil-row { display: flex; gap: 2mm; align-items: stretch; margin-top: 1.4mm; }
+    .fil-row { display: flex; gap: 0mm; align-items: stretch; margin-top: 1.4mm; }
     .fil-left { flex: 1 1 auto; min-width: 0; }
-    .qr-wrap { flex: 0 0 18mm; display: flex; flex-direction: column; }
+    .qr-wrap { flex: 0 0 0mm; display: flex; flex-direction: column; }
     .qr-bar { height: 4mm; background: #dedede; color: #444444; display: flex; align-items: center; padding: 0 1.6mm; box-sizing: border-box; font-weight: 700; font-size: 4.5pt; letter-spacing: 0.06em; text-transform: uppercase; border: 0.18mm solid #cfcfcf; border-bottom: none; }
     .qr-field { background: #ffffff; display: flex; align-items: center; justify-content: center; height: 10mm; box-sizing: border-box; }
     .qr-img {
@@ -121,9 +124,9 @@
     }
 
     /* Assinatura */
-    .sign { margin-top: 3.5mm; }
+    .sign { margin-top: 5mm; }
     .sign .rule { margin-top: 0; }
-    .sign-caption { margin-top: 0.6mm; text-align: center; font-size: 4pt; letter-spacing: 0.02em; text-transform: uppercase; }
+    .sign-caption { margin-top: 0.6mm; text-align: center; font-size: 4pt; text-transform: uppercase; }
     .right { text-align: right; }
 
 
@@ -142,11 +145,11 @@
             <tr>
               <td style="width:12mm; padding-right:2mm;">
                 <div th:if="${logo != null}">
-                  <img th:src="${logo}" alt="Brasão" style="width:9mm; height:9mm; object-fit:contain;" />
+                  <img th:src="${logo}" alt="Brasão" style="width:8mm; height:8mm; object-fit:contain;" />
                 </div>
               </td>
               <td>
-                <div class="inst">Poder Judiciário do Estado de Minas Gerais</div>
+                <div class="inst">Poder  Judiciário  do  Estado  de  Minas  Gerais</div>
                 <div class="inst"><span class="g">Corregedoria-Geral de Justiça</span></div>
                 <div class="inst"><span class="p">Vara da Infância e da Juventude</span></div>
               </td>
@@ -230,7 +233,7 @@
               </td>
               <td>
                 <div class="bar">Validade</div>
-                <div class="field" style="text-align:right; font-weight:700; font-size: 1.3mm;">TEMPO INDETERMINADO</div>
+                <div class="field" style="text-align:right; font-weight:700; font-size: 1.2mm;">TEMPO INDETERMINADO</div>
               </td>
             </tr>
           </table>

@@ -4,6 +4,8 @@ import { take } from 'rxjs/operators';
 import { ButtonComponent } from '../../shared/components/buttons/button/button.component';
 import { BadgeComponent } from '../../shared/components/badge/badge.component';
 import { AlertComponent } from '../../shared/components/alert/alert.component';
+import { ModalComponent } from '../../shared/components/modal/modal.component';
+import { CarteirinhaPreviewComponent } from '../carteirinha-preview/carteirinha-preview.component';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { AgenteVoluntario } from '../../models/interfaces';
@@ -11,7 +13,7 @@ import { AgenteVoluntario } from '../../models/interfaces';
 @Component({
   selector: 'app-carteirinha',
   standalone: true,
-  imports: [CommonModule, NgIf, ButtonComponent, BadgeComponent, AlertComponent],
+  imports: [CommonModule, NgIf, ButtonComponent, BadgeComponent, AlertComponent, ModalComponent, CarteirinhaPreviewComponent],
   templateUrl: './carteirinha.component.html',
   styleUrls: ['./carteirinha.component.scss']
 })
@@ -22,6 +24,9 @@ export class CarteirinhaComponent implements OnInit {
   loadingPreview = false;
   loadingDownload = false;
   mensagemErro = '';
+  previewOpen = false;
+  fotoUrl?: string;
+  private objectUrl?: string;
 
   constructor(
     private readonly apiService: ApiService,
@@ -113,6 +118,7 @@ export class CarteirinhaComponent implements OnInit {
       next: (agente) => {
         this.agente = agente;
         this.loadingDados = false;
+        this.carregarFoto();
       },
       error: (error) => {
         console.error('Erro ao carregar dados do agente.', error);
@@ -120,6 +126,31 @@ export class CarteirinhaComponent implements OnInit {
         this.loadingDados = false;
       }
     });
+  }
+
+  private carregarFoto(): void {
+    const id = this.agente?.id;
+    if (!id) return;
+    this.revokeObjectUrl();
+    this.fotoUrl = undefined;
+    this.apiService.getFotoAgente(id).pipe(take(1)).subscribe({
+      next: (blob) => {
+        if (blob && blob.size > 0) {
+          this.objectUrl = URL.createObjectURL(blob);
+          this.fotoUrl = this.objectUrl;
+        }
+      },
+      error: () => {
+        this.fotoUrl = undefined;
+      }
+    });
+  }
+
+  private revokeObjectUrl(): void {
+    if (this.objectUrl) {
+      URL.revokeObjectURL(this.objectUrl);
+      this.objectUrl = undefined;
+    }
   }
 
   private verificarStatus(id: number): void {
@@ -138,23 +169,8 @@ export class CarteirinhaComponent implements OnInit {
   }
 
   previewCarteirinha(): void {
-    if (!this.agente?.id || !this.podeGerar) {
-      return;
-    }
-    this.mensagemErro = '';
-    this.loadingPreview = true;
-    this.apiService.download(`/carteirinha/preview/${this.agente.id}`).pipe(take(1)).subscribe({
-      next: (blob) => {
-        const url = window.URL.createObjectURL(blob);
-        window.open(url, '_blank');
-        this.loadingPreview = false;
-      },
-      error: (error) => {
-        console.error('Erro ao gerar preview da carteirinha.', error);
-        this.mensagemErro = 'Não foi possível gerar o preview da carteirinha.';
-        this.loadingPreview = false;
-      }
-    });
+    if (!this.agente?.id || !this.podeGerar) return;
+    this.previewOpen = true;
   }
 
   gerarCarteirinha(): void {

@@ -205,6 +205,14 @@ verificarStatusCarteirinha(agenteId: number): Observable<{ podeGerar: boolean, m
     });
   }
 
+  // ===== FOTOS DE AGENTES =====
+  getFotoAgente(agenteId: number): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/api/agentes/${agenteId}/foto`, {
+      headers: this.getAuthHeaders(),
+      responseType: 'blob'
+    });
+  }
+
   buscarCredencialPorId(credencialId: number): Observable<Credencial> {
     return this.http.get<Credencial>(`${this.baseUrl}/api/credenciais/${credencialId}`, {
       headers: this.getAuthHeaders()
@@ -213,6 +221,14 @@ verificarStatusCarteirinha(agenteId: number): Observable<{ podeGerar: boolean, m
 
   gerarPDFCredencial(credencialId: number): Observable<Blob> {
     return this.http.get(`${this.baseUrl}/api/credenciais/${credencialId}/pdf`, {
+      headers: this.getAuthHeaders(),
+      responseType: 'blob'
+    });
+  }
+
+  // ===== CARTEIRINHA EM LOTE =====
+  gerarCarteirinhasLote(ids: number[]): Observable<Blob> {
+    return this.http.post(`${this.baseUrl}/carteirinha/lote`, ids, {
       headers: this.getAuthHeaders(),
       responseType: 'blob'
     });

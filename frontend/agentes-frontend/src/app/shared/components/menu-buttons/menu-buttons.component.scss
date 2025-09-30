@@ -23,7 +23,7 @@ $transition: 150ms cubic-bezier(0.2,0,0.38,0.9);
   border: 1px solid transparent;
   border-radius: $radius;
   cursor: pointer;
-  font-family: 'IBM Plex Sans', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   transition: background $transition, color $transition, border-color $transition;
 
   i { pointer-events: none; }

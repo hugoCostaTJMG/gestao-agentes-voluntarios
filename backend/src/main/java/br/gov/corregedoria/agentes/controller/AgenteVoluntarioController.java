@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -63,6 +64,25 @@ public class AgenteVoluntarioController {
         
         AgenteVoluntarioResponseDTO response = agenteService.buscarPorId(id);
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "Obter foto do agente", description = "Retorna a foto do agente, caso cadastrada")
+    @GetMapping("/{id}/foto")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA') or hasRole('COFIJ') or hasRole('AGENTE')")
+    public ResponseEntity<byte[]> obterFoto(@Parameter(description = "ID do agente") @PathVariable Long id) {
+        return agenteService.obterFotoAgente(id)
+                .filter(foto -> foto != null && foto.length > 0)
+                .map(foto -> ResponseEntity.ok()
+                        .contentType(MediaType.parseMediaType(deduzirMimeImagem(foto)))
+                        .body(foto))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    private static String deduzirMimeImagem(byte[] data) {
+        if (data == null || data.length < 4) return MediaType.IMAGE_JPEG_VALUE;
+        if ((data[0] & 0xFF) == 0x89 && data[1] == 0x50 && data[2] == 0x4E && data[3] == 0x47) return MediaType.IMAGE_PNG_VALUE;
+        if ((data[0] & 0xFF) == 0xFF && (data[1] & 0xFF) == 0xD8) return MediaType.IMAGE_JPEG_VALUE;
+        return MediaType.IMAGE_JPEG_VALUE;
     }
 
     @Operation(summary = "Buscar agente por CPF",

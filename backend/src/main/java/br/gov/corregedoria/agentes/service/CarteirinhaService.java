@@ -8,22 +8,28 @@ import br.gov.corregedoria.agentes.repository.CredencialRepository;
 import br.gov.corregedoria.agentes.util.QRCodeUtil;
 import com.google.zxing.WriterException;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
+import com.openhtmltopdf.outputdevice.helper.BaseRendererBuilder;
 import com.openhtmltopdf.svgsupport.BatikSVGDrawer;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class CarteirinhaService {
+    private static final Logger log = LoggerFactory.getLogger(CarteirinhaService.class);
 
     @Autowired
     private AgenteVoluntarioRepository agenteRepository;
@@ -61,7 +67,7 @@ public class CarteirinhaService {
     public byte[] gerarPdf(Long agenteId, boolean inline) throws IOException, WriterException {
         AgenteVoluntario agente = agenteRepository.findById(agenteId)
                 .orElseThrow(() -> new IllegalArgumentException("Agente não encontrado: " + agenteId));
-        Optional<Credencial> credencialOptional = credencialRepository.findCredencialMaisRecenteByAgenteId(agenteId);
+        Optional<Credencial> credencialOptional = credencialRepository.findFirstByAgenteIdOrderByDataEmissaoDescIdDesc(agenteId);
         if (credencialOptional.isEmpty()) {
             throw new IllegalStateException("Credencial não encontrada para o agente");
         }
@@ -120,12 +126,119 @@ public class CarteirinhaService {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             PdfRendererBuilder builder = new PdfRendererBuilder();
             builder.useSVGDrawer(new BatikSVGDrawer());
+            // Registrar fontes locais (Montserrat) para incorporação no PDF
+            registrarFontes(builder);
             builder.withHtmlContent(html, null);
             builder.toStream(baos);
             builder.run();
             return baos.toByteArray();
         } catch (Exception e) {
             throw new IOException("Falha ao gerar a carteirinha (HTML->PDF): " + e.getMessage(), e);
+        }
+    }
+
+    public static class LoteItem {
+        public String logo; public String foto; public String qrCode; public String codigoControle; public String versao; public String provimento; public String dataEmissao;
+        public String nomeCompleto; public String comarca; public String ci; public String uf; public String cpf; public String nacionalidade; public String naturalidade;
+        public String dataNascimento; public String dataExpedicao; public String filiacao; public String numeroCredencial;
+    }
+
+    public byte[] gerarPdfLote(List<Long> agenteIds) throws IOException, WriterException {
+        String logoDataUri = carregarLogoComoDataUri();
+        List<LoteItem> itens = new ArrayList<>();
+
+        for (Long agenteId : agenteIds) {
+            AgenteVoluntario agente = agenteRepository.findById(agenteId)
+                    .orElseThrow(() -> new IllegalArgumentException("Agente não encontrado: " + agenteId));
+            Optional<Credencial> credencialOptional = credencialRepository.findFirstByAgenteIdOrderByDataEmissaoDescIdDesc(agenteId);
+            if (credencialOptional.isEmpty()) {
+                // pula agentes sem credencial
+                continue;
+            }
+            Credencial credencial = credencialOptional.get();
+            String qrBase64 = qrCodeUtil.gerarQRCode(credencial.getQrCodeUrl());
+            String qrDataUri = qrBase64 != null && !qrBase64.isBlank() ? "data:image/png;base64," + qrBase64 : null;
+
+            String fotoDataUri = null;
+            if (agente.getFoto() != null && agente.getFoto().length > 0) {
+                String mime = deduzirMimeImagem(agente.getFoto());
+                fotoDataUri = "data:" + mime + ";base64," + Base64.getEncoder().encodeToString(agente.getFoto());
+            }
+
+            LoteItem it = new LoteItem();
+            it.logo = logoDataUri;
+            it.foto = fotoDataUri;
+            it.qrCode = qrDataUri;
+            it.codigoControle = "Cód.: " + credencial.getId();
+            it.versao = "v2.0";
+            it.provimento = "art. 362, §1º do Provimento nº 355/2018";
+            it.dataEmissao = credencial.getDataEmissao() != null ? credencial.getDataEmissao().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "";
+            it.nomeCompleto = safe(agente.getNomeCompleto());
+            it.comarca = agente.getComarcas().stream().findFirst().map(c -> c.getNomeComarca()).orElse("NÃO INFORMADO");
+            it.ci = safe(agente.getNumeroCarteiraIdentidade());
+            it.uf = safe(agente.getUf());
+            it.cpf = safe(formatarCpf(agente.getCpf()));
+            it.nacionalidade = safe(agente.getNacionalidade());
+            it.naturalidade = safe(agente.getNaturalidade());
+            it.dataNascimento = agente.getDataNascimento() != null ? agente.getDataNascimento().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "";
+            it.dataExpedicao = agente.getDataExpedicaoCI() != null ? agente.getDataExpedicaoCI().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "";
+            it.filiacao = (safe(agente.getFiliacaoPai()).isBlank() && safe(agente.getFiliacaoMae()).isBlank()) ? "" : ("Pai: " + safe(agente.getFiliacaoPai()) + "  |  Mãe: " + safe(agente.getFiliacaoMae()));
+            it.numeroCredencial = formatarNumeroComQuatroDigitos(credencial.getId());
+            itens.add(it);
+        }
+
+        if (itens.isEmpty()) {
+            throw new IllegalStateException("Nenhuma credencial encontrada para os agentes informados");
+        }
+
+        Context ctx = new Context();
+        ctx.setVariable("itens", itens);
+
+        String html = templateEngine.process("carteirinhas_lote", ctx);
+
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            PdfRendererBuilder builder = new PdfRendererBuilder();
+            builder.useSVGDrawer(new BatikSVGDrawer());
+            registrarFontes(builder);
+            builder.withHtmlContent(html, null);
+            builder.toStream(baos);
+            builder.run();
+            return baos.toByteArray();
+        } catch (Exception e) {
+            throw new IOException("Falha ao gerar o PDF em lote: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Registra as variantes da família Montserrat a partir de arquivos na pasta resources/fonts.
+     * Coloque os arquivos TTF (ou OTF) no classpath em:
+     *  - /fonts/Montserrat-Regular.ttf (peso 400)
+     *  - /fonts/Montserrat-SemiBold.ttf (peso 600)
+     *  - /fonts/Montserrat-Bold.ttf (peso 700)
+     *  - /fonts/Montserrat-ExtraBold.ttf (peso 800)
+     * Caso algum arquivo não exista, é simplesmente ignorado.
+     */
+    private void registrarFontes(PdfRendererBuilder builder) {
+        addFont(builder, "/fonts/Montserrat-Regular.ttf", "Montserrat", 400);
+        addFont(builder, "/fonts/Montserrat-Medium.ttf", "Montserrat", 500);
+        addFont(builder, "/fonts/Montserrat-SemiBold.ttf", "Montserrat", 600);
+        addFont(builder, "/fonts/Montserrat-Bold.ttf", "Montserrat", 700);
+        addFont(builder, "/fonts/Montserrat-ExtraBold.ttf", "Montserrat", 800);
+        // Se desejar suportar itálico, adicionar arquivos *Italic.ttf com FontStyle.ITALIC.
+    }
+
+    private void addFont(PdfRendererBuilder builder, String resourcePath, String family, int weight) {
+        java.net.URL url = getClass().getResource(resourcePath);
+        if (url == null) { 
+            log.warn("Fonte não encontrada no classpath: {} (peso {})", resourcePath, weight);
+            return; // arquivo não existe no classpath
+        }
+        com.openhtmltopdf.extend.FSSupplier<java.io.InputStream> supplier = () -> getClass().getResourceAsStream(resourcePath);
+        try {
+            builder.useFont(supplier, family, weight, BaseRendererBuilder.FontStyle.NORMAL, true);
+            log.info("Fonte registrada: {} (peso {})", family, weight);
+        } catch (Exception ignored) {
+            log.warn("Falha ao registrar fonte: {} (peso {})", family, weight);
         }
     }
 

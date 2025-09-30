@@ -71,20 +71,20 @@ export const routes: Routes = [
     canActivate: [AuthGuard, RoleGuard],
     data: { roles: ['ADMIN'], title: 'Atualização da Situação Cadastral', icon: 'fas fa-user-check', showBack: true }
   },
-  {
-    path: 'autos',
-    loadComponent: () =>
-      import('./components/auto-infracao-lista/auto-infracao-lista.component').then(m => m.AutoInfracaoListaComponent),
-    canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['ADMIN'], title: 'Autos de Infração', icon: 'fas fa-file-alt' }
-  },
-  {
-    path: 'autos/cadastro',
-    loadComponent: () =>
-      import('./components/auto-infracao-cadastro/auto-infracao-cadastro.component').then(m => m.AutoInfracaoCadastroComponent),
-    canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['ADMIN'], title: 'Novo Auto de Infração', icon: 'fas fa-file-alt' }
-  },
+  // {
+  //   path: 'autos',
+  //   loadComponent: () =>
+  //     import('./components/auto-infracao-lista/auto-infracao-lista.component').then(m => m.AutoInfracaoListaComponent),
+  //   canActivate: [AuthGuard, RoleGuard],
+  //   data: { roles: ['ADMIN'], title: 'Autos de Infração', icon: 'fas fa-file-alt' }
+  // },
+  // {
+  //   path: 'autos/cadastro',
+  //   loadComponent: () =>
+  //     import('./components/auto-infracao-cadastro/auto-infracao-cadastro.component').then(m => m.AutoInfracaoCadastroComponent),
+  //   canActivate: [AuthGuard, RoleGuard],
+  //   data: { roles: ['ADMIN'], title: 'Novo Auto de Infração', icon: 'fas fa-file-alt' }
+  // },
   {
     path: 'autos/:id',
     loadComponent: () =>
