@@ -83,7 +83,7 @@ export interface Usuario {
   keycloakId: string;    // obrigatório: UUID do Keycloak
   nome: string;
   email: string;
-  perfil: string;        // ex.: 'AGENTE', 'ADMIN', etc.
+  perfil: string;        // ex.: 'CORREGEDORIA', 'COMARCA', 'AGENTE'
   token: string;         // access token vigente
   cpf?: string;
   telefone?: string;

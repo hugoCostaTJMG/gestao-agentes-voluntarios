@@ -32,7 +32,7 @@ public class AutoInfracaoController {
 
     @Operation(summary = "Listar autos de infração")
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('uma_authorization')")
+    @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('AGENTE')")
     public ResponseEntity<Page<AutoInfracao>> listar(Pageable pageable,
                                                     @RequestParam(required = false) StatusAutoInfracao status,
                                                     Authentication authentication) {
@@ -43,7 +43,7 @@ public class AutoInfracaoController {
 
     @Operation(summary = "Buscar auto por ID")
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERVISOR') or hasRole('AGENTE')")
+    @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('AGENTE')")
     public ResponseEntity<AutoInfracao> buscar(@PathVariable Long id,
                                                Authentication authentication) {
         Long agenteId = null;
@@ -56,7 +56,7 @@ public class AutoInfracaoController {
 
     @Operation(summary = "Cadastrar auto de infração")
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('uma_authorization')")
+    @PreAuthorize("hasRole('AGENTE')")
     public ResponseEntity<AutoInfracao> cadastrar(@Valid @RequestBody java.util.Map<String, Object> payload,
                                                   Authentication authentication) {
         Long agenteId = null;
@@ -71,7 +71,7 @@ public class AutoInfracaoController {
 
     @Operation(summary = "Atualizar auto de infração")
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERVISOR') or hasRole('AGENTE')")
+    @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('AGENTE')")
     public ResponseEntity<AutoInfracao> atualizar(@PathVariable Long id,
                                                   @Valid @RequestBody java.util.Map<String, Object> payload,
                                                   Authentication authentication) {
@@ -123,7 +123,7 @@ public class AutoInfracaoController {
 
     @Operation(summary = "Excluir auto de infração")
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERVISOR') or hasRole('AGENTE')")
+    @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('AGENTE')")
     public ResponseEntity<Void> excluir(@PathVariable Long id,
                                         Authentication authentication) {
         Long agenteId = null;
@@ -134,7 +134,7 @@ public class AutoInfracaoController {
 
     @Operation(summary = "Cancelar auto de infração")
     @PatchMapping("/{id}/cancelar")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERVISOR')")
+    @PreAuthorize("hasRole('CORREGEDORIA')")
     public ResponseEntity<AutoInfracao> cancelar(@PathVariable Long id,
                                                  @RequestBody String justificativa,
                                                  Authentication authentication) {
@@ -146,7 +146,7 @@ public class AutoInfracaoController {
 
     @Operation(summary = "Registrar auto de infração")
     @PatchMapping("/{id}/registrar")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERVISOR') or hasRole('AGENTE')")
+    @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('AGENTE')")
     public ResponseEntity<AutoInfracao> registrar(@PathVariable Long id,
                                                   Authentication authentication) {
         String perfil = authentication.getAuthorities().stream()

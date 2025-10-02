@@ -169,7 +169,8 @@ export class KeycloakService {
       payload?.realm_access?.roles?.forEach((r: string) => roles.add(r.toUpperCase()));
       const resourceAccess = payload?.resource_access ?? {};
       Object.values(resourceAccess).forEach((access: any) => access?.roles?.forEach((r: string) => roles.add(r.toUpperCase())));
-      if (roles.has('ADMIN')) return 'ADMIN';
+      if (roles.has('CORREGEDORIA')) return 'CORREGEDORIA';
+      if (roles.has('COMARCA')) return 'COMARCA';
       if (roles.has('AGENTE')) return 'AGENTE';
       return null;
     } catch {

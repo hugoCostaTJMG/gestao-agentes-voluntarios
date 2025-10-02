@@ -48,10 +48,12 @@ public class AuthController {
         dto.setNome(name != null ? name : "");
         dto.setEmail(getStringClaim(jwt, "email", ""));
 
-        // extrai roles para determinar o perfil
+        // extrai roles para determinar o perfil funcional
         Set<String> roles = extractRoles(jwt);
-        if (roles.contains("ADMIN")) {
-            dto.setPerfil("ADMIN");
+        if (roles.contains("CORREGEDORIA")) {
+            dto.setPerfil("CORREGEDORIA");
+        } else if (roles.contains("COMARCA")) {
+            dto.setPerfil("COMARCA");
         } else if (roles.contains("AGENTE")) {
             dto.setPerfil("AGENTE");
         } else {

@@ -217,8 +217,8 @@ public class AutoInfracaoService {
                 throw new IllegalStateException("Acesso negado ao rascunho");
             }
         } else {
-            if (!"SUPERVISOR".equals(perfilUsuario) && !"ADMIN".equals(perfilUsuario)) {
-                throw new IllegalStateException("Somente supervisor pode editar este auto");
+            if (!"CORREGEDORIA".equalsIgnoreCase(perfilUsuario)) {
+                throw new IllegalStateException("Somente Corregedoria pode editar este auto neste status");
             }
         }
         return auto;

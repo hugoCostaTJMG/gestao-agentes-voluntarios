@@ -8,7 +8,7 @@ export class PermissionService {
   private readonly keycloak = inject(KeycloakService);
 
   /** Somente roles “de negócio” consideradas na autorização */
-  private static readonly BUSINESS_ROLES = new Set(['ADMIN', 'AGENTE']);
+  private static readonly BUSINESS_ROLES = new Set(['CORREGEDORIA', 'COMARCA', 'AGENTE']);
 
   getUserRoles(): string[] {
     const roles = new Set<string>();

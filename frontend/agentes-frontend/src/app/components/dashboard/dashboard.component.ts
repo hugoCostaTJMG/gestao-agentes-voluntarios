@@ -41,6 +41,7 @@ interface StatusSummary {
 export class DashboardComponent implements OnInit {
   refreshing = false;
 
+  // Perfil de gestão (Corregedoria/Comarca) controla cards e textos
   isAdmin = false;
   isAgente = false;
   statusPanelTitle = 'Status';
@@ -55,7 +56,7 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     const roles = this.permission.getUserRoles().map(r => r.toUpperCase());
-    this.isAdmin = roles.includes('ADMIN');
+    this.isAdmin = roles.includes('CORREGEDORIA') || roles.includes('COMARCA');
     this.isAgente = roles.includes('AGENTE') && !this.isAdmin;
     this.statusPanelTitle = this.isAdmin ? 'Status dos Agentes' : 'Status dos Meus Autos';
     this.load();

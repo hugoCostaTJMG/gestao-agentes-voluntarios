@@ -150,6 +150,13 @@ verificarStatusCarteirinha(agenteId: number): Observable<{ podeGerar: boolean, m
     });
   }
 
+  // Dados do próprio agente autenticado (perfil AGENTE)
+  buscarAgenteMe(): Observable<AgenteVoluntarioResponseDTO> {
+    return this.http.get<AgenteVoluntarioResponseDTO>(`${this.baseUrl}/api/agentes/me`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
   // ===== DASHBOARD =====
   getDashboardOverview(): Observable<import('../models/interfaces').DashboardOverview> {
     return this.http.get<import('../models/interfaces').DashboardOverview>(`${this.baseUrl}/api/dashboard/overview`, {

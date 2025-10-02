@@ -85,7 +85,8 @@ public class SecurityConfig {
                         .requestMatchers("/login/**", "/oauth2/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                        .requestMatchers("/api/**").hasAnyRole("uma_authorization", "offline_access")
+                        // Todas as APIs exigem uma das três roles funcionais
+                        .requestMatchers("/api/**").hasAnyRole("CORREGEDORIA", "COMARCA", "AGENTE")
                         .anyRequest().authenticated())
                 .oauth2Login(oauth2 -> oauth2
                         .authorizationEndpoint(a -> a.authorizationRequestResolver(authorizationRequestResolver()))
@@ -196,7 +197,7 @@ public class SecurityConfig {
             if (realmAccess != null && realmAccess.containsKey("roles")) {
                 @SuppressWarnings("unchecked")
                 List<String> roles = (List<String>) realmAccess.get("roles");
-                roles.forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_" + role)));
+                roles.forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase(java.util.Locale.ROOT))));
             }
 
             // Client roles
@@ -207,7 +208,7 @@ public class SecurityConfig {
                     if (client.containsKey("roles")) {
                         @SuppressWarnings("unchecked")
                         List<String> roles = (List<String>) client.get("roles");
-                        roles.forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_" + role)));
+                        roles.forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase(java.util.Locale.ROOT))));
                     }
                 }
             }

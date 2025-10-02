@@ -62,7 +62,7 @@ public class AnexoAutoInfracaoController {
 
     @Operation(summary = "Listar anexos do auto")
     @GetMapping("/autos/{autoId}/anexos")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERVISOR') or hasRole('AGENTE')")
+    @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('AGENTE')")
     public ResponseEntity<List<AnexoAutoInfracao>> listar(@PathVariable Long autoId) {
         List<AnexoAutoInfracao> anexos = anexoRepo.findByAutoInfracao_IdOrderByDataUploadDesc(autoId);
         return ResponseEntity.ok(anexos);
@@ -70,7 +70,7 @@ public class AnexoAutoInfracaoController {
 
     @Operation(summary = "Upload de anexo para auto")
     @PostMapping(value = "/autos/{autoId}/anexos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERVISOR') or hasRole('AGENTE')")
+    @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('AGENTE')")
     public ResponseEntity<AnexoAutoInfracao> upload(@PathVariable Long autoId,
                                                     @RequestParam("arquivo") MultipartFile arquivo,
                                                     @RequestParam(value = "descricao", required = false) String descricao,
@@ -118,7 +118,7 @@ public class AnexoAutoInfracaoController {
 
     @Operation(summary = "Download de anexo")
     @GetMapping("/anexos/{anexoId}/download")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERVISOR') or hasRole('AGENTE')")
+    @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('AGENTE')")
     public ResponseEntity<byte[]> download(@PathVariable Long anexoId) throws IOException {
         AnexoAutoInfracao anexo = anexoRepo.findById(anexoId)
                 .orElseThrow(() -> new EntityNotFoundException("Anexo não encontrado: " + anexoId));
@@ -136,7 +136,7 @@ public class AnexoAutoInfracaoController {
 
     @Operation(summary = "Excluir anexo")
     @DeleteMapping("/anexos/{anexoId}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERVISOR') or hasRole('AGENTE')")
+    @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('AGENTE')")
     public ResponseEntity<Void> excluir(@PathVariable Long anexoId, Authentication authentication) throws IOException {
         AnexoAutoInfracao anexo = anexoRepo.findById(anexoId)
                 .orElseThrow(() -> new EntityNotFoundException("Anexo não encontrado: " + anexoId));
@@ -153,4 +153,3 @@ public class AnexoAutoInfracaoController {
         return ResponseEntity.noContent().build();
     }
 }
-

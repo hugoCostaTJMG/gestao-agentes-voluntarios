@@ -54,7 +54,7 @@ export class ImpressaoCarteirinhaComponent implements OnInit {
    */
   temPermissaoImpressao(): boolean {
     const perfil = this.authService.getUserProfile();
-    return perfil && ['CORREGEDORIA', 'COFIJ', 'ADMINISTRADOR'].includes(perfil);
+    return !!perfil && ['CORREGEDORIA'].includes(perfil);
   }
 
   /**

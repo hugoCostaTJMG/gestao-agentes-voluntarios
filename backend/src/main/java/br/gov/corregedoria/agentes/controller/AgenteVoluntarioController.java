@@ -18,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,7 +42,7 @@ public class AgenteVoluntarioController {
         @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('uma_authorization')")
+    @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('COMARCA')")
     public ResponseEntity<AgenteVoluntarioResponseDTO> cadastrarAgente(
             @Valid @RequestBody AgenteVoluntarioDTO dto,
             Authentication authentication) {
@@ -58,7 +60,7 @@ public class AgenteVoluntarioController {
         @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA') or hasRole('COFIJ') or hasRole('AGENTE')")
+    @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('COMARCA')")
     public ResponseEntity<AgenteVoluntarioResponseDTO> buscarPorId(
             @Parameter(description = "ID do agente") @PathVariable Long id) {
         
@@ -66,10 +68,71 @@ public class AgenteVoluntarioController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Obter dados do próprio agente (perfil AGENTE)",
+               description = "Retorna os dados do agente vinculado ao usuário autenticado (via CPF do token)")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Dados do agente encontrados"),
+        @ApiResponse(responseCode = "404", description = "Agente não encontrado para o usuário atual"),
+        @ApiResponse(responseCode = "403", description = "Acesso negado")
+    })
+    @GetMapping("/me")
+    @PreAuthorize("hasRole('AGENTE')")
+    public ResponseEntity<AgenteVoluntarioResponseDTO> buscarPorIdAgenteVoluntario(@AuthenticationPrincipal Jwt jwt) {
+        if (jwt == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        String cpf = extractCpfFromJwt(jwt);
+        if (cpf == null || cpf.isBlank()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        try {
+            AgenteVoluntarioResponseDTO dto = agenteService.buscarPorCpf(cpf);
+            return ResponseEntity.ok(dto);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    private static String extractCpfFromJwt(Jwt jwt) {
+        try {
+            Object claimCpf = jwt.getClaims().get("cpf");
+            String cpf = claimCpf instanceof String ? (String) claimCpf : null;
+            if (cpf == null || cpf.isBlank()) {
+                Object doc = jwt.getClaims().get("documento");
+                cpf = doc instanceof String ? (String) doc : null;
+            }
+            if (cpf == null) return null;
+            return cpf.replaceAll("\\D", "");
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     @Operation(summary = "Obter foto do agente", description = "Retorna a foto do agente, caso cadastrada")
     @GetMapping("/{id}/foto")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA') or hasRole('COFIJ') or hasRole('AGENTE')")
-    public ResponseEntity<byte[]> obterFoto(@Parameter(description = "ID do agente") @PathVariable Long id) {
+    @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('COMARCA') or hasRole('AGENTE')")
+    public ResponseEntity<byte[]> obterFoto(@Parameter(description = "ID do agente") @PathVariable Long id,
+                                            @AuthenticationPrincipal Jwt jwt,
+                                            Authentication authentication) {
+        // Se for AGENTE, restringe à própria foto
+        try {
+            boolean isAgente = authentication != null && authentication.getAuthorities().stream()
+                    .anyMatch(a -> "ROLE_AGENTE".equalsIgnoreCase(a.getAuthority()));
+            if (isAgente && jwt != null) {
+                String cpf = extractCpfFromJwt(jwt);
+                if (cpf != null && !cpf.isBlank()) {
+                    try {
+                        AgenteVoluntarioResponseDTO me = agenteService.buscarPorCpf(cpf);
+                        if (me.getId() != null && !me.getId().equals(id)) {
+                            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+                        }
+                    } catch (Exception ignored) {
+                        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+                    }
+                }
+            }
+        } catch (Exception ignored) { }
+
         return agenteService.obterFotoAgente(id)
                 .filter(foto -> foto != null && foto.length > 0)
                 .map(foto -> ResponseEntity.ok()
@@ -93,7 +156,7 @@ public class AgenteVoluntarioController {
         @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
     @GetMapping("/cpf/{cpf}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA') or hasRole('COFIJ') or hasRole('AGENTE')")
+    @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('COMARCA')")
     public ResponseEntity<AgenteVoluntarioResponseDTO> buscarPorCpf(
             @Parameter(description = "CPF do agente") @PathVariable String cpf) {
 
@@ -108,7 +171,7 @@ public class AgenteVoluntarioController {
         @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA') or hasRole('uma_authorization')")
+    @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('COMARCA')")
     public ResponseEntity<Page<AgenteVoluntarioResponseDTO>> listarAgentes(Pageable pageable) {
         Page<AgenteVoluntarioResponseDTO> response = agenteService.listarAgentes(pageable);
         return ResponseEntity.ok(response);
@@ -121,7 +184,7 @@ public class AgenteVoluntarioController {
         @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
     @GetMapping("/status/{status}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA') or hasRole('COFIJ')")
+    @PreAuthorize("hasRole('CORREGEDORIA')")
     public ResponseEntity<List<AgenteVoluntarioResponseDTO>> listarPorStatus(
             @Parameter(description = "Status do agente") @PathVariable StatusAgente status) {
         
@@ -135,7 +198,7 @@ public class AgenteVoluntarioController {
         @ApiResponse(responseCode = "200", description = "Lista de agentes ativos"),
         @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
-    @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA') or hasRole('COFIJ')")
+    @PreAuthorize("hasRole('CORREGEDORIA')")
     @GetMapping("/ativos")
     public ResponseEntity<List<AgenteVoluntarioResponseDTO>> listarAgentesAtivos() {
         List<AgenteVoluntarioResponseDTO> response = agenteService.listarAgentesAtivos();
@@ -150,7 +213,7 @@ public class AgenteVoluntarioController {
         @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
     @PatchMapping(value = "/{id}/status", params = "status")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('CORREGEDORIA')")
     public ResponseEntity<AgenteVoluntarioResponseDTO> atualizarStatus(
             @Parameter(description = "ID do agente") @PathVariable Long id,
             @Parameter(description = "Novo status") @RequestParam StatusAgente status,
@@ -169,7 +232,7 @@ public class AgenteVoluntarioController {
     }
 
     @PatchMapping(value = "/{id}/status", consumes = org.springframework.http.MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('CORREGEDORIA')")
     public ResponseEntity<AgenteVoluntarioResponseDTO> atualizarStatusJson(
             @Parameter(description = "ID do agente") @PathVariable Long id,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Objeto com o novo status")
@@ -193,7 +256,7 @@ public class AgenteVoluntarioController {
         @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA')")
+    @PreAuthorize("hasRole('CORREGEDORIA')")
     public ResponseEntity<AgenteVoluntarioResponseDTO> atualizarAgente(
             @Parameter(description = "ID do agente") @PathVariable Long id,
             @Valid @RequestBody AgenteVoluntarioDTO dto,
@@ -211,7 +274,7 @@ public class AgenteVoluntarioController {
         @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
     @GetMapping("/buscar")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA') or hasRole('COFIJ')")
+    @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('COMARCA')")
     public ResponseEntity<List<AgenteVoluntarioResponseDTO>> buscarPorNome(
             @Parameter(description = "Nome para busca") @RequestParam String nome) {
         
@@ -227,7 +290,7 @@ public class AgenteVoluntarioController {
         @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
     @GetMapping("/{id}/pode-emitir-credencial")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA') or hasRole('COFIJ')")
+    @PreAuthorize("hasRole('CORREGEDORIA')")
     public ResponseEntity<Boolean> podeEmitirCredencial(
             @Parameter(description = "ID do agente") @PathVariable Long id) {
         

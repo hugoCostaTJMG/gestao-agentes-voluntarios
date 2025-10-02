@@ -5,33 +5,29 @@
   <title>Carteirinhas (Lote)</title>
   <style>
     :root {
-      --brand-red: #d82020;  /* vermelho da moldura/faixa superior */
+      --brand-red: #d82020
       --ink: #222;
       --ink-weak: #555;
-      --gray-inner: #efefef; /* cinza do miolo */
-      --bar: #dedede;        /* cinza das barras de rótulo */
-      --bar-stroke: #cfcfcf; /* linha da barra/campo */
-      --field: #ffffff;      /* fundo dos campos */
+      --gray-inner: #efefe
+      --bar: #dedede;     
+      --bar-stroke: #cfcfc
+      --field: #ffffff;   
       --font-sans: 'Montserrat', Arial, Helvetica, sans-serif;
       --trk: 0.02em;
       --trk-wide: 0.06em;
     }
 
-    /* Página A4 retrato */
     @page { size: A4 portrait; margin: 0; }
     *{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     body { margin: 0; font-family: 'Montserrat', Arial, Helvetica, sans-serif; color: var(--ink); }
 
-    /* Empilhar cada par (frente/verso) verticalmente */
     .page { width: 210mm; display: block; }
-    .pair { display: block; text-align: center; page-break-inside: avoid; margin: 8mm 0; }
-    .cards-row { width: 170mm; margin: 0 0; border-collapse: separate; border-spacing: 8mm 0; table-layout: fixed; }
+    .pair { display: block; text-align: center; page-break-inside: avoid; margin: 8mm 0; justify-items: center; }
+    .cards-row { width: 178mm; margin: 0 auto; border-collapse: separate; border-spacing: 8mm 0; table-layout: fixed; }
     .cards-row td { vertical-align: top; padding: 0; }
-    /* Coluna (um abaixo do outro) */
     .cards-col { width: 85mm; margin: 0 auto; border-collapse: separate; border-spacing: 0 8mm; table-layout: fixed; }
     .cards-col td { vertical-align: top; width: 85mm; padding: 0; }
 
-    /* ===== Cartões ===== */
     .card {
       position: relative; display: inline-block; vertical-align: top;
       width: 85mm; height: 55mm;
@@ -42,9 +38,12 @@
     }
 
     .ribbon {
-      position: absolute; left: -2mm; right: -2mm; height: 3mm;
-      background: var(--brand-red); color: #fff; text-align: center; font-weight: 800;
+      position: absolute; left: -2mm; right: -2mm; height: 3mm; top: 0;
+      background: #d82020; background-color: #d82020 !important;
+      background: var(--brand-red);
+      color: #fff; text-align: center; font-weight: 800;
       font-size: 6pt; line-height: 3.5mm; letter-spacing: var(--trk-wide); text-transform: uppercase;
+      z-index: 2;
     }
 
     .inner {
@@ -55,44 +54,35 @@
     .table { width: 100%; border-collapse: collapse; }
     .table td { vertical-align: top; }
 
-    /* Cabeçalho institucional (frente) */
     .inst { font-size: 2.4mm; line-height: 1.05; color: #000; text-align: left; }
 
-    /* Título (duas linhas) */
     .title { margin: 1.0mm 0 0.6mm; font-weight: 800; font-size: 6.8pt; line-height: 1.1; letter-spacing: var(--trk); text-transform: uppercase; }
 
-    /* Barras + Campos (frente/verso) */
     .block { margin-top: 1.0mm; }
     .bar {
       height: 2.1mm; color: #444; display: flex; align-items: center; box-sizing: border-box;
       font-weight: 700; font-size: 4.5pt; text-transform: uppercase;
     }
-    .field { background: #fff; border: 0.18mm solid #cfcfcf; min-height: 4mm; padding: 1.0mm 0.5mm; line-height: 1.2; box-sizing: border-box; }
+    .field { background: #fff; min-height: 4mm; padding: 1.0mm 0.5mm; line-height: 1.2; box-sizing: border-box; }
     .field.tall { min-height: 10mm; }
     .field.mid { min-height: 10mm; display: flex; align-items: center; }
 
-    /* Foto */
     .left-col { width: 28mm; }
     .photo-img, .photo-ph { width: 16mm; height: 20mm; border: 0.28mm solid #000; object-fit: cover; background: #fafafa; display: block; margin: 0 auto; }
 
-    /* Regras/rodapés */
     .rule { margin-top: 5mm; height: 0; border-top: 0.35mm solid #000; }
     .judge { margin-top: 0.6mm; text-align: center; font-size: 4.4pt; letter-spacing: var(--trk-wide); text-transform: uppercase; }
     .legal { margin-top: 0.6mm; font-size: 4.4pt; }
 
-    /* Verso – grade */
     .tgrid { width: 100%; border-collapse: separate; }
     .tgrid .col-uf { width: 18mm; }
-    /* Igualar alturas dos campos nas três primeiras linhas, como no modelo unitário */
     .tgrid .field { height: 4.2mm; display: flex; align-items: center; }
     .tgrid .bar { height: 2.1mm; display: flex; align-items: center; }
 
-    /* QR Code */
     .qr-field { background: #fff; display: flex; align-items: center; justify-content: center; height: 10mm; box-sizing: border-box; }
     .qr-img { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; background: #fff; }
 
-    /* Assinatura */
-    .sign { margin-top: 5mm; }
+    .sign { margin-top: 7.5mm; }
     .sign .rule { margin-top: 0; }
     .sign-caption { margin-top: 0.6mm; text-align: center; font-size: 4pt; text-transform: uppercase; }
   </style>
@@ -109,7 +99,7 @@
               <div class="inner">
                 <table class="table">
                   <tr>
-                    <td style="width:12mm; padding-right:2mm;">
+                    <td style="width:12mm;">
                       <div th:if="${it.logo != null}">
                         <img th:src="${it.logo}" alt="Brasão" style="width:8mm; height:8mm; object-fit:contain;" />
                       </div>
@@ -128,13 +118,13 @@
                       <div th:if="${it.foto != null}" style="justify-self: center;"><img th:src="${it.foto}" alt="Foto" class="photo-img" /></div>
                       <div th:if="${it.foto == null}" class="photo-ph" style="justify-self: center; display: none;"></div>
                     </td>
-                    <td style="padding-left:3mm;">
+                    <td>
                       <div class="block" style="margin-top:0;">
-                        <div class="bar">Válida na Comarca de</div>
+                        <div class="bar" style="justify-content: flex-start; text-align: left; padding: 0;">Válida na Comarca de</div>
                         <div class="field" th:text="${it.comarca}"></div>
                       </div>
                       <div class="block">
-                        <div class="bar">Nome</div>
+                        <div class="bar" style="justify-content: flex-start; text-align: left; padding: 0;">Nome</div>
                         <div class="field tall" th:text="${it.nomeCompleto}"></div>
                       </div>
                     </td>
@@ -206,7 +196,7 @@
                       <div class="bar">Filiação</div>
                       <div class="field mid" th:text="${it.filiacao}"></div>
                     </td>
-                    <td>
+                    <td style="padding-left: 1mm;">
                       <div class="bar">QR Code</div>
                       <div class="qr-field">
                         <img class="qr-img" th:if="${it.qrCode != null}" th:src="${it.qrCode}" alt="QR Code" />

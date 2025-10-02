@@ -38,7 +38,7 @@ public class CredencialController {
         @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
     @PostMapping("/emitir/{agenteId}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('COFIJ')")
+    @PreAuthorize("hasRole('CORREGEDORIA')")
     public ResponseEntity<CredencialDTO> emitirCredencial(
             @Parameter(description = "ID do agente") @PathVariable Long agenteId,
             Authentication authentication) throws WriterException, IOException {
@@ -55,7 +55,7 @@ public class CredencialController {
         @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
     @GetMapping("/agente/{agenteId}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA') or hasRole('COFIJ')")
+    @PreAuthorize("hasRole('CORREGEDORIA')")
     public ResponseEntity<List<CredencialDTO>> listarCredenciaisDoAgente(
             @Parameter(description = "ID do agente") @PathVariable Long agenteId) {
         
@@ -71,7 +71,7 @@ public class CredencialController {
         @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
     @GetMapping("/{credencialId}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA') or hasRole('COFIJ')")
+    @PreAuthorize("hasRole('CORREGEDORIA')")
     public ResponseEntity<CredencialDTO> buscarCredencialPorId(
             @Parameter(description = "ID da credencial") @PathVariable Long credencialId) {
         
@@ -87,7 +87,7 @@ public class CredencialController {
         @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
     @GetMapping("/{credencialId}/pdf")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('COFIJ')")
+    @PreAuthorize("hasRole('CORREGEDORIA')")
     public ResponseEntity<byte[]> gerarPDFCredencial(
             @Parameter(description = "ID da credencial") @PathVariable Long credencialId)
             throws WriterException, IOException {
@@ -103,4 +103,3 @@ public class CredencialController {
                 .body(pdfBytes);
     }
 }
-

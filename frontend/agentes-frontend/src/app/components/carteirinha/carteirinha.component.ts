@@ -34,38 +34,25 @@ export class CarteirinhaComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const usuario = this.authService.getCurrentUser();
-    const idUsuarioLogado = usuario?.id;
-    if (idUsuarioLogado && typeof idUsuarioLogado === 'number') {
-      this.carregarDadosAgente(idUsuarioLogado);
-      this.verificarStatus(idUsuarioLogado);
-      return;
-    }
-
-    // Fallback: tentar por CPF
-    if (usuario?.cpf) {
-      this.loadingDados = true;
-      const cpfLimpo = String(usuario.cpf).replace(/\D/g, '');
-      this.apiService.buscarAgentePorCpf(cpfLimpo).pipe(take(1)).subscribe({
-        next: (agente) => {
-          const id = agente.id;
-          if (id) {
-            this.agente = agente as any;
-            this.carregarDadosAgente(id);
-            this.verificarStatus(id);
-          } else {
-            this.mensagemErro = 'Não foi possível identificar seu cadastro de agente.';
-          }
+    // Busca os dados do próprio agente autenticado
+    this.loadingDados = true;
+    this.apiService.buscarAgenteMe().pipe(take(1)).subscribe({
+      next: (me) => {
+        if (!me || !me.id) {
+          this.mensagemErro = 'Não foi possível identificar seu cadastro de agente.';
           this.loadingDados = false;
-        },
-        error: () => {
-          this.mensagemErro = 'Seu CPF não está vinculado a um agente voluntário.';
-          this.loadingDados = false;
+          return;
         }
-      });
-    } else {
-      this.mensagemErro = 'Não foi possível identificar o usuário atual.';
-    }
+        this.agente = me as any;
+        this.loadingDados = false;
+        this.carregarFoto();
+        this.verificarStatus(me.id);
+      },
+      error: () => {
+        this.mensagemErro = 'Seu usuário não está vinculado a um agente voluntário.';
+        this.loadingDados = false;
+      }
+    });
   }
 
   get nomeCompleto(): string {

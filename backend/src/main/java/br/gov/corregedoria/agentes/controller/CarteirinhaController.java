@@ -28,7 +28,7 @@ public class CarteirinhaController {
 
     @Operation(summary = "Verificar se pode gerar carteirinha")
     @GetMapping("/verificar/{agenteId}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('AGENTE') or hasRole('CORREGEDORIA') or hasRole('COFIJ')")
+    @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('AGENTE')")
     public ResponseEntity<?> verificar(@PathVariable Long agenteId) {
         var verificacao = carteirinhaService.verificar(agenteId);
         return ResponseEntity.ok(java.util.Map.of(
@@ -39,7 +39,7 @@ public class CarteirinhaController {
 
     @Operation(summary = "Preview da carteirinha (PDF inline)")
     @GetMapping("/preview/{agenteId}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('AGENTE') or hasRole('CORREGEDORIA') or hasRole('COFIJ')")
+    @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('AGENTE')")
     public ResponseEntity<byte[]> preview(@PathVariable Long agenteId, Authentication authentication) throws Exception {
         byte[] pdf = carteirinhaService.gerarPdf(agenteId, true);
         //auditoriaUtil.registrarLog(authentication != null ? authentication.getName() : "anon", "PREVIEW_CARTEIRINHA", "Agente=" + agenteId);
@@ -51,7 +51,7 @@ public class CarteirinhaController {
 
     @Operation(summary = "Gerar carteirinha (PDF para download)")
     @GetMapping("/gerar/{agenteId}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('AGENTE') or hasRole('CORREGEDORIA') or hasRole('COFIJ')")
+    @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('AGENTE')")
     public ResponseEntity<byte[]> gerar(@PathVariable Long agenteId, Authentication authentication) throws Exception {
         byte[] pdf = carteirinhaService.gerarPdf(agenteId, false);
         //auditoriaUtil.registrarLog(authentication != null ? authentication.getName() : "anon", "GERAR_CARTEIRINHA", "Agente=" + agenteId);
@@ -63,7 +63,7 @@ public class CarteirinhaController {
 
     @Operation(summary = "Gerar carteirinhas selecionadas (PDF único)")
     @PostMapping("/lote")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA') or hasRole('COFIJ')")
+    @PreAuthorize("hasRole('CORREGEDORIA')")
     public ResponseEntity<byte[]> gerarLote(@RequestBody List<Long> agenteIds, Authentication authentication) throws Exception {
         if (agenteIds == null || agenteIds.isEmpty()) {
             return ResponseEntity.badRequest().build();

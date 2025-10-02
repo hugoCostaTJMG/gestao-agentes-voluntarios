@@ -58,9 +58,8 @@ class AutoInfracaoServiceTest {
     @Test
     void cancelar_validaJustificativa() {
         rascunho.setStatus(StatusAutoInfracao.REGISTRADO);
-        AutoInfracao cancelado = service.cancelar(10L, "Justificativa válida com mais de 20 chars", "user", "SUPERVISOR");
+        AutoInfracao cancelado = service.cancelar(10L, "Justificativa válida com mais de 20 chars", "user", "CORREGEDORIA");
         assertEquals(StatusAutoInfracao.CANCELADO, cancelado.getStatus());
         assertNotNull(cancelado.getJustificativaCancelamento());
     }
 }
-
