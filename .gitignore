@@ -3,3 +3,8 @@
 # Maven build outputs
 backend/target/
 target/
+
+# Local environment files (do not commit secrets)
+.env
+.env.*
+!.env.example

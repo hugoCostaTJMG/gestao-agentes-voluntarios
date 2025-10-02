@@ -45,7 +45,7 @@ public class SecurityConfig {
     @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
     private String issuerUri;
 
-    @Value("${app.security.override-issuer-uri:http://keycloak:8080/auth/realms/tjmg}")
+    @Value("${app.security.override-issuer-uri}")
     private String overrideIssuerUri;
 
     @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
@@ -63,7 +63,7 @@ public class SecurityConfig {
     @Value("${app.cors.allow-credentials}")
     private boolean allowCredentials;
 
-    @Value("${app.frontend.redirect-uri:http://localhost:80/login}")
+    @Value("${app.frontend.redirect-uri}")
     private String frontendRedirectUri;
 
     @Autowired

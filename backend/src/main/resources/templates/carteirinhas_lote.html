@@ -4,39 +4,94 @@
   <meta charset="utf-8" />
   <title>Carteirinhas (Lote)</title>
   <style>
+    :root {
+      --brand-red: #d82020;  /* vermelho da moldura/faixa superior */
+      --ink: #222;
+      --ink-weak: #555;
+      --gray-inner: #efefef; /* cinza do miolo */
+      --bar: #dedede;        /* cinza das barras de rótulo */
+      --bar-stroke: #cfcfcf; /* linha da barra/campo */
+      --field: #ffffff;      /* fundo dos campos */
+      --font-sans: 'Montserrat', Arial, Helvetica, sans-serif;
+      --trk: 0.02em;
+      --trk-wide: 0.06em;
+    }
+
+    /* Página A4 retrato */
     @page { size: A4 portrait; margin: 0; }
     *{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    body { margin: 0; font-family: 'Montserrat', Arial, Helvetica, sans-serif; color: #222; }
+    body { margin: 0; font-family: 'Montserrat', Arial, Helvetica, sans-serif; color: var(--ink); }
 
-    /* Centraliza pares como no modelo antigo */
+    /* Empilhar cada par (frente/verso) verticalmente */
     .page { width: 210mm; display: block; }
-    .pair { width: 100%; display: flex; justify-content: center; page-break-inside: avoid; padding: 18mm 0; }
-    .cards-row { border-collapse: separate; border-spacing: 8mm 0; }
+    .pair { display: block; text-align: center; page-break-inside: avoid; margin: 8mm 0; }
+    .cards-row { width: 170mm; margin: 0 0; border-collapse: separate; border-spacing: 8mm 0; table-layout: fixed; }
+    .cards-row td { vertical-align: top; padding: 0; }
+    /* Coluna (um abaixo do outro) */
+    .cards-col { width: 85mm; margin: 0 auto; border-collapse: separate; border-spacing: 0 8mm; table-layout: fixed; }
+    .cards-col td { vertical-align: top; width: 85mm; padding: 0; }
 
-    :root { --brand-red: #d82020; }
-    .card { position: relative; display: inline-block; width: 85mm; height: 55mm; background: #efefef; border: 2mm solid var(--brand-red); border-top: 0; border-bottom: 1mm solid var(--brand-red); box-sizing: border-box; overflow: hidden; }
-    .ribbon { position: absolute; left: -2mm; right: -2mm; height: 3mm; background: var(--brand-red); color: #fff; text-align: center; font-weight: 800; font-size: 6pt; line-height: 3.5mm; letter-spacing: 0.06em; text-transform: uppercase; }
-    .inner { position: absolute; top: 2.8mm; right: 0mm; bottom: 0mm; left: 0mm; background: #efefef; padding: 0.3mm 0.6mm; box-sizing: border-box; font-size: 6pt; }
+    /* ===== Cartões ===== */
+    .card {
+      position: relative; display: inline-block; vertical-align: top;
+      width: 85mm; height: 55mm;
+      background: #efefef;
+      border: 2mm solid #d82020;
+      border-top: 0; border-bottom: 1mm solid #d82020;
+      box-sizing: border-box; overflow: hidden;
+    }
+
+    .ribbon {
+      position: absolute; left: -2mm; right: -2mm; height: 3mm;
+      background: var(--brand-red); color: #fff; text-align: center; font-weight: 800;
+      font-size: 6pt; line-height: 3.5mm; letter-spacing: var(--trk-wide); text-transform: uppercase;
+    }
+
+    .inner {
+      position: absolute; top: 4mm; right: 0mm; bottom: 0mm; left: 0mm;
+      background: #efefef; padding: 0.3mm 0.6mm; box-sizing: border-box; font-size: 6pt;
+    }
+
     .table { width: 100%; border-collapse: collapse; }
     .table td { vertical-align: top; }
-    .inst { font-size: 2.4mm; line-height: 1.05; text-align: left; }
-    .title { margin: 1.0mm 0 0.6mm; font-weight: 800; font-size: 6.8pt; line-height: 1.1; letter-spacing: 0.02em; text-transform: uppercase; }
+
+    /* Cabeçalho institucional (frente) */
+    .inst { font-size: 2.4mm; line-height: 1.05; color: #000; text-align: left; }
+
+    /* Título (duas linhas) */
+    .title { margin: 1.0mm 0 0.6mm; font-weight: 800; font-size: 6.8pt; line-height: 1.1; letter-spacing: var(--trk); text-transform: uppercase; }
+
+    /* Barras + Campos (frente/verso) */
     .block { margin-top: 1.0mm; }
-    .bar { height: 2.1mm; color: #444; display: flex; align-items: center; box-sizing: border-box; font-weight: 700; font-size: 4.5pt; text-transform: uppercase; }
-    .field { background: #fff; border: 0.18mm solid #cfcfcf; min-height: 4mm; padding: 1.0mm 0.8mm; line-height: 1.2; box-sizing: border-box; }
+    .bar {
+      height: 2.1mm; color: #444; display: flex; align-items: center; box-sizing: border-box;
+      font-weight: 700; font-size: 4.5pt; text-transform: uppercase;
+    }
+    .field { background: #fff; border: 0.18mm solid #cfcfcf; min-height: 4mm; padding: 1.0mm 0.5mm; line-height: 1.2; box-sizing: border-box; }
     .field.tall { min-height: 10mm; }
     .field.mid { min-height: 10mm; display: flex; align-items: center; }
+
+    /* Foto */
     .left-col { width: 28mm; }
     .photo-img, .photo-ph { width: 16mm; height: 20mm; border: 0.28mm solid #000; object-fit: cover; background: #fafafa; display: block; margin: 0 auto; }
+
+    /* Regras/rodapés */
     .rule { margin-top: 5mm; height: 0; border-top: 0.35mm solid #000; }
-    .judge { margin-top: 0.6mm; text-align: center; font-size: 4.4pt; letter-spacing: 0.06em; text-transform: uppercase; }
+    .judge { margin-top: 0.6mm; text-align: center; font-size: 4.4pt; letter-spacing: var(--trk-wide); text-transform: uppercase; }
     .legal { margin-top: 0.6mm; font-size: 4.4pt; }
+
+    /* Verso – grade */
     .tgrid { width: 100%; border-collapse: separate; }
     .tgrid .col-uf { width: 18mm; }
-    .tgrid .field { height: 6.5mm; display: flex; align-items: center; }
+    /* Igualar alturas dos campos nas três primeiras linhas, como no modelo unitário */
+    .tgrid .field { height: 4.2mm; display: flex; align-items: center; }
     .tgrid .bar { height: 2.1mm; display: flex; align-items: center; }
+
+    /* QR Code */
     .qr-field { background: #fff; display: flex; align-items: center; justify-content: center; height: 10mm; box-sizing: border-box; }
     .qr-img { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; background: #fff; }
+
+    /* Assinatura */
     .sign { margin-top: 5mm; }
     .sign .rule { margin-top: 0; }
     .sign-caption { margin-top: 0.6mm; text-align: center; font-size: 4pt; text-transform: uppercase; }

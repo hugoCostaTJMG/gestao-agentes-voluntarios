@@ -26,8 +26,28 @@ public class ConsultaPublicaService {
      * RN005 - Consulta Pública de Credencial
      */
     public ConsultaPublicaDTO consultarCredencial(Long credencialId) {
-        Credencial credencial = credencialRepository.findById(credencialId)
-                .orElseThrow(() -> new EntityNotFoundException("Credencial não encontrada"));
+        return consultarCredencialPorChave(String.valueOf(credencialId));
+    }
+
+    /**
+     * Consulta pública aceitando chave flexível (ID numérico ou usuarioEmissao)
+     */
+    public ConsultaPublicaDTO consultarCredencialPorChave(String chave) {
+        Credencial credencial;
+        // 1) Se for número válido, busca por ID
+        try {
+            long id = Long.parseLong(chave);
+            credencial = credencialRepository.findById(id)
+                    .orElse(null);
+        } catch (NumberFormatException nfe) {
+            credencial = null;
+        }
+        // 2) Senão, tenta por usuarioEmissao (mais recente)
+        if (credencial == null) {
+            credencial = credencialRepository
+                    .findFirstByUsuarioEmissaoOrderByDataEmissaoDescIdDesc(chave)
+                    .orElseThrow(() -> new EntityNotFoundException("Credencial não encontrada"));
+        }
 
         AgenteVoluntario agente = credencial.getAgente();
 
@@ -52,4 +72,3 @@ public class ConsultaPublicaService {
         return credencialRepository.existsById(credencialId);
     }
 }
-

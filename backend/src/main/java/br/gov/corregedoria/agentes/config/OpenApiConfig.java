@@ -19,6 +19,9 @@ public class OpenApiConfig {
     @Value("${app.base-url}")
     private String baseUrl;
 
+    @Value("${app.dev-base-url}")
+    private String devBaseUrl;
+
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
@@ -31,10 +34,10 @@ public class OpenApiConfig {
                                 .email("suporte@corregedoria.tjmg.jus.br"))
                         .license(new License()
                                 .name("Propriedade da Corregedoria")
-                                .url("https://corregedoria.tjmg.jus.br")))
+                                .url(baseUrl)))
                 .servers(List.of(
                         new Server().url(baseUrl).description("Servidor de Produção"),
-                        new Server().url("http://localhost:8080").description("Servidor de Desenvolvimento")))
+                        new Server().url(devBaseUrl).description("Servidor de Desenvolvimento")))
                 .addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
                 .components(new io.swagger.v3.oas.models.Components()
                         .addSecuritySchemes("Bearer Authentication",

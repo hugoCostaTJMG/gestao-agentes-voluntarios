@@ -6,7 +6,6 @@ import br.gov.corregedoria.agentes.entity.Credencial;
 import br.gov.corregedoria.agentes.entity.StatusAgente;
 import br.gov.corregedoria.agentes.repository.AgenteVoluntarioRepository;
 import br.gov.corregedoria.agentes.repository.CredencialRepository;
-import br.gov.corregedoria.agentes.util.AuditoriaUtil;
 import br.gov.corregedoria.agentes.util.QRCodeUtil;
 import com.google.zxing.WriterException;
 import jakarta.persistence.EntityNotFoundException;
@@ -35,11 +34,17 @@ public class CredencialService {
     @Autowired
     private QRCodeUtil qrCodeUtil;
 
-    @Autowired
-    private AuditoriaUtil auditoriaUtil;
-
-    @Value("${app.base-url:http://localhost:8080}")
+    @Value("${app.base-url}")
     private String baseUrl;
+
+    @Value("${app.dev-base-url}")
+    private String devBaseUrl;
+
+    @Value("${app.environment:production}")
+    private String appEnvironment;
+
+    @Value("${spring.profiles.active:}")
+    private String activeProfiles;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -68,7 +73,8 @@ public class CredencialService {
         // define data de emissão imediatamente
         credencial.setDataEmissao(java.time.LocalDateTime.now());
         // gera URL pública a partir do ID já alocado
-        String urlVerificacao = qrCodeUtil.gerarUrlVerificacao(baseUrl, nextId);
+        String publicBase = resolvePublicBaseUrl();
+        String urlVerificacao = qrCodeUtil.gerarUrlVerificacao(publicBase, nextId);
         credencial.setQrCodeUrl(urlVerificacao);
         // agora insere com todos os campos NOT NULL preenchidos
         credencial = credencialRepository.save(credencial);
@@ -158,4 +164,19 @@ public class CredencialService {
     }
 
     private static String safe(String s) { return s == null ? "" : s; }
+
+    private String resolvePublicBaseUrl() {
+        String b = (baseUrl == null) ? "" : baseUrl.trim();
+        String d = (devBaseUrl == null) ? "" : devBaseUrl.trim();
+        String profiles = (activeProfiles == null) ? "" : activeProfiles.toLowerCase();
+        boolean isLocalEnv = "local".equalsIgnoreCase(appEnvironment) || profiles.contains("docker") || profiles.contains("dev");
+        boolean baseLooksLocal = b.toLowerCase().contains("localhost") || b.contains("127.0.0.1");
+
+        String chosen = (isLocalEnv && !baseLooksLocal && !d.isBlank()) ? d : b;
+        // normalizar para não duplicar barras
+        if (chosen.endsWith("/")) {
+            chosen = chosen.substring(0, chosen.length() - 1);
+        }
+        return chosen;
+    }
 }

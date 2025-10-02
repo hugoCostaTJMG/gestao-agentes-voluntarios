@@ -236,8 +236,12 @@ verificarStatusCarteirinha(agenteId: number): Observable<{ podeGerar: boolean, m
 
   // ===== CONSULTA PÚBLICA =====
 
-  verificarCredencial(credencialId: number): Observable<ConsultaPublica> {
-    return this.http.get<ConsultaPublica>(`${this.baseUrl}/public/verificar/${credencialId}`);
+  verificarCredencial(credencialKey: number | string): Observable<ConsultaPublica> {
+    // Quando a rota pública do SPA é "/public/verificar/:id", precisamos evitar colisão
+    // com o proxy do Nginx. Forçamos um base absoluto e acessível pelo navegador.
+    const base = this.getPublicApiBase();
+    const key = encodeURIComponent(String(credencialKey));
+    return this.http.get<ConsultaPublica>(`${base}/public/verificar/${key}`);
   }
 
   validarCredencial(credencialId: number): Observable<boolean> {
@@ -340,6 +344,38 @@ verificarStatusCarteirinha(agenteId: number): Observable<{ podeGerar: boolean, m
     return this.http.post<AnexoAutoInfracao>(`${this.baseUrl}/api/autos/${autoId}/anexos`, formData, {
       headers: this.getAuthHeaders().delete('Content-Type')
     });
+  }
+
+  // ===== Helpers =====
+  private getPublicApiBase(): string {
+    try {
+      const w: any = window as any;
+      const runtime = (w.APP_CONFIG?.apiUrl || w.__APP_CONFIG__?.apiUrl || w.__env?.API_URL || '').toString();
+      const buildDefault = (environment.apiUrl || '').toString();
+
+      const isAbsolute = (u: string) => /^https?:\/\//i.test(u);
+      const isBackendHost = (u: string) => /:\/\/backend(?::\d+)?/i.test(u);
+
+      // 1) Preferir URL absoluta configurada em runtime (API_URL) diferente de 'backend'
+      if (runtime && isAbsolute(runtime) && !isBackendHost(runtime)) {
+        return runtime;
+      }
+      // 2) Tentar o valor de build, se absoluto e não 'backend'
+      if (buildDefault && isAbsolute(buildDefault) && !isBackendHost(buildDefault)) {
+        return buildDefault;
+      }
+      // 3) Dev local: usar localhost:8080
+      const host = (w.location?.hostname || '').toLowerCase();
+      if (host === 'localhost' || host === '127.0.0.1') {
+        return 'http://localhost:8080';
+      }
+      // 4) Fallback: ainda tentar runtime (mesmo que backend) — alguns ambientes mapeiam DNS
+      if (runtime && isAbsolute(runtime)) return runtime;
+      if (buildDefault && isAbsolute(buildDefault)) return buildDefault;
+      return 'http://localhost:8080';
+    } catch {
+      return environment.apiUrl;
+    }
   }
 
   downloadAnexo(anexoId: number): Observable<Blob> {

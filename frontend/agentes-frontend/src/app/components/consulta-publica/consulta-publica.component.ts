@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonComponent } from '../../shared/components/buttons/button/button.component';
@@ -6,6 +6,7 @@ import { BadgeComponent } from '../../shared/components/badge/badge.component';
 import { AlertComponent } from '../../shared/components/alert/alert.component';
 import { ApiService } from '../../services/api.service';
 import { ConsultaPublica } from '../../models/interfaces';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-consulta-publica',
@@ -14,35 +15,49 @@ import { ConsultaPublica } from '../../models/interfaces';
   templateUrl: './consulta-publica.component.html',
   styleUrls: ['./consulta-publica.component.scss']
 })
-export class ConsultaPublicaComponent {
+export class ConsultaPublicaComponent implements OnInit {
   numeroCredencial = '';
   loadingConsulta = false;
   resultado?: ConsultaPublica;
   mensagem?: { tipo: 'success' | 'error'; texto: string };
 
-  constructor(private readonly apiService: ApiService) {}
+  constructor(
+    private readonly apiService: ApiService,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+  ) {}
+
+  ngOnInit(): void {
+    try {
+      const chaveParam = this.route.snapshot.paramMap.get('id');
+      if (chaveParam) {
+        this.loadingConsulta = true;
+        this.apiService.verificarCredencial(chaveParam).subscribe({
+          next: (dados) => {
+            this.resultado = dados;
+            this.loadingConsulta = false;
+          },
+          error: () => {
+            this.loadingConsulta = false;
+            this.mensagem = { tipo: 'error', texto: 'Credencial não encontrada ou inválida.' };
+          }
+        });
+      }
+    } catch {}
+  }
 
   consultarCredencial(): void {
-    const credencialFormatada = this.numeroCredencial.trim();
-    if (!credencialFormatada) {
+    const chave = this.numeroCredencial.trim();
+    if (!chave) {
       this.mensagem = { tipo: 'error', texto: 'Informe o número da credencial para continuar.' };
       this.resultado = undefined;
       return;
     }
-
-    const somenteDigitos = credencialFormatada.replace(/\D/g, '');
-    if (!somenteDigitos) {
-      this.mensagem = { tipo: 'error', texto: 'Número da credencial inválido.' };
-      this.resultado = undefined;
-      return;
-    }
-
-    const credencialId = Number(somenteDigitos);
     this.loadingConsulta = true;
     this.mensagem = undefined;
     this.resultado = undefined;
 
-    this.apiService.verificarCredencial(credencialId).subscribe({
+    this.apiService.verificarCredencial(chave).subscribe({
       next: (dados) => {
         this.resultado = dados;
         this.loadingConsulta = false;

@@ -93,6 +93,13 @@ export const routes: Routes = [
     data: { roles: ['ADMIN'], title: 'Detalhe do Auto de Infração', icon: 'fas fa-file-alt' }
   },
   {
+    path: 'public/verificar/:id',
+    loadComponent: () =>
+      import('./components/consulta-publica/consulta-publica.component').then(m => m.ConsultaPublicaComponent),
+    // pública
+    data: { title: 'Consulta Pública', icon: 'fas fa-search', showBack: true }
+  },
+  {
     path: 'consulta-publica',
     loadComponent: () =>
       import('./components/consulta-publica/consulta-publica.component').then(m => m.ConsultaPublicaComponent),

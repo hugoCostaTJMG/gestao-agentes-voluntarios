@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
-import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +39,7 @@ public class CarteirinhaService {
     @Autowired
     private QRCodeUtil qrCodeUtil;
 
-    @Value("${app.base-url:http://localhost:8080}")
+    @Value("${app.base-url}")
     private String baseUrl;
 
     public record Verificacao(boolean podeGerar, String mensagem) {}

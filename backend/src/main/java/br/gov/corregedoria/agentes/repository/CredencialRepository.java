@@ -36,4 +36,10 @@ public interface CredencialRepository extends JpaRepository<Credencial, Long> {
      * Conta o número de credenciais emitidas por um usuário
      */
     long countByUsuarioEmissao(String usuarioEmissao);
+
+    /**
+     * Busca a credencial mais recente emitida por um determinado identificador de emissão
+     * (usuarioEmissao). Útil para consulta pública quando a chave do QR não é o ID numérico.
+     */
+    Optional<Credencial> findFirstByUsuarioEmissaoOrderByDataEmissaoDescIdDesc(String usuarioEmissao);
 }
