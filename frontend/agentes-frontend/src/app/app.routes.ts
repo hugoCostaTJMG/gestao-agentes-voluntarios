@@ -78,6 +78,13 @@ export const routes: Routes = [
     canActivate: [AuthGuard, RoleGuard],
     data: { roles: ['CORREGEDORIA'], title: 'Atualização da Situação Cadastral', icon: 'fas fa-user-check', showBack: false }
   },
+  {
+    path: 'perfil',
+    loadComponent: () =>
+      import('./components/user-profile/user-profile.component').then(m => m.UserProfileComponent),
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['CORREGEDORIA', 'COMARCA', 'Agente'], title: 'Perfil', icon: 'fas fa-user-check', showBack: false }
+  },
   // {
   //   path: 'autos',
   //   loadComponent: () =>
