@@ -6,8 +6,8 @@ services:
     image: container-registry.oracle.com/database/express:21.3.0-xe
     container_name: agentes-oracle-db
     environment:
-      - ORACLE_PWD=OraclePassword123
-      - ORACLE_CHARACTERSET=AL32UTF8
+      - ORACLE_PWD=${ORACLE_SYS_PASSWORD:-OraclePassword123}
+      - ORACLE_CHARACTERSET=${ORACLE_CHARACTERSET:-AL32UTF8}
     ports:
       - "1521:1521"
       - "5500:5500"
@@ -18,7 +18,7 @@ services:
       - agentes-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "sqlplus", "-L", "system/OraclePassword123@//localhost:1521/XEPDB1", "@/dev/null"]
+      test: ["CMD", "sh", "-c", "sqlplus -L system/${ORACLE_SYS_PASSWORD:-OraclePassword123}@//localhost:${ORACLE_DB_PORT:-1521}/${ORACLE_DB_SERVICE:-XEPDB1} @/dev/null"]
       interval: 30s
       timeout: 10s
       retries: 10
@@ -34,8 +34,8 @@ services:
       - LAN=pt_BR.UTF-8
       - LANGUAGE=pt_BR.UTF-8
       - LC_ALL=pt_BR.UTF-8
-      - KEYCLOAK_USER=admin
-      - KEYCLOAK_PASSWORD=admin
+      - KEYCLOAK_USER=${KEYCLOAK_ADMIN_USER:-admin}
+      - KEYCLOAK_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD:-admin}
       - DB_VENDOR=h2
       # URL pública do Keycloak (usada pelo navegador e no issuer dos tokens)
       - KEYCLOAK_FRONTEND_URL=${KEYCLOAK_PUBLIC_BASE_URL:-http://localhost:8084/auth}
@@ -68,12 +68,16 @@ services:
     container_name: agentes-backend
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - ORACLE_DB_HOST=oracle-db
-      - ORACLE_DB_PORT=1521
-      - ORACLE_DB_SERVICE=XEPDB1
-      - ORACLE_DB_USER=agentes_user
-      - ORACLE_DB_PASSWORD=agentes_pass
-      - ORACLE_DB_SCHEMA=AGENTES_USER
+      # Base URLs da aplicação (usadas na emissão de QR/links públicos)
+      - APP_ENVIRONMENT=${APP_ENVIRONMENT:-local}
+      - APP_BASE_URL=${APP_BASE_URL:-http://localhost}
+      - APP_DEV_BASE_URL=${APP_DEV_BASE_URL:-http://localhost:8080}
+      - ORACLE_DB_HOST=${ORACLE_DB_HOST:-oracle-db}
+      - ORACLE_DB_PORT=${ORACLE_DB_PORT:-1521}
+      - ORACLE_DB_SERVICE=${ORACLE_DB_SERVICE:-XEPDB1}
+      - ORACLE_DB_USER=${ORACLE_DB_USER:-agentes_user}
+      - ORACLE_DB_PASSWORD=${ORACLE_DB_PASSWORD:-agentes_pass}
+      - ORACLE_DB_SCHEMA=${ORACLE_DB_SCHEMA:-AGENTES_USER}
       # Keycloak OAuth2 Client (backend faz o login)
       - KEYCLOAK_CLIENT_ID=${KEYCLOAK_CLIENT_ID:-agentes-voluntarios}
       - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET}

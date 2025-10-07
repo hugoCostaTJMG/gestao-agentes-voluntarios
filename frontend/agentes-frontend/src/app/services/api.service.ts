@@ -34,7 +34,9 @@ export class ApiService {
       const w: any = window as any;
       const runtime = w.APP_CONFIG?.apiUrl || w.__APP_CONFIG__?.apiUrl || w.__env?.API_URL;
       if (runtime && typeof runtime === 'string') {
-        this.baseUrl = runtime;
+        // Evita hosts internos de Docker (ex.: http://backend:8080) que não são resolvíveis no navegador
+        const looksLikeDockerHost = /:\/\/backend(?::\d+)?\/?$/i.test(runtime) || /:\/\/backend(?::\d+)?/i.test(runtime);
+        this.baseUrl = looksLikeDockerHost ? '' : runtime;
       }
     } catch {}
   }
@@ -63,6 +65,8 @@ verificarStatusCarteirinha(agenteId: number): Observable<{ podeGerar: boolean, m
       responseType: 'blob'
     });
   }
+  
+  // ===== DASHBOARD =====
   // api.service.ts
   get<T>(endpoint: string): Observable<T> {
     return this.http.get<T>(`${this.baseUrl}${endpoint}`, {
@@ -146,6 +150,20 @@ verificarStatusCarteirinha(agenteId: number): Observable<{ podeGerar: boolean, m
     });
   }
 
+  // Dados do próprio agente autenticado (perfil AGENTE)
+  buscarAgenteMe(): Observable<AgenteVoluntarioResponseDTO> {
+    return this.http.get<AgenteVoluntarioResponseDTO>(`${this.baseUrl}/api/agentes/me`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  // ===== DASHBOARD =====
+  getDashboardOverview(): Observable<import('../models/interfaces').DashboardOverview> {
+    return this.http.get<import('../models/interfaces').DashboardOverview>(`${this.baseUrl}/api/dashboard/overview`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
   listarAgentesPorStatus(status: string): Observable<AgenteVoluntario[]> {
     return this.http.get<AgenteVoluntario[]>(`${this.baseUrl}/api/agentes/status/${status}`, {
       headers: this.getAuthHeaders()
@@ -194,6 +212,14 @@ verificarStatusCarteirinha(agenteId: number): Observable<{ podeGerar: boolean, m
     });
   }
 
+  // ===== FOTOS DE AGENTES =====
+  getFotoAgente(agenteId: number): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/api/agentes/${agenteId}/foto`, {
+      headers: this.getAuthHeaders(),
+      responseType: 'blob'
+    });
+  }
+
   buscarCredencialPorId(credencialId: number): Observable<Credencial> {
     return this.http.get<Credencial>(`${this.baseUrl}/api/credenciais/${credencialId}`, {
       headers: this.getAuthHeaders()
@@ -207,10 +233,22 @@ verificarStatusCarteirinha(agenteId: number): Observable<{ podeGerar: boolean, m
     });
   }
 
+  // ===== CARTEIRINHA EM LOTE =====
+  gerarCarteirinhasLote(ids: number[]): Observable<Blob> {
+    return this.http.post(`${this.baseUrl}/carteirinha/lote`, ids, {
+      headers: this.getAuthHeaders(),
+      responseType: 'blob'
+    });
+  }
+
   // ===== CONSULTA PÚBLICA =====
 
-  verificarCredencial(credencialId: number): Observable<ConsultaPublica> {
-    return this.http.get<ConsultaPublica>(`${this.baseUrl}/public/verificar/${credencialId}`);
+  verificarCredencial(credencialKey: number | string): Observable<ConsultaPublica> {
+    // Quando a rota pública do SPA é "/public/verificar/:id", precisamos evitar colisão
+    // com o proxy do Nginx. Forçamos um base absoluto e acessível pelo navegador.
+    const base = this.getPublicApiBase();
+    const key = encodeURIComponent(String(credencialKey));
+    return this.http.get<ConsultaPublica>(`${base}/public/verificar/${key}`);
   }
 
   validarCredencial(credencialId: number): Observable<boolean> {
@@ -313,6 +351,38 @@ verificarStatusCarteirinha(agenteId: number): Observable<{ podeGerar: boolean, m
     return this.http.post<AnexoAutoInfracao>(`${this.baseUrl}/api/autos/${autoId}/anexos`, formData, {
       headers: this.getAuthHeaders().delete('Content-Type')
     });
+  }
+
+  // ===== Helpers =====
+  private getPublicApiBase(): string {
+    try {
+      const w: any = window as any;
+      const runtime = (w.APP_CONFIG?.apiUrl || w.__APP_CONFIG__?.apiUrl || w.__env?.API_URL || '').toString();
+      const buildDefault = (environment.apiUrl || '').toString();
+
+      const isAbsolute = (u: string) => /^https?:\/\//i.test(u);
+      const isBackendHost = (u: string) => /:\/\/backend(?::\d+)?/i.test(u);
+
+      // 1) Preferir URL absoluta configurada em runtime (API_URL) diferente de 'backend'
+      if (runtime && isAbsolute(runtime) && !isBackendHost(runtime)) {
+        return runtime;
+      }
+      // 2) Tentar o valor de build, se absoluto e não 'backend'
+      if (buildDefault && isAbsolute(buildDefault) && !isBackendHost(buildDefault)) {
+        return buildDefault;
+      }
+      // 3) Dev local: usar localhost:8080
+      const host = (w.location?.hostname || '').toLowerCase();
+      if (host === 'localhost' || host === '127.0.0.1') {
+        return 'http://localhost:8080';
+      }
+      // 4) Fallback: ainda tentar runtime (mesmo que backend) — alguns ambientes mapeiam DNS
+      if (runtime && isAbsolute(runtime)) return runtime;
+      if (buildDefault && isAbsolute(buildDefault)) return buildDefault;
+      return 'http://localhost:8080';
+    } catch {
+      return environment.apiUrl;
+    }
   }
 
   downloadAnexo(anexoId: number): Observable<Blob> {

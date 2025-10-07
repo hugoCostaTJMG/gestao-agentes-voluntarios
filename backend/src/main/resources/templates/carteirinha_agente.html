@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <title>Carteirinha do Agente</title>
+  <!-- Tipografia Montserrat: usamos fontes locais incorporadas no PDF pelo backend -->
+  <style>
+    :root {
+      --brand-red: #d82020;  /* vermelho da moldura/faixa superior */
+      --ink: #222;
+      --ink-weak: #555;
+      --gray-inner: #efefef; /* cinza do MIÔLO */
+      --bar: #dedede;        /* cinza das BARRAS de rótulo */
+      --bar-stroke: #cfcfcf; /* linha da barra/campo */
+      --field: #ffffff;      /* fundo dos CAMPOS */
+      --font-sans: 'Montserrat', Arial, Helvetica, sans-serif;
+      --trk: 0.02em;
+      --trk-wide: 0.06em;
+    }
+
+    /* Página A4 em modo retrato (portrait) */
+    @page { size: A4 portrait; margin: 0; }
+    *{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    html, body { height: 100%; }
+    /* OpenHTMLToPDF não resolve CSS variables em font-family, então usamos a família diretamente */
+    body { margin: 0; font-family: 'Montserrat', Arial, Helvetica, sans-serif; color: #222222; }
+
+    /* Dimensões da página A4 em retrato */
+    .page { width: 210mm; height: 297mm; display: table; }
+    .pair { display: table-cell; vertical-align: middle; text-align: center; }
+    .cards-row { width: 236mm; margin: 0 auto; border-collapse: separate; border-spacing: 8mm 0; }
+    .cards-row td { vertical-align: top; }
+
+    /* ===== Cartões ===== */
+    .card {
+      position: relative;
+      display: inline-block;
+      vertical-align: top;
+      /* Tamanho fixo solicitado: 170 mm x 55 mm */
+      width: 85mm; height: 55mm;
+      background: #efefef;
+      border: 2mm solid #d82020;
+      border-top: 0;
+      border-bottom: 1mm solid #d82020;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+
+    .ribbon {
+      position: absolute; left: -2mm; right: -2mm; height: 3mm;
+      background: #d82020; color: #fff; text-align: center; font-weight: 800;
+      font-size: 6pt; line-height: 3.5mm; letter-spacing: 0.06em; text-transform: uppercase;
+    }
+
+    .inner {
+      position: absolute;
+      top: 2.8mm; right: 0mm; bottom: 0mm; left: 0mm;
+      background: #efefef;
+      padding: 0.3mm 0.6mm;
+      box-sizing: border-box;
+      font-size: 6pt;
+    }
+
+    .table { width: 100%; border-collapse: collapse; }
+    .table td { vertical-align: top; }
+
+    /* Cabeçalho institucional (frente) */
+    .inst { font-size: 2.4mm; line-height: 1.05; color: #000; text-align: left; }
+    .inst .g { color: #000;  }
+    .inst .p { color: #000;  }
+
+    /* Título (duas linhas) */
+    .title {
+      margin: 1.0mm 0 0.6mm; font-weight: 800; font-size: 6.8pt; line-height: 1.1;
+      letter-spacing: 0.02em; text-transform: uppercase;
+    }
+
+    /* Barras + Campos (idênticos frente/verso) */
+    .block { margin-top: 1.0mm; }
+    .bar {
+      height: 2.1mm; color: #444444;
+      display: flex; align-items: center; box-sizing: border-box;
+      font-weight: 700; font-size: 4.5pt; text-transform: uppercase;
+       border-bottom: none;
+    }
+    .field {
+      background: #ffffff; border: 0.18mm solid #cfcfcf;
+      min-height: 4mm; padding: 1.0mm 0.5mm; line-height: 1.2; box-sizing: border-box;
+    }
+    .field.tall { min-height: 10mm; } /* Nome */
+    .field.mid  { min-height: 10mm; display: flex; align-items: center; }  /* Filiação - igualar altura ao QR */
+
+    /* Foto 2 x 2,5 cm (ajustada para caber) */
+    .left-col { width: 28mm; }
+    .photo-img, .photo-ph {
+      width: 16mm; height: 20mm; border: 0.28mm solid #000; object-fit: cover; background: #fafafa;
+      display: block; margin: 0 auto; /* centraliza horizontalmente na coluna da foto */
+    }
+
+    .muted { color: #555555; }
+    .small { font-size: 4.5pt; line-height: 1.2; }
+
+    /* Linhas pretas de legenda (frente/verso) */
+    .rule { margin-top: 5mm; height: 0; border-top: 0.35mm solid #000; }
+    .judge { margin-top: 0.6mm; text-align: center; font-size: 4.4pt; letter-spacing: 0.06em; text-transform: uppercase; }
+    .legal { margin-top: 0.6mm; font-size: 4.4pt; }
+
+    /* Verso: tabela simples (compatível) */
+    .tgrid { width: 100%; border-collapse: separate;}
+    /* Igualar alturas dos campos nas três primeiras linhas */
+    .tgrid .field { height: 4.2mm; display: flex; align-items: center; }
+    .tgrid .bar { height: 2.1mm; display: flex; align-items: center; }
+    .tgrid .col-uf { width: 18mm; }
+
+    /* ===== Filiação + QR lado a lado ===== */
+    .fil-row { display: flex; gap: 0mm; align-items: stretch; margin-top: 1.4mm; }
+    .fil-left { flex: 1 1 auto; min-width: 0; }
+    .qr-wrap { flex: 0 0 0mm; display: flex; flex-direction: column; }
+    .qr-bar { height: 4mm; background: #dedede; color: #444444; display: flex; align-items: center; padding: 0 1.6mm; box-sizing: border-box; font-weight: 700; font-size: 4.5pt; letter-spacing: 0.06em; text-transform: uppercase; border: 0.18mm solid #cfcfcf; border-bottom: none; }
+    .qr-field { background: #ffffff; display: flex; align-items: center; justify-content: center; height: 10mm; box-sizing: border-box; }
+    .qr-img {
+      width: 100%; height: 100%; object-fit: contain;
+      image-rendering: pixelated; background: #fff;
+    }
+
+    /* Assinatura */
+    .sign { margin-top: 5mm; }
+    .sign .rule { margin-top: 0; }
+    .sign-caption { margin-top: 0.6mm; text-align: center; font-size: 4pt; text-transform: uppercase; }
+    .right { text-align: right; }
+
+
+    /* Nítido na impressão */
+    img { image-rendering: -webkit-optimize-contrast; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="pair">
+      <!-- =================== FRENTE =================== -->
+      <section class="card" id="front">
+        <div class="ribbon">Poder Judiciário</div>
+        <div class="inner">
+          <table class="table">
+            <tr>
+              <td style="width:12mm;">
+                <div th:if="${logo != null}">
+                  <img th:src="${logo}" alt="Brasão" style="width:8mm; height:8mm; object-fit:contain;" />
+                </div>
+              </td>
+              <td>
+                <div class="inst">Poder  Judiciário  do  Estado  de  Minas  Gerais</div>
+                <div class="inst"><span class="g">Corregedoria-Geral de Justiça</span></div>
+                <div class="inst"><span class="p">Vara da Infância e da Juventude</span></div>
+              </td>
+            </tr>
+          </table>
+
+          <h1 class="title">
+            Agente Voluntário de Proteção à Criança<br />
+            e ao Adolescente
+          </h1>
+
+          <table class="table" style="margin-top:1mm;">
+            <tr>
+              <!-- Coluna da foto -->
+              <td class="left-col" style="align-items: center;">
+                <div th:if="${foto != null}" style="justify-self: center;"><img th:src="${foto}" style="justify-self: center;" alt="Foto" class="photo-img" /></div>
+                <div th:if="${foto == null}" class="photo-ph" style="justify-self: center; display: none;"></div>
+              </td>
+              <!-- Coluna direita com comarca + nome empilhados -->
+              <td style="padding-left:3mm;">
+                <div class="block" style="margin-top:0;">
+                  <div class="bar">Válida na Comarca de</div>
+                  <div class="field" th:text="${comarca}"></div>
+                </div>
+                <div class="block">
+                  <div class="bar">Nome</div>
+                  <div class="field tall" th:text="${nomeCompleto}"></div>
+                </div>
+              </td>
+            </tr>
+          </table>
+
+          <div class="rule"></div>
+          <div class="judge">Juiz de Direito da Infância e da Juventude</div>
+          <div class="legal">Credencial conforme o disposto no art. 362, §1º do Provimento nº 355/2018</div>
+        </div>
+      </section>
+
+      <!-- =================== VERSO =================== -->
+      <section class="card" id="back">
+        <div class="ribbon">Poder Judiciário</div>
+        <div class="inner">
+          <table class="tgrid">
+            <colgroup>
+              <col />
+              <col />
+              <col class="col-uf" />
+            </colgroup>
+            <tr>
+              <td>
+                <div class="bar">Carteira de Identidade</div>
+                <div class="field" th:text="${ci}"></div>
+              </td>
+              <td colspan="2">
+                <div class="bar">CPF</div>
+                <div class="field" th:text="${cpf}"></div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div class="bar">Nacionalidade</div>
+                <div class="field" th:text="${nacionalidade}"></div>
+              </td>
+              <td>
+                <div class="bar">Naturalidade</div>
+                <div class="field" th:text="${naturalidade}"></div>
+              </td>
+              <td>
+                <div class="bar">UF</div>
+                <div class="field" th:text="${uf}"></div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div class="bar">Data de Nascimento</div>
+                <div class="field" th:text="${dataNascimento}"></div>
+              </td>
+              <td>
+                <div class="bar">Data de Expedição</div>
+                <div class="field" th:text="${dataExpedicao}"></div>
+              </td>
+              <td>
+                <div class="bar">Validade</div>
+                <div class="field" style="text-align:right; font-weight:700; font-size: 1.2mm;">TEMPO INDETERMINADO</div>
+              </td>
+            </tr>
+          </table>
+
+          <!-- ===== FILIAÇÃO + QR lado a lado (tabela p/ compatibilidade) ===== -->
+          <table class="table" style="margin-top:1mm;">
+            <colgroup>
+              <col />
+              <col style="width:24mm;" />
+            </colgroup>
+            <tr>
+              <td>
+                <div class="bar">Filiação</div>
+                <div class="field mid" th:text="${filiacao}"></div>
+              </td>
+              <td>
+                <div class="bar">QR Code</div>
+                <div class="qr-field">
+                  <img class="qr-img" th:if="${qrCode != null}" th:src="${qrCode}" alt="QR Code" />
+                  <div th:if="${qrCode == null}" style="width:100%;height:100%;border:0.28mm dashed #bbb;"></div>
+                </div>
+              </td>
+            </tr>
+          </table>
+
+          <div class="sign">
+            <div class="rule"></div>
+            <div class="sign-caption">Assinatura do Agente Voluntário de Proteção à Criança e ao Adolescente</div>
+            <div class="small right" style="margin-top:0.6mm;">Nº <span th:text="${numeroCredencial}"></span></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</body>
+</html>

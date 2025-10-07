@@ -26,15 +26,16 @@ export class SidebarComponent implements OnInit {
   currentUser: Usuario | null = null;
   isLoggedIn = false;
   private readonly menuItems: MenuItem[] = [
-    { label: 'Dashboard', icon: 'fas fa-tachometer-alt', link: '/', roles: ['ADMIN', 'AGENTE'], exact: true },
+    { label: 'Dashboard', icon: 'fas fa-tachometer-alt', link: '/', roles: ['CORREGEDORIA', 'COMARCA', 'AGENTE'], exact: true },
     { label: 'Carteirinha', icon: 'fas fa-id-badge', link: '/carteirinha', roles: ['AGENTE'] },
-    { label: 'Agentes Voluntários', icon: 'fas fa-users', link: '/agentes', roles: ['ADMIN'] },
-    { label: 'Emissão de Carteirinhas', icon: 'fas fa-id-badge', link: '/carteirinha-agentes', roles: ['ADMIN'] },
-    { label: 'Cadastrar Agente', icon: 'fas fa-user-plus', link: '/agentes/cadastro', roles: ['ADMIN'] },
-    { label: 'Emissão de Credencial', icon: 'fas fa-id-card', link: '/credenciais', roles: ['ADMIN'] },
-    { label: 'Autos de Infração', icon: 'fas fa-file-alt', link: '/autos', roles: ['ADMIN'] },
-    { label: 'Cadastrar Auto', icon: 'fas fa-plus-circle', link: '/autos/cadastro', roles: ['ADMIN'] },
-    { label: 'Consulta Pública', icon: 'fas fa-search', link: '/consulta-publica', roles: ['ADMIN', 'AGENTE'] }
+    { label: 'Agentes Voluntários', icon: 'fas fa-users', link: '/agentes', roles: ['CORREGEDORIA', 'COMARCA'] },
+    { label: 'Impressão Carteirinhas', icon: 'fas fa-id-badge', link: '/carteirinha-agentes', roles: ['CORREGEDORIA'] },
+    { label: 'Cadastrar Agente', icon: 'fas fa-user-plus', link: '/agentes/cadastro', roles: ['CORREGEDORIA', 'COMARCA'] },
+    { label: 'Emissão de Credencial', icon: 'fas fa-id-card', link: '/credenciais', roles: ['CORREGEDORIA'] },
+    { label: 'Situação Cadastral', icon: 'fas fa-user-check', link: '/situacao-cadastral', roles: ['CORREGEDORIA'] },
+    // { label: 'Autos de Infração', icon: 'fas fa-file-alt', link: '/autos', roles: ['CORREGEDORIA'] },
+    // { label: 'Cadastrar Auto', icon: 'fas fa-plus-circle', link: '/autos/cadastro', roles: ['AGENTE'] },
+    { label: 'Consulta Pública', icon: 'fas fa-search', link: '/consulta-publica', roles: ['CORREGEDORIA', 'COMARCA', 'AGENTE'] }
   ];
 
   constructor(
@@ -50,7 +51,23 @@ export class SidebarComponent implements OnInit {
   }
 
   get visibleMenuItems(): MenuItem[] {
-    return this.menuItems.filter(item => this.canShow(item));
+    const items = this.menuItems.filter(item => this.canShow(item));
+    // Reordena para perfis de gestão (Corregedoria/Comarca)
+    if (this.permissionService.hasAnyRole(['CORREGEDORIA', 'COMARCA'])) {
+      const weight: Record<string, number> = {
+        '/': 10,
+        '/agentes': 20,
+        '/agentes/cadastro': 30,
+        '/credenciais': 40,
+        '/situacao-cadastral': 45,
+        '/carteirinha-agentes': 50,
+        '/autos': 60,
+        '/autos/cadastro': 70,
+        '/consulta-publica': 80,
+      };
+      return items.slice().sort((a, b) => (weight[a.link] ?? 1000) - (weight[b.link] ?? 1000));
+    }
+    return items;
   }
 
   private canShow(item: MenuItem): boolean {

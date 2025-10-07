@@ -1,0 +1,51 @@
+<section class="situacao-cadastral">
+  <!-- Busca -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header text-white">
+      <strong>Buscar Agente</strong>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="form" (ngSubmit)="buscar()">
+        <label for="cpf" class="form-label">CPF do Agente</label>
+        <input id="cpf" type="text" class="form-control mb-3" formControlName="cpf" placeholder="000.000.000-00" cpfMask />
+        <app-button type="secondary" iconLeft="fas fa-search" label="Buscar" buttonType="submit" [loading]="loading"></app-button>
+      </form>
+    </div>
+  </div>
+
+  <app-alert *ngIf="erro" [type]="'danger'" [message]="erro" [dismissible]="true" (dismissed)="erro=''" class="mb-3"></app-alert>
+  <app-alert *ngIf="sucesso" [type]="'success'" [message]="sucesso" [dismissible]="true" (dismissed)="sucesso=''" class="mb-3"></app-alert>
+
+  <!-- Resultado -->
+  <div *ngIf="agente" class="card shadow-sm">
+    <div class="card-header">
+      <strong>Dados do Agente</strong>
+    </div>
+    <div class="card-body">
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <div><strong>Nome:</strong> {{ agente?.nomeCompleto }}</div>
+          <div><strong>CPF:</strong> {{ formatarCPF(agente?.cpf) }}</div>
+        </div>
+        <div class="col-md-6">
+          <div><strong>Comarcas:</strong> {{ comarcasTexto }}</div>
+          <div><strong>Email:</strong> {{ agente?.email }}</div>
+        </div>
+      </div>
+
+      <div class="row g-3 align-items-end">
+        <div class="col-md-4">
+          <label class="form-label">Situação Cadastral</label>
+          <select class="form-select" [(ngModel)]="statusSelecionado">
+            <option value="EM_ANALISE">Em Análise</option>
+            <option value="ATIVO">Ativo</option>
+            <option value="INATIVO">Inativo</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <app-button type="primary" iconLeft="fas fa-save" label="Atualizar" (clicked)="atualizarStatus()" [loading]="loading"></app-button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

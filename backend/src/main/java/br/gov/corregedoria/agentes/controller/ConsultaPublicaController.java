@@ -27,13 +27,13 @@ public class ConsultaPublicaController {
         @ApiResponse(responseCode = "200", description = "Credencial válida - dados públicos retornados"),
         @ApiResponse(responseCode = "404", description = "Credencial não encontrada ou inválida")
     })
-    @GetMapping("/verificar/{credencialId}")
+    @GetMapping("/verificar/{chave}")
     public ResponseEntity<ConsultaPublicaDTO> verificarCredencial(
-            @Parameter(description = "ID da credencial obtido via QR Code")
-            @PathVariable Long credencialId) {
-        
+            @Parameter(description = "Chave da credencial (ID numérico ou usuario_emissao)")
+            @PathVariable String chave) {
+
         try {
-            ConsultaPublicaDTO response = consultaPublicaService.consultarCredencial(credencialId);
+            ConsultaPublicaDTO response = consultaPublicaService.consultarCredencialPorChave(chave);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
@@ -171,4 +171,3 @@ public class ConsultaPublicaController {
             """;
     }
 }
-

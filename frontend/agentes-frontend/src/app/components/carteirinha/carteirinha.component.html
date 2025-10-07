@@ -4,14 +4,16 @@
     [type]="'danger'"
     [message]="mensagemErro"
     [dismissible]="true"
+    [autoCloseMs]="10000"
     (dismissed)="mensagemErro = ''"
   ></app-alert>
 
   <div class="carteirinha__card" *ngIf="agente; else carregando">
     <header class="carteirinha__header">
-      <div class="carteirinha__avatar">
+      <div class="carteirinha__avatar" *ngIf="!fotoUrl">
         <i class="fas fa-user-circle"></i>
       </div>
+      <img *ngIf="fotoUrl" [src]="fotoUrl" alt="Foto do Agente" style="width:56px;height:56px;border-radius:50%;object-fit:cover;" />
       <div class="carteirinha__identificacao">
         <h2>{{ nomeCompleto }}</h2>
         <span class="carteirinha__cpf">{{ cpfFormatado }}</span>
@@ -70,3 +72,15 @@
     </div>
   </ng-template>
 </section>
+
+<!-- Modal de Preview -->
+<app-modal
+  [open]="previewOpen"
+  (openChange)="previewOpen = $event"
+  title="Preview da Carteirinha"
+  [size]="'md'"
+>
+  <div modal-body>
+    <app-carteirinha-preview [agente]="agente"></app-carteirinha-preview>
+  </div>
+</app-modal>

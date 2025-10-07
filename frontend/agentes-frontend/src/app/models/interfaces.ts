@@ -83,7 +83,7 @@ export interface Usuario {
   keycloakId: string;    // obrigatório: UUID do Keycloak
   nome: string;
   email: string;
-  perfil: string;        // ex.: 'AGENTE', 'ADMIN', etc.
+  perfil: string;        // ex.: 'CORREGEDORIA', 'COMARCA', 'AGENTE'
   token: string;         // access token vigente
   cpf?: string;
   telefone?: string;
@@ -162,4 +162,31 @@ export interface AutoInfracao {
   usuarioCancelamento?: string;
   justificativaCancelamento?: string;
   anexos?: AnexoAutoInfracao[];
+}
+
+// ===== DASHBOARD =====
+
+// ===== DASHBOARD =====
+
+export interface DashboardOverview {
+  totalAgentes: number;
+  agentesAtivos: number;
+  autosTotal: number;
+  comarcasTotal: number;
+  statusSummary: DashboardStatusItem[];
+  activities: DashboardActivity[];
+}
+
+export interface DashboardStatusItem {
+  label: string;
+  count: number;
+  badgeVariant: string;
+}
+
+export interface DashboardActivity {
+  title: string;
+  description: string;
+  time: string;
+  status: string;
+  badgeVariant: string;
 }

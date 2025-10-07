@@ -5,6 +5,7 @@ import { HeaderComponent } from './components/header/header.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { AlertComponent } from './shared/components/alert/alert.component';
 import { AlertService, AlertMessage } from './services/alert.service';
+import { PageHeaderComponent } from './shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-root',
@@ -15,7 +16,8 @@ import { AlertService, AlertMessage } from './services/alert.service';
     AsyncPipe,
     HeaderComponent,
     SidebarComponent,
-    AlertComponent
+    AlertComponent,
+    PageHeaderComponent
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']

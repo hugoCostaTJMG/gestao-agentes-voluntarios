@@ -6,7 +6,6 @@ import br.gov.corregedoria.agentes.entity.Credencial;
 import br.gov.corregedoria.agentes.entity.StatusAgente;
 import br.gov.corregedoria.agentes.repository.AgenteVoluntarioRepository;
 import br.gov.corregedoria.agentes.repository.CredencialRepository;
-import br.gov.corregedoria.agentes.util.AuditoriaUtil;
 import br.gov.corregedoria.agentes.util.QRCodeUtil;
 import com.google.zxing.WriterException;
 import jakarta.persistence.EntityNotFoundException;
@@ -19,6 +18,8 @@ import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 @Service
 @Transactional
@@ -33,11 +34,20 @@ public class CredencialService {
     @Autowired
     private QRCodeUtil qrCodeUtil;
 
-    @Autowired
-    private AuditoriaUtil auditoriaUtil;
-
-    @Value("${app.base-url:http://localhost:8080}")
+    @Value("${app.base-url}")
     private String baseUrl;
+
+    @Value("${app.dev-base-url}")
+    private String devBaseUrl;
+
+    @Value("${app.environment:production}")
+    private String appEnvironment;
+
+    @Value("${spring.profiles.active:}")
+    private String activeProfiles;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
@@ -55,17 +65,23 @@ public class CredencialService {
             throw new IllegalStateException("Apenas agentes com status 'Ativo' podem ter credenciais emitidas");
         }
 
-        // Gerar URL de verificação
-        // Criar credencial
+        // Pré-aloca ID pela sequência Oracle para compor a URL antes do insert (qr_code_url é NOT NULL)
+        Long nextId = ((Number) entityManager.createNativeQuery("SELECT S_CREDENCIAL.NEXTVAL FROM dual").getSingleResult()).longValue();
+
         Credencial credencial = new Credencial(agente, null, usuarioLogado);
-        credencial = credencialRepository.save(credencial);
-        String urlVerificacao = qrCodeUtil.gerarUrlVerificacao(baseUrl, credencial.getId());
+        credencial.setId(nextId);
+        // define data de emissão imediatamente
+        credencial.setDataEmissao(java.time.LocalDateTime.now());
+        // gera URL pública a partir do ID já alocado
+        String publicBase = resolvePublicBaseUrl();
+        String urlVerificacao = qrCodeUtil.gerarUrlVerificacao(publicBase, nextId);
         credencial.setQrCodeUrl(urlVerificacao);
+        // agora insere com todos os campos NOT NULL preenchidos
         credencial = credencialRepository.save(credencial);
 
         // Registrar auditoria
-        auditoriaUtil.registrarLog(usuarioLogado, "EMISSAO_CREDENCIAL", 
-                "Credencial emitida para agente: " + agente.getId() + " - " + agente.getNomeCompleto());
+        // auditoriaUtil.registrarLog(usuarioLogado, "EMISSAO_CREDENCIAL", 
+        //         "Credencial emitida para agente: " + agente.getId() + " - " + agente.getNomeCompleto());
 
         return converterParaDTO(credencial);
     }
@@ -98,14 +114,37 @@ public class CredencialService {
                 .orElseThrow(() -> new EntityNotFoundException("Credencial não encontrada: " + credencialId));
 
         AgenteVoluntario agente = credencial.getAgente();
-        
-        // Gerar QR Code em Base64
-        String qrCodeBase64 = qrCodeUtil.gerarQRCode(credencial.getQrCodeUrl());
 
-        // Aqui você implementaria a geração do PDF usando iText ou outra biblioteca
-        // Por simplicidade, retornando um array vazio
-        // TODO: Implementar geração real do PDF
-        return new byte[0];
+        // Gera QR Code (Base64) a partir da URL pública de verificação
+        String qrCodeBase64 = qrCodeUtil.gerarQRCode(credencial.getQrCodeUrl());
+        byte[] qrBytes = java.util.Base64.getDecoder().decode(qrCodeBase64);
+
+        // Monta PDF simples com iText 7
+        java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+        com.itextpdf.kernel.pdf.PdfWriter writer = new com.itextpdf.kernel.pdf.PdfWriter(baos);
+        com.itextpdf.kernel.pdf.PdfDocument pdf = new com.itextpdf.kernel.pdf.PdfDocument(writer);
+        com.itextpdf.layout.Document doc = new com.itextpdf.layout.Document(pdf, com.itextpdf.kernel.geom.PageSize.A6.rotate());
+        doc.setMargins(20, 20, 20, 20);
+
+        doc.add(new com.itextpdf.layout.element.Paragraph("Credencial de Agente Voluntário").setBold().setFontSize(14));
+        doc.add(new com.itextpdf.layout.element.Paragraph("Nome: " + safe(agente.getNomeCompleto())));
+        String comarca = agente.getComarcas().stream().findFirst().map(c -> c.getNomeComarca()).orElse("NÃO INFORMADO");
+        doc.add(new com.itextpdf.layout.element.Paragraph("Comarca: " + comarca));
+        doc.add(new com.itextpdf.layout.element.Paragraph("CPF: " + safe(agente.getCpf())));
+        doc.add(new com.itextpdf.layout.element.Paragraph("Status: " + agente.getStatus().getDescricao()));
+        if (credencial.getDataEmissao() != null) {
+            doc.add(new com.itextpdf.layout.element.Paragraph("Emissão: " + credencial.getDataEmissao().format(DATE_FORMATTER)));
+        }
+        doc.add(new com.itextpdf.layout.element.Paragraph("Código: " + credencial.getId()));
+
+        com.itextpdf.layout.element.Image qr = new com.itextpdf.layout.element.Image(com.itextpdf.io.image.ImageDataFactory.create(qrBytes));
+        qr.setAutoScale(true);
+        doc.add(new com.itextpdf.layout.element.Paragraph("\n"));
+        doc.add(qr);
+        doc.add(new com.itextpdf.layout.element.Paragraph("Verifique a autenticidade via QR Code"));
+
+        doc.close();
+        return baos.toByteArray();
     }
 
     /**
@@ -118,10 +157,26 @@ public class CredencialService {
         dto.setNomeAgente(credencial.getAgente().getNomeCompleto());
         dto.setCpfAgente(credencial.getAgente().getCpf());
         dto.setStatusAgente(credencial.getAgente().getStatus().getDescricao());
-        dto.setDataEmissao(credencial.getDataEmissao().format(DATE_FORMATTER));
+        dto.setDataEmissao(credencial.getDataEmissao() != null ? credencial.getDataEmissao().format(DATE_FORMATTER) : "");
         dto.setQrCodeUrl(credencial.getQrCodeUrl());
         dto.setUsuarioEmissao(credencial.getUsuarioEmissao());
         return dto;
     }
-}
 
+    private static String safe(String s) { return s == null ? "" : s; }
+
+    private String resolvePublicBaseUrl() {
+        String b = (baseUrl == null) ? "" : baseUrl.trim();
+        String d = (devBaseUrl == null) ? "" : devBaseUrl.trim();
+        String profiles = (activeProfiles == null) ? "" : activeProfiles.toLowerCase();
+        boolean isLocalEnv = "local".equalsIgnoreCase(appEnvironment) || profiles.contains("docker") || profiles.contains("dev");
+        boolean baseLooksLocal = b.toLowerCase().contains("localhost") || b.contains("127.0.0.1");
+
+        String chosen = (isLocalEnv && !baseLooksLocal && !d.isBlank()) ? d : b;
+        // normalizar para não duplicar barras
+        if (chosen.endsWith("/")) {
+            chosen = chosen.substring(0, chosen.length() - 1);
+        }
+        return chosen;
+    }
+}

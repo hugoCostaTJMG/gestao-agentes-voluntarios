@@ -1,10 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { Comarca, AreaAtuacao, AgenteVoluntarioDTO } from '../../models/interfaces';
 import { CommonModule } from '@angular/common';
 import { ButtonComponent } from '../../shared/components/buttons/button/button.component';
+import { CpfMaskDirective } from '../../shared/directives/cpf-mask.directive';
+import { PhoneMaskDirective } from '../../shared/directives/phone-mask.directive';
+import { RgMaskDirective } from '../../shared/directives/rg-mask.directive';
 
 interface Estado {
   sigla: string;
@@ -14,7 +17,7 @@ interface Estado {
 @Component({
   selector: 'app-agente-cadastro',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, ButtonComponent],
+  imports: [ReactiveFormsModule, CommonModule, ButtonComponent, CpfMaskDirective, PhoneMaskDirective, RgMaskDirective],
   templateUrl: './agente-cadastro.component.html',
   styleUrls: ['./agente-cadastro.component.scss']
 })
@@ -24,6 +27,8 @@ export class AgenteCadastroComponent implements OnInit {
   areasAtuacao: AreaAtuacao[] = [];
   estados: Estado[] = [];
   loading = false;
+  isEditMode = false;
+  agenteId?: number;
   showSuccess = false;
   showError = false;
   successMessage = '';
@@ -33,7 +38,8 @@ export class AgenteCadastroComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private apiService: ApiService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     this.agenteForm = this.createForm();
   }
@@ -42,13 +48,21 @@ export class AgenteCadastroComponent implements OnInit {
     this.carregarComarcas();
     this.carregarAreasAtuacao();
     this.carregarEstados();
+    this.route.paramMap.subscribe((params: ParamMap) => {
+      const id = params.get('id');
+      if (id) {
+        this.isEditMode = true;
+        this.agenteId = Number(id);
+        this.carregarAgente(this.agenteId);
+      }
+    });
   }
 
   private createForm(): FormGroup {
     return this.fb.group({
       nomeCompleto: ['', [Validators.required, Validators.minLength(3)]],
-      cpf: ['', [Validators.required, Validators.pattern(/^\d{11}$/)]],
-      telefone: ['', [Validators.required]],
+      cpf: ['', [Validators.required, this.cpfValidator()]],
+      telefone: ['', [Validators.required, this.telefoneValidator()]],
       email: ['', [Validators.required, Validators.email]],
       // Novos campos
       dataNascimento: [''],
@@ -151,48 +165,124 @@ export class AgenteCadastroComponent implements OnInit {
   }
 
   salvarAgente(): void {
-    if (this.agenteForm.valid) {
-      this.loading = true;
-      this.hideMessages();
+    this.hideMessages();
 
-      const formValue = this.agenteForm.value;
-      
-      // Limpar CPF (remover pontos e traços)
-      const cpfLimpo = formValue.cpf.replace(/\D/g, '');
-      
-      const agenteData: AgenteVoluntarioDTO = {
-        nomeCompleto: formValue.nomeCompleto,
-        cpf: cpfLimpo,
-        telefone: formValue.telefone,
-        email: formValue.email,
-        dataNascimento: formValue.dataNascimento,
-        nacionalidade: formValue.nacionalidade,
-        numeroCarteiraIdentidade: formValue.numeroCarteiraIdentidade,
-        dataExpedicaoCI: formValue.dataExpedicaoCI,
-        uf: formValue.uf,
-        naturalidade: formValue.naturalidade,
-        filiacaoPai: formValue.filiacaoPai,
-        filiacaoMae: formValue.filiacaoMae,
-        disponibilidade: formValue.disponibilidade,
-        comarcasIds: formValue.comarcasIds.map((id: any) => Number(id)),
-        areasAtuacaoIds: formValue.areasAtuacaoIds.map((id: any) => Number(id))
-      };
+    const formValue = this.agenteForm.getRawValue();
 
-      // Converter foto para base64 se selecionada
-      if (this.selectedFile) {
-        const reader = new FileReader();
-        reader.onload = () => {
-          agenteData.fotoBase64 = reader.result as string;
-          this.enviarDados(agenteData);
-        };
-        reader.readAsDataURL(this.selectedFile);
-      } else {
-        this.enviarDados(agenteData);
-      }
-    } else {
+    // Validação específica de CPF primeiro (sem bloquear o botão)
+    const cpfLimpo = (formValue.cpf || '').toString().replace(/\D/g, '');
+    if (!this.validarCPF(cpfLimpo)) {
+      this.agenteForm.get('cpf')?.setErrors({ cpfInvalido: true });
+      this.mostrarErro('CPF inválido');
+      return;
+    }
+
+    // Validação de telefone (10 ou 11 dígitos)
+    const telefoneLimpo = (formValue.telefone || '').toString().replace(/\D/g, '');
+    if (!this.validarTelefone(telefoneLimpo)) {
+      this.agenteForm.get('telefone')?.setErrors({ telefoneInvalido: true });
+      this.mostrarErro('Telefone inválido');
+      return;
+    }
+
+    // Demais validações do formulário (campos obrigatórios etc.)
+    if (this.agenteForm.invalid) {
       this.markFormGroupTouched();
       this.mostrarErro('Preencha todos os campos obrigatórios');
+      return;
     }
+
+    this.loading = true;
+
+    const agenteData: AgenteVoluntarioDTO = {
+      id: this.isEditMode ? this.agenteId : undefined,
+      nomeCompleto: String(formValue.nomeCompleto || '').trim(),
+      cpf: cpfLimpo,
+      telefone: telefoneLimpo,
+      email: (formValue.email || '').toString().trim(),
+      fotoBase64: undefined,
+      numeroCarteiraIdentidade: String(formValue.numeroCarteiraIdentidade || '').trim() || undefined,
+      dataExpedicaoCI: formValue.dataExpedicaoCI ? String(formValue.dataExpedicaoCI) : undefined,
+      nacionalidade: String(formValue.nacionalidade || '').trim() || undefined,
+      naturalidade: String(formValue.naturalidade || '').trim() || undefined,
+      uf: formValue.uf ? String(formValue.uf).toUpperCase() : undefined,
+      dataNascimento: formValue.dataNascimento ? String(formValue.dataNascimento) : undefined,
+      filiacaoPai: String(formValue.filiacaoPai || '').trim() || undefined,
+      filiacaoMae: String(formValue.filiacaoMae || '').trim() || undefined,
+      disponibilidade: String(formValue.disponibilidade || '').trim() || undefined,
+      comarcasIds: (formValue.comarcasIds || []).map((id: any) => Number(id)),
+      areasAtuacaoIds: (formValue.areasAtuacaoIds || []).map((id: any) => Number(id))
+    } as AgenteVoluntarioDTO;
+
+    // Converter foto para base64 se selecionada
+    const proceed = (dto: AgenteVoluntarioDTO) => {
+      if (this.isEditMode && this.agenteId) {
+        this.atualizarAgente(this.agenteId, dto);
+      } else {
+        this.enviarDados(dto);
+      }
+    };
+
+    if (this.selectedFile) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        agenteData.fotoBase64 = reader.result as string;
+        proceed(agenteData);
+      };
+      reader.readAsDataURL(this.selectedFile);
+    } else {
+      proceed(agenteData);
+    }
+  }
+
+  // ===== Validações CPF =====
+  private cpfValidator() {
+    return (control: any) => {
+      const v = (control?.value || '').toString();
+      const digits = v.replace(/\D/g, '');
+      if (!digits) return { cpfInvalido: true };
+      return this.validarCPF(digits) ? null : { cpfInvalido: true };
+    };
+  }
+
+  private validarCPF(cpf: string): boolean {
+    const s = (cpf || '').replace(/\D/g, '');
+    if (s.length !== 11) return false;
+    if (/^(\d)\1{10}$/.test(s)) return false; // rejeita repetidos
+    const calc = (base: string, start: number) => {
+      let sum = 0;
+      for (let i = 0; i < base.length; i++) sum += parseInt(base[i], 10) * (start - i);
+      const mod = sum % 11;
+      return mod < 2 ? 0 : 11 - mod;
+    };
+    const d1 = calc(s.substring(0, 9), 10);
+    const d2 = calc(s.substring(0, 9) + String(d1), 11);
+    return s === s.substring(0, 9) + String(d1) + String(d2);
+  }
+
+  // ===== Validações Telefone =====
+  private telefoneValidator() {
+    return (control: any) => {
+      const v = (control?.value || '').toString();
+      const digits = v.replace(/\D/g, '');
+      if (!digits) return { telefoneInvalido: true };
+      return this.validarTelefone(digits) ? null : { telefoneInvalido: true };
+    };
+  }
+
+  private validarTelefone(digits: string): boolean {
+    // Aceita (DD + 8) ou (DD + 9) = 10 ou 11 dígitos
+    return /^\d{10,11}$/.test(digits);
+  }
+
+  private formatarTelefone(value: string): string {
+    const d = (value || '').replace(/\D/g, '').slice(0, 11);
+    if (d.length < 3) return d;
+    const ddd = d.substring(0, 2);
+    if (d.length <= 6) return `(${ddd}) ${d.substring(2)}`;
+    if (d.length === 10) return `(${ddd}) ${d.substring(2, 6)}-${d.substring(6)}`;
+    if (d.length >= 11) return `(${ddd}) ${d.substring(2, 7)}-${d.substring(7)}`;
+    return d;
   }
 
   private enviarDados(agenteData: AgenteVoluntarioDTO): void {
@@ -222,6 +312,56 @@ export class AgenteCadastroComponent implements OnInit {
     });
   }
 
+  private atualizarAgente(id: number, agenteData: AgenteVoluntarioDTO): void {
+    this.apiService.atualizarAgente(id, agenteData).subscribe({
+      next: () => {
+        this.loading = false;
+        this.mostrarSucesso('Dados do agente atualizados com sucesso!');
+        setTimeout(() => {
+          this.router.navigate(['/agentes']);
+        }, 1500);
+      },
+      error: (error) => {
+        this.loading = false;
+        console.error('Erro ao atualizar agente:', error);
+        this.mostrarErro('Erro ao atualizar agente. Tente novamente');
+      }
+    });
+  }
+
+  private carregarAgente(id: number): void {
+    this.apiService.buscarAgentePorId(id).subscribe({
+      next: (agente) => {
+        // Mapeia dados do agente para o formulário
+        const comarcasIds = (agente.comarcas || []).map(c => Number(c.id));
+        const areasIds = (agente.areasAtuacao || []).map(a => Number(a.id));
+        this.agenteForm.patchValue({
+          nomeCompleto: agente.nomeCompleto || agente.nome || '',
+          cpf: (agente.cpf || '').replace(/\D/g, ''),
+          telefone: this.formatarTelefone(agente.telefone || ''),
+          email: agente.email || '',
+          numeroCarteiraIdentidade: (agente as any).numeroCarteiraIdentidade || (agente as any).numeroCI || '',
+          dataExpedicaoCI: (agente as any).dataExpedicaoCI || '',
+          nacionalidade: (agente as any).nacionalidade || '',
+          naturalidade: (agente as any).naturalidade || '',
+          uf: (agente as any).uf || '',
+          dataNascimento: (agente as any).dataNascimento || '',
+          filiacaoPai: (agente as any).filiacaoPai || (agente as any).filiacao_pai || '',
+          filiacaoMae: (agente as any).filiacaoMae || (agente as any).filiacao_mae || '',
+          disponibilidade: agente.disponibilidade || '',
+          comarcasIds,
+          areasAtuacaoIds: areasIds
+        });
+        // Em modo edição, impedir alteração do CPF
+        this.agenteForm.get('cpf')?.disable();
+      },
+      error: (err) => {
+        console.error('Erro ao carregar agente:', err);
+        this.mostrarErro('Não foi possível carregar os dados do agente.');
+      }
+    });
+  }
+
   limparFormulario(): void {
     this.agenteForm.reset();
     this.agenteForm.patchValue({
@@ -247,12 +387,18 @@ export class AgenteCadastroComponent implements OnInit {
     this.successMessage = mensagem;
     this.showSuccess = true;
     this.showError = false;
+    setTimeout(() => {
+      if (this.showSuccess) this.showSuccess = false;
+    }, 10000);
   }
 
   private mostrarErro(mensagem: string): void {
     this.errorMessage = mensagem;
     this.showError = true;
     this.showSuccess = false;
+    setTimeout(() => {
+      if (this.showError) this.showError = false;
+    }, 10000);
   }
 
   private hideMessages(): void {
@@ -260,5 +406,3 @@ export class AgenteCadastroComponent implements OnInit {
     this.showError = false;
   }
 }
-
-

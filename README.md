@@ -110,6 +110,12 @@ chmod +x scripts/deploy.sh
 sudo ./scripts/deploy.sh
 ```
 
+### 2.1 Segurança das variáveis (.env)
+- O arquivo `.env` contém credenciais sensíveis e agora está ignorado pelo Git (`.gitignore`).
+- Caso você já tenha versionado `.env`, remova-o do repositório com `git rm --cached .env` e faça um novo commit.
+- Recomenda-se trocar imediatamente quaisquer segredos expostos (ex.: `KEYCLOAK_CLIENT_SECRET`, senhas do Oracle).
+- Os serviços do `docker-compose.yml` passaram a ler senhas/usuários via variáveis de ambiente (sem valores hardcoded).
+
 ### 3. Verificar Instalação
 ```bash
 # Verificar containers

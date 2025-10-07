@@ -1,0 +1,88 @@
+{
+  "info": {
+    "_postman_id": "0f6c2f24-3e32-4b8c-9a84-8a0c6b8dbe00",
+    "name": "Gestão de Agentes Voluntários",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Coleção básica para validar UC001–UC006"
+  },
+  "item": [
+    {
+      "name": "UC001 - Cadastrar Agente",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": { "raw": "{{baseUrl}}/api/agentes", "host": ["{{baseUrl}}"], "path": ["api","agentes"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nomeCompleto\": \"Agente Teste\",\n  \"cpf\": \"12345678901\",\n  \"telefone\": \"31999990000\",\n  \"email\": \"agente@teste.com\",\n  \"comarcasIds\": [1],\n  \"areasAtuacaoIds\": [1]\n}"
+        }
+      }
+    },
+    {
+      "name": "UC002 - Emitir Credencial",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": { "raw": "{{baseUrl}}/api/credenciais/emitir/{{agenteId}}", "host": ["{{baseUrl}}"], "path": ["api","credenciais","emitir","{{agenteId}}"] }
+      }
+    },
+    {
+      "name": "UC003 - Consulta Pública (QR)",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/public/verificar/{{credencialId}}", "host": ["{{baseUrl}}"], "path": ["public","verificar","{{credencialId}}"] }
+      }
+    },
+    {
+      "name": "UC005 - Cadastrar Auto (Rascunho)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": { "raw": "{{baseUrl}}/api/autos", "host": ["{{baseUrl}}"], "path": ["api","autos"] },
+        "body": { "mode": "raw", "raw": "{\n  \"nomeAutuado\": \"Fulano\",\n  \"cpfCnpjAutuado\": \"11122233344\",\n  \"enderecoAutuado\": \"Rua A, 123\",\n  \"contatoAutuado\": \"31999990001\",\n  \"comarca\": { \"id\": 1 },\n  \"baseLegal\": \"Art. X da Lei Y\",\n  \"dataInfracao\": \"2025-09-19\",\n  \"horaInfracao\": \"10:30:00\",\n  \"localInfracao\": \"Praça Central\",\n  \"descricaoConduta\": \"Descrição do fato\"\n}" }
+      }
+    },
+    {
+      "name": "UC005 - Registrar Auto",
+      "request": {
+        "method": "PATCH",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/autos/{{autoId}}/registrar", "host": ["{{baseUrl}}"], "path": ["api","autos","{{autoId}}","registrar"] }
+      }
+    },
+    {
+      "name": "UC006 - Cancelar Auto",
+      "request": {
+        "method": "PATCH",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" }, {"key":"Content-Type","value":"text/plain"} ],
+        "body": { "mode": "raw", "raw": "Cancelamento justificado por motivo X com detalhes Y..." },
+        "url": { "raw": "{{baseUrl}}/api/autos/{{autoId}}/cancelar", "host": ["{{baseUrl}}"], "path": ["api","autos","{{autoId}}","cancelar"] }
+      }
+    },
+    {
+      "name": "RN009 - Upload Anexo",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/autos/{{autoId}}/anexos", "host": ["{{baseUrl}}"], "path": ["api","autos","{{autoId}}","anexos"] },
+        "body": { "mode": "formdata", "formdata": [ {"key":"arquivo", "type":"file"}, {"key":"descricao", "value":"Documento comprobatório", "type":"text"} ] }
+      }
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "token", "value": "" },
+    { "key": "agenteId", "value": "1" },
+    { "key": "credencialId", "value": "1" },
+    { "key": "autoId", "value": "1" }
+  ]
+}
+

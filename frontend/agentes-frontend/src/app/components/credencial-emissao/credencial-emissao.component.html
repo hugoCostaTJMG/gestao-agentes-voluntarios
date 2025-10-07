@@ -1,1 +1,43 @@
-<p>credencial-emissao works!</p>
+<section class="credencial-emissao">
+  <div *ngIf="erro" class="alert alert-danger">{{ erro }}</div>
+
+  <div class="form-group">
+    <label for="agente-input">Selecione o agente (ATIVO):</label>
+    <div class="search-select" (click)="openDropdown()">
+      <input id="agente-input"
+             class="form-control"
+             type="text"
+             autocomplete="off"
+             [placeholder]="placeholder"
+             [(ngModel)]="search"
+             (focus)="openDropdown()"
+             (input)="onInput()"
+             (keydown)="onInputKeydown($event)"
+             [disabled]="loading" />
+
+      <div class="dropdown-menu show" *ngIf="dropdownOpen">
+        <button class="dropdown-item" type="button" [class.active]="highlightIndex === -1" (click)="clearSelection()" *ngIf="showClear">-- escolha --</button>
+        <button class="dropdown-item" type="button"
+                *ngFor="let a of agentesFiltrados; let i = index"
+                [class.active]="i === highlightIndex"
+                (click)="choose(a)">
+          {{ a.nomeCompleto }} ({{ formatarCPF(a.cpf) }})
+        </button>
+        <div class="dropdown-item disabled" *ngIf="agentesFiltrados.length === 0">Nenhum resultado</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-3 d-flex gap-2">
+    <app-button type="primary" label="Emitir Credencial" [disabled]="!selecionadoId || loading" (clicked)="emitir()"></app-button>
+    <app-button type="ghost" label="Recarregar" [disabled]="loading" (clicked)="carregarAgentesAtivos()"></app-button>
+  </div>
+
+  <div class="mt-4" *ngIf="ultimaCredencial">
+    <div class="alert alert-success">
+      Credencial emitida com sucesso para {{ ultimaCredencial?.nomeAgente }}.
+      <div>QR URL: {{ ultimaCredencial?.qrCodeUrl }}</div>
+    </div>
+    <app-button type="danger" label="Baixar PDF" (clicked)="baixarPDF()"></app-button>
+  </div>
+</section>

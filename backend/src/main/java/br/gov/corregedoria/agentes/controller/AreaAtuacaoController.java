@@ -33,7 +33,7 @@ public class AreaAtuacaoController {
         @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('uma_authorization')")
+    @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('COMARCA')")
     public ResponseEntity<List<AreaAtuacaoDTO>> listarAreasAtuacao() {
         List<AreaAtuacaoDTO> areas = areaAtuacaoRepository.findAll().stream()
                 .map(area -> new AreaAtuacaoDTO(area.getId(), area.getNomeAreaAtuacao()))
@@ -50,7 +50,7 @@ public class AreaAtuacaoController {
         @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('uma_authorization')")
+    @PreAuthorize("hasRole('CORREGEDORIA')")
     public ResponseEntity<AreaAtuacaoDTO> cadastrarAreaAtuacao(@Valid @RequestBody AreaAtuacaoDTO dto) {
         if (areaAtuacaoRepository.existsByNomeAreaAtuacao(dto.getNomeAreaAtuacao())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
@@ -71,11 +71,10 @@ public class AreaAtuacaoController {
         @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('CORREGEDORIA') or hasRole('COFIJ')")
+    @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('COMARCA')")
     public ResponseEntity<AreaAtuacaoDTO> buscarAreaAtuacaoPorId(@PathVariable Long id) {
         return areaAtuacaoRepository.findById(id)
                 .map(area -> ResponseEntity.ok(new AreaAtuacaoDTO(area.getId(), area.getNomeAreaAtuacao())))
                 .orElse(ResponseEntity.notFound().build());
     }
 }
-

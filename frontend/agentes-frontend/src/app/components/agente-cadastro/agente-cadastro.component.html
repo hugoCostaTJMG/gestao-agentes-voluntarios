@@ -4,15 +4,9 @@
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h5 class="mb-0">
-            <i class="fas fa-user-plus me-2"></i>
-            Cadastrar Agente Voluntário
+            <i class="fas" [ngClass]="isEditMode ? 'fa-user-edit' : 'fa-user-plus'"></i>
+            <span class="ms-2">{{ isEditMode ? 'Alterar Dados do Agente' : 'Cadastrar Agente Voluntário' }}</span>
           </h5>
-          <app-button
-            label="Voltar"
-            type="secondary"
-            iconLeft="fas fa-arrow-left"
-            (clicked)="voltar()"
-          ></app-button>
         </div>
         <div class="card-body">
           
@@ -21,7 +15,7 @@
             <!-- Dados Pessoais -->
             <div class="row mb-4">
               <div class="col-12">
-                <h6 class="text-primary border-bottom pb-2">
+                <h6 class=" border-bottom pb-2">
                   <i class="fas fa-user me-2"></i>
                   Dados Pessoais
                 </h6>
@@ -41,11 +35,11 @@
                 <label for="cpf" class="form-label">CPF *</label>
                 <input type="text" class="form-control" id="cpf" 
                        formControlName="cpf" placeholder="000.000.000-00" 
-                       mask="000.000.000-00">
+                       cpfMask>
                 <div class="invalid-feedback" 
                      *ngIf="agenteForm.get('cpf')?.invalid && agenteForm.get('cpf')?.touched">
                   <span *ngIf="agenteForm.get('cpf')?.errors?.['required']">CPF é obrigatório</span>
-                  <span *ngIf="agenteForm.get('cpf')?.errors?.['pattern']">CPF deve ter 11 dígitos</span>
+                  <span *ngIf="agenteForm.get('cpf')?.errors?.['cpfInvalido']">CPF inválido</span>
                 </div>
               </div>
 
@@ -74,11 +68,11 @@
               <div class="col-md-6 mb-3">
                 <label for="telefone" class="form-label">Telefone *</label>
                 <input type="text" class="form-control" id="telefone" 
-                       formControlName="telefone" placeholder="(00) 00000-0000"
-                       mask="(00) 00000-0000">
+                       formControlName="telefone" placeholder="(00) 00000-0000" phoneMask>
                 <div class="invalid-feedback" 
                      *ngIf="agenteForm.get('telefone')?.invalid && agenteForm.get('telefone')?.touched">
-                  Telefone é obrigatório
+                  <span *ngIf="agenteForm.get('telefone')?.errors?.['required']">Telefone é obrigatório</span>
+                  <span *ngIf="agenteForm.get('telefone')?.errors?.['telefoneInvalido']">Telefone inválido</span>
                 </div>
               </div>
               
@@ -97,16 +91,16 @@
             <!-- Documentação -->
             <div class="row mb-4">
               <div class="col-12">
-                <h6 class="text-primary border-bottom pb-2">
+                <h6 class=" border-bottom pb-2">
                   <i class="fas fa-id-card me-2"></i>
                   Documentação
                 </h6>
               </div>
 
               <div class="col-md-4 mb-3">
-                <label for="numeroCarteiraIdentidade" class="form-label">Número Carteira de Identidade</label>
+                <label for="numeroCarteiraIdentidade" class="form-label">Número Carteira de Identidade (RG)</label>
                 <input type="text" class="form-control" id="numeroCarteiraIdentidade" 
-                       formControlName="numeroCarteiraIdentidade" placeholder="Ex: MG-12.345.678">
+                       formControlName="numeroCarteiraIdentidade" placeholder="00.000.000-0" rgMask>
               </div>
 
               <div class="col-md-4 mb-3">
@@ -135,7 +129,7 @@
             <!-- Filiação -->
             <div class="row mb-4">
               <div class="col-12">
-                <h6 class="text-primary border-bottom pb-2">
+                <h6 class=" border-bottom pb-2">
                   <i class="fas fa-users me-2"></i>
                   Filiação
                 </h6>
@@ -157,7 +151,7 @@
             <!-- Atuação -->
             <div class="row mb-4">
               <div class="col-12">
-                <h6 class="text-primary border-bottom pb-2">
+                <h6 class=" border-bottom pb-2">
                   <i class="fas fa-map-marker-alt me-2"></i>
                   Área de Atuação
                 </h6>
@@ -223,11 +217,11 @@
                     (clicked)="limparFormulario()"
                   ></app-button>
                   <app-button
-                    [label]="loading ? 'Salvando...' : 'Cadastrar Agente'"
+                    [label]="loading ? (isEditMode ? 'Salvando...' : 'Salvando...') : (isEditMode ? 'Atualizar Agente' : 'Cadastrar Agente')"
                     type="primary"
                     buttonType="submit"
-                    [disabled]="agenteForm.invalid || loading"
-                    [iconLeft]="loading ? 'fas fa-spinner fa-spin' : 'fas fa-save'"
+                    [disabled]="loading"
+                    [iconLeft]="loading ? 'fas fa-spinner fa-spin' : (isEditMode ? 'fas fa-save' : 'fas fa-save')"
                   ></app-button>
                 </div>
               </div>
@@ -238,4 +232,3 @@
     </div>
   </div>
 </div>
-

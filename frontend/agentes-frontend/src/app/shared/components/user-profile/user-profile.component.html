@@ -1,0 +1,372 @@
+<section
+  class="user-profile"
+  [ngClass]="['size-' + size, fluid ? 'is-fluid' : '', readonly ? 'is-readonly' : '', (skeleton || loading) ? 'is-skeleton' : '']"
+  role="form"
+  [attr.aria-label]="'Perfil do usuário'"
+>
+  <header class="user-profile__header" role="group" [attr.aria-describedby]="idPrefix + '-subtitle'">
+    <nav class="user-profile__breadcrumb" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="#" tabindex="-1">Início</a></li>
+        <li><a href="#" tabindex="-1">Configurações</a></li>
+        <li aria-current="page">Meu perfil</li>
+      </ol>
+    </nav>
+    <h1 #titleRef tabindex="-1" class="user-profile__title">Meu perfil</h1>
+    <p id="{{ idPrefix }}-subtitle" class="user-profile__subtitle">Gerencie seus dados pessoais e preferências</p>
+    <p class="user-profile__updated" *ngIf="lastUpdatedLabel">
+      <i class="fa-regular fa-clock" aria-hidden="true"></i>
+      Última atualização em: {{ lastUpdatedLabel }}
+    </p>
+  </header>
+
+  <div *ngIf="errorMsg" class="user-profile__feedback user-profile__feedback--error" role="alert" aria-live="assertive">
+    <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+    <span>{{ errorMsg }}</span>
+  </div>
+
+  <div *ngIf="successMsg" class="user-profile__feedback user-profile__feedback--success" role="status" aria-live="polite">
+    <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+    <span>{{ successMsg }}</span>
+  </div>
+
+  <div *ngIf="passwordMsg" class="user-profile__feedback user-profile__feedback--info" role="status" aria-live="polite">
+    <i class="fa-solid fa-lock" aria-hidden="true"></i>
+    <span>{{ passwordMsg }}</span>
+  </div>
+
+  <ng-container *ngIf="skeleton || loading; else profileContent">
+    <div class="user-profile__skeleton" aria-hidden="true">
+      <div class="user-profile__grid">
+        <div class="user-profile__column user-profile__column--left">
+          <div class="card card--summary">
+            <div class="skeleton avatar"></div>
+            <div class="skeleton skeleton-text w-60"></div>
+            <div class="skeleton skeleton-text w-80"></div>
+            <div class="skeleton skeleton-text w-40"></div>
+            <div class="skeleton skeleton-button"></div>
+          </div>
+        </div>
+        <div class="user-profile__column user-profile__column--right">
+          <div class="card card--form">
+            <div class="skeleton skeleton-text w-50"></div>
+            <div class="skeleton skeleton-input"></div>
+            <div class="skeleton skeleton-input"></div>
+            <div class="skeleton skeleton-input"></div>
+          </div>
+          <div class="card card--form">
+            <div class="skeleton skeleton-text w-40"></div>
+            <div class="skeleton skeleton-input"></div>
+          </div>
+          <div class="card card--form">
+            <div class="skeleton skeleton-text w-50"></div>
+            <div class="skeleton skeleton-input"></div>
+            <div class="skeleton skeleton-input"></div>
+            <div class="skeleton skeleton-input"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-template #profileContent>
+    <div class="user-profile__grid">
+      <div class="user-profile__column user-profile__column--left">
+        <article class="card card--summary" role="group" [attr.aria-labelledby]="idPrefix + '-summary-title'">
+          <h2 id="{{ idPrefix }}-summary-title" class="card__title">Resumo</h2>
+          <figure class="avatar" role="img" [attr.aria-label]="profileForm.get('name')?.value || 'Avatar do usuário'">
+            <img *ngIf="avatarUrl; else avatarFallback" [src]="avatarUrl" [alt]="profileForm.get('name')?.value || 'Avatar do usuário'" />
+            <ng-template #avatarFallback>
+              <div class="avatar__fallback" aria-hidden="true">
+                <i class="fa-solid fa-user"></i>
+              </div>
+            </ng-template>
+          </figure>
+
+          <div class="avatar__actions">
+            <input
+              #fileInput
+              type="file"
+              class="visually-hidden"
+              accept="image/png,image/jpeg"
+              (change)="onChangeAvatar($event)"
+              [disabled]="readonly"
+            />
+            <button
+              #changePhotoBtn
+              type="button"
+              class="btn btn--secondary"
+              (click)="openAvatarDialog()"
+              [disabled]="readonly || avatarLoading"
+              [attr.aria-busy]="avatarLoading"
+            >
+              <span *ngIf="avatarLoading" class="spinner" aria-live="polite"></span>
+              <i class="fa-solid fa-camera" aria-hidden="true"></i>
+              Alterar foto
+            </button>
+            <button type="button" class="btn btn--ghost" (click)="removeAvatar()" [disabled]="readonly || !avatarUrl || avatarLoading">
+              <i class="fa-solid fa-trash" aria-hidden="true"></i>
+              Remover
+            </button>
+          </div>
+
+          <dl class="summary-list">
+            <div>
+              <dt>Nome</dt>
+              <dd>{{ snapshot?.name || '-' }}</dd>
+            </div>
+            <div>
+              <dt>E-mail</dt>
+              <dd>{{ snapshot?.email || '-' }}</dd>
+            </div>
+            <div>
+              <dt>Papel</dt>
+              <dd>{{ snapshot?.role || '-' }}</dd>
+            </div>
+          </dl>
+        </article>
+      </div>
+
+      <div class="user-profile__column user-profile__column--right">
+        <form
+          class="card card--form"
+          role="group"
+          [attr.aria-labelledby]="idPrefix + '-profile-title'"
+          [formGroup]="profileForm"
+          novalidate
+        >
+          <h2 id="{{ idPrefix }}-profile-title" class="card__title">Dados pessoais</h2>
+
+          <div class="field">
+            <label class="field-label" [attr.for]="idPrefix + '-name'">Nome completo *</label>
+            <input
+              [id]="idPrefix + '-name'"
+              type="text"
+              formControlName="name"
+              [attr.aria-invalid]="profileForm.get('name')?.invalid && profileForm.get('name')?.touched"
+              [attr.aria-describedby]="idPrefix + '-name-msg'"
+              [readonly]="readonly"
+            />
+            <span
+              *ngIf="profileForm.get('name')?.invalid && profileForm.get('name')?.touched"
+              [id]="idPrefix + '-name-msg'"
+              class="field-msg field-msg--error"
+              aria-live="assertive"
+            >
+              O nome deve conter ao menos 3 caracteres.
+            </span>
+          </div>
+
+          <div class="field">
+            <label class="field-label" [attr.for]="idPrefix + '-email'">E-mail</label>
+            <input [id]="idPrefix + '-email'" type="email" formControlName="email" readonly />
+          </div>
+
+          <div class="field">
+            <label class="field-label" [attr.for]="idPrefix + '-phone'">Telefone</label>
+            <input
+              [id]="idPrefix + '-phone'"
+              type="text"
+              formControlName="phone"
+              placeholder="Ex.: +55 11 90000-0000"
+              [attr.aria-invalid]="profileForm.get('phone')?.invalid && profileForm.get('phone')?.touched"
+              [attr.aria-describedby]="idPrefix + '-phone-msg'"
+              [readonly]="readonly"
+            />
+            <span
+              *ngIf="profileForm.get('phone')?.invalid && profileForm.get('phone')?.touched"
+              [id]="idPrefix + '-phone-msg'"
+              class="field-msg field-msg--error"
+              aria-live="assertive"
+            >
+              Informe um telefone válido.
+            </span>
+          </div>
+
+          <div class="field">
+            <label class="field-label" [attr.for]="idPrefix + '-unit'">Comarca/Unidade</label>
+            <input [id]="idPrefix + '-unit'" type="text" formControlName="unit" [readonly]="readonly" />
+          </div>
+
+          <div class="field">
+            <label class="field-label" [attr.for]="idPrefix + '-availability'">Disponibilidade</label>
+            <textarea
+              [id]="idPrefix + '-availability'"
+              formControlName="availability"
+              rows="3"
+              [readonly]="readonly"
+            ></textarea>
+          </div>
+        </form>
+
+        <form
+          class="card card--form"
+          role="group"
+          [attr.aria-labelledby]="idPrefix + '-prefs-title'"
+          [formGroup]="preferencesForm"
+          novalidate
+        >
+          <h2 id="{{ idPrefix }}-prefs-title" class="card__title">Preferências</h2>
+
+          <fieldset class="field" role="group" [attr.aria-labelledby]="idPrefix + '-theme-label'">
+            <legend id="{{ idPrefix }}-theme-label" class="field-label">Tema</legend>
+            <div class="radio-group">
+              <label [attr.for]="idPrefix + '-theme-light'" class="radio">
+                <input
+                  type="radio"
+                  [id]="idPrefix + '-theme-light'"
+                  value="light"
+                  formControlName="theme"
+                  [disabled]="readonly"
+                />
+                Claro
+              </label>
+              <label [attr.for]="idPrefix + '-theme-dark'" class="radio">
+                <input
+                  type="radio"
+                  [id]="idPrefix + '-theme-dark'"
+                  value="dark"
+                  formControlName="theme"
+                  [disabled]="readonly"
+                />
+                Escuro
+              </label>
+              <label [attr.for]="idPrefix + '-theme-system'" class="radio">
+                <input
+                  type="radio"
+                  [id]="idPrefix + '-theme-system'"
+                  value="system"
+                  formControlName="theme"
+                  [disabled]="readonly"
+                />
+                Sistema
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="field checkbox-field">
+            <label class="checkbox" [attr.for]="idPrefix + '-email-notify'">
+              <input
+                type="checkbox"
+                [id]="idPrefix + '-email-notify'"
+                formControlName="emailNotifications"
+                [disabled]="readonly"
+              />
+              Receber notificações por e-mail
+            </label>
+          </div>
+        </form>
+
+        <form
+          class="card card--form"
+          role="group"
+          [attr.aria-labelledby]="idPrefix + '-password-title'"
+          [formGroup]="passwordForm"
+          novalidate
+        >
+          <h2 id="{{ idPrefix }}-password-title" class="card__title">Alterar senha</h2>
+
+          <div class="field">
+            <label class="field-label" [attr.for]="idPrefix + '-current-password'">Senha atual *</label>
+            <input
+              [id]="idPrefix + '-current-password'"
+              type="password"
+              formControlName="currentPassword"
+              autocomplete="current-password"
+              [attr.aria-invalid]="passwordForm.get('currentPassword')?.invalid && passwordForm.get('currentPassword')?.touched"
+              [attr.aria-describedby]="idPrefix + '-current-password-msg'"
+              [readonly]="readonly"
+            />
+            <span
+              *ngIf="passwordForm.get('currentPassword')?.invalid && passwordForm.get('currentPassword')?.touched"
+              [id]="idPrefix + '-current-password-msg'"
+              class="field-msg field-msg--error"
+              aria-live="assertive"
+            >
+              Informe sua senha atual.
+            </span>
+          </div>
+
+          <div class="field">
+            <label class="field-label" [attr.for]="idPrefix + '-new-password'">Nova senha *</label>
+            <input
+              [id]="idPrefix + '-new-password'"
+              type="password"
+              formControlName="newPassword"
+              autocomplete="new-password"
+              [attr.aria-invalid]="passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched"
+              [attr.aria-describedby]="idPrefix + '-new-password-msg'"
+              [readonly]="readonly"
+            />
+            <span class="password-strength" aria-live="polite">
+              Força: {{ passwordStrength }}
+            </span>
+            <span
+              *ngIf="passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched"
+              [id]="idPrefix + '-new-password-msg'"
+              class="field-msg field-msg--error"
+              aria-live="assertive"
+            >
+              A senha deve ter ao menos 8 caracteres, uma letra maiúscula e um número.
+            </span>
+          </div>
+
+          <div class="field">
+            <label class="field-label" [attr.for]="idPrefix + '-confirm-password'">Confirmar senha *</label>
+            <input
+              [id]="idPrefix + '-confirm-password'"
+              type="password"
+              formControlName="confirmPassword"
+              autocomplete="new-password"
+              [attr.aria-invalid]="passwordForm.get('confirmPassword')?.invalid && passwordForm.get('confirmPassword')?.touched"
+              [attr.aria-describedby]="idPrefix + '-confirm-password-msg'"
+              [readonly]="readonly"
+            />
+            <span
+              *ngIf="passwordForm.get('confirmPassword')?.invalid && passwordForm.get('confirmPassword')?.touched"
+              [id]="idPrefix + '-confirm-password-msg'"
+              class="field-msg field-msg--error"
+              aria-live="assertive"
+            >
+              {{
+                passwordForm.get('confirmPassword')?.hasError('required')
+                  ? 'Confirme a nova senha.'
+                  : 'As senhas não conferem.'
+              }}
+            </span>
+          </div>
+
+          <div class="card__actions">
+            <button
+              type="button"
+              class="btn btn--primary"
+              (click)="onChangePassword()"
+              [disabled]="readonly || passwordSaving || passwordForm.invalid"
+              [attr.aria-busy]="passwordSaving"
+            >
+              <span *ngIf="passwordSaving" class="spinner" aria-live="polite"></span>
+              Atualizar senha
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </ng-template>
+
+  <footer class="user-profile__footer">
+    <button
+      type="button"
+      class="btn btn--primary"
+      (click)="onSave()"
+      [disabled]="readonly || saving || profileForm.invalid || preferencesForm.invalid"
+      [attr.aria-busy]="saving"
+    >
+      <span *ngIf="saving" class="spinner" aria-live="polite"></span>
+      Salvar
+    </button>
+    <button type="button" class="btn btn--ghost" (click)="onCancel()">Cancelar</button>
+    <button type="button" class="btn btn--secondary" (click)="onRevert()" [disabled]="readonly">
+      Reverter alterações
+    </button>
+  </footer>
+</section>

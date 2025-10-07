@@ -1,4 +1,4 @@
-<nav id="app-sidebar" class="app-sidebar d-flex flex-column p-3" *ngIf="isLoggedIn" role="navigation" aria-label="Menu lateral de navegação">
+<nav id="app-sidebar" class="app-sidebar d-flex flex-column p-3" role="navigation" aria-label="Menu lateral de navegação" [class.d-lg-none]="!isLoggedIn">
 
   <h2 class="visually-hidden">Navegação principal</h2>
 
@@ -9,22 +9,40 @@
   </div>
 
   <!-- Links de navegação -->
-  <ul class="nav flex-column">
-    <li class="nav-item" *ngFor="let item of visibleMenuItems">
-      <a
-        class="nav-link"
-        [routerLink]="item.link"
-        #rla="routerLinkActive"
-        routerLinkActive="active"
-        [attr.aria-current]="rla.isActive ? 'page' : null"
-        [attr.aria-label]="item.label"
-        [routerLinkActiveOptions]="item.exact 
-          ? { paths: 'exact', queryParams: 'subset', matrixParams: 'subset', fragment: 'ignored' }
-          : { paths: 'subset', queryParams: 'subset', matrixParams: 'subset', fragment: 'ignored' }"
-        (click)="closeSidebar()"
-      >
-        <i class="{{ item.icon }} me-2"></i> {{ item.label }}
-      </a>
-    </li>
-  </ul>
+  <ng-container *ngIf="isLoggedIn; else publicMenu">
+    <ul class="nav flex-column">
+      <li class="nav-item" *ngFor="let item of visibleMenuItems">
+        <a
+          class="nav-link"
+          [routerLink]="item.link"
+          #rla="routerLinkActive"
+          routerLinkActive="active"
+          [attr.aria-current]="rla.isActive ? 'page' : null"
+          [attr.aria-label]="item.label"
+          [routerLinkActiveOptions]="item.exact 
+            ? { paths: 'exact', queryParams: 'subset', matrixParams: 'subset', fragment: 'ignored' }
+            : { paths: 'subset', queryParams: 'subset', matrixParams: 'subset', fragment: 'ignored' }"
+          (click)="closeSidebar()"
+        >
+          <i class="{{ item.icon }} me-2"></i> {{ item.label }}
+        </a>
+      </li>
+    </ul>
+  </ng-container>
+
+  <!-- Menu público (não logado) - ordem: Tela inicial, Consulta Pública -->
+  <ng-template #publicMenu>
+    <ul class="nav flex-column">
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/login" (click)="closeSidebar()" aria-label="Tela inicial">
+          <i class="fas fa-home me-2"></i> Tela inicial
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/consulta-publica" (click)="closeSidebar()" aria-label="Consulta Pública">
+          <i class="fas fa-search me-2"></i> Consulta Pública
+        </a>
+      </li>
+    </ul>
+  </ng-template>
 </nav>

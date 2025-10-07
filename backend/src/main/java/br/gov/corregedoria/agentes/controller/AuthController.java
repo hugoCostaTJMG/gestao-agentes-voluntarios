@@ -6,6 +6,7 @@ import br.gov.corregedoria.agentes.repository.AgenteVoluntarioRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import br.gov.corregedoria.agentes.util.DocumentoUtil;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -47,10 +48,12 @@ public class AuthController {
         dto.setNome(name != null ? name : "");
         dto.setEmail(getStringClaim(jwt, "email", ""));
 
-        // extrai roles para determinar o perfil
+        // extrai roles para determinar o perfil funcional
         Set<String> roles = extractRoles(jwt);
-        if (roles.contains("ADMIN")) {
-            dto.setPerfil("ADMIN");
+        if (roles.contains("CORREGEDORIA")) {
+            dto.setPerfil("CORREGEDORIA");
+        } else if (roles.contains("COMARCA")) {
+            dto.setPerfil("COMARCA");
         } else if (roles.contains("AGENTE")) {
             dto.setPerfil("AGENTE");
         } else {
@@ -63,14 +66,15 @@ public class AuthController {
             // fallback para possíveis mapeamentos customizados
             cpf = getStringClaim(jwt, "documento");
         }
-        dto.setCpf(cpf);
+        String cpfClean = DocumentoUtil.cleanDigits(cpf);
+        dto.setCpf(cpfClean);
 
         // Se perfil AGENTE, valida existência no banco por CPF
         if ("AGENTE".equalsIgnoreCase(dto.getPerfil())) {
-            if (cpf == null || cpf.isBlank()) {
+            if (cpfClean == null || cpfClean.isBlank()) {
                 return ResponseEntity.status(404).build();
             }
-            return agenteRepository.findByCpf(cpf)
+            return agenteRepository.findByCpf(cpfClean)
                     .map(agente -> {
                         fillFromAgente(dto, agente);
                         return ResponseEntity.ok(dto);

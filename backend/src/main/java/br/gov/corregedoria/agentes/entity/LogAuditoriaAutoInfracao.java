@@ -48,7 +48,8 @@ public class LogAuditoriaAutoInfracao {
     @Column(name = "endereco_ip", length = 100)
     private String enderecoIp;
     
-    @Column(name = "detalhes", columnDefinition = "TEXT")
+    @Lob
+    @Column(name = "detalhes")
     private String detalhes;
     
     @Size(max = 500, message = "Justificativa deve ter no máximo 500 caracteres")
@@ -228,4 +229,3 @@ public class LogAuditoriaAutoInfracao {
         this.mensagemErro = mensagemErro;
     }
 }
-

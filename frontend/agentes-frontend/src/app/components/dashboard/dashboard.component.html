@@ -48,7 +48,7 @@
     <section class="panel panel--status">
       <header class="panel__header">
         <i class="fas fa-chart-pie"></i>
-        <span>Status dos Agentes</span>
+        <span>{{ statusPanelTitle }}</span>
       </header>
       <div class="status" *ngIf="statusSummary.length; else emptyStatus">
         <div class="status__item" *ngFor="let status of statusSummary">

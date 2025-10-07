@@ -8,7 +8,7 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./components/dashboard/dashboard.component').then(m => m.DashboardComponent),
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['ADMIN', 'AGENTE'] }
+    data: { roles: ['CORREGEDORIA', 'COMARCA', 'AGENTE'] } // dashboard já tem cabeçalho próprio
   },
   {
     path: 'login',
@@ -23,67 +23,88 @@ export const routes: Routes = [
     data: { roles: ['AGENTE'] }
   },
   {
-    path: 'carteirinha-agemtes',
+    path: 'carteirinha-agentes',
     loadComponent: () =>
-      import('./components/carteirinha/carteirinha.component').then(m => m.CarteirinhaComponent),
+      import('./components/carteirinha-agentes/carteirinha-agentes.component').then(m => m.CarteirinhaAgentesComponent),
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['AGENTE'] }
+    data: { roles: ['CORREGEDORIA'], title: 'Impressão de Carteirinhas', icon: 'fas fa-id-card', showBack: false }
   },
   {
     path: 'carteirinhas/:id',
     loadComponent: () =>
       import('./components/impressao-carteirinha/impressao-carteirinha.component').then(m => m.ImpressaoCarteirinhaComponent),
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['ADMIN'] }
+    data: { roles: ['CORREGEDORIA'] }
   },
   {
     path: 'agentes',
     loadComponent: () =>
       import('./components/painel-agentes/painel-agentes.component').then(m => m.PainelAgentesComponent),
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['ADMIN'] }
+    data: { roles: ['CORREGEDORIA', 'COMARCA'], title: 'Painel de Agentes', icon: 'fas fa-users' }
   },
   {
     path: 'agentes/cadastro',
     loadComponent: () =>
       import('./components/agente-cadastro/agente-cadastro.component').then(m => m.AgenteCadastroComponent),
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['ADMIN'] }
+    data: { roles: ['CORREGEDORIA', 'COMARCA'], title: 'Cadastro de Agente', icon: 'fas fa-user-plus' }
+  },
+  {
+    path: 'agentes/:id/editar',
+    loadComponent: () =>
+      import('./components/agente-cadastro/agente-cadastro.component').then(m => m.AgenteCadastroComponent),
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['CORREGEDORIA'], title: 'Editar Agente', icon: 'fas fa-user-edit' }
   },
   {
     path: 'credenciais',
     loadComponent: () =>
       import('./components/credencial-emissao/credencial-emissao.component').then(m => m.CredencialEmissaoComponent),
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['ADMIN'] }
+    data: { roles: ['CORREGEDORIA'], title: 'Emissão de Credencial', icon: 'fas fa-id-card' }
   },
   {
-    path: 'autos',
+    path: 'situacao-cadastral',
     loadComponent: () =>
-      import('./components/auto-infracao-lista/auto-infracao-lista.component').then(m => m.AutoInfracaoListaComponent),
+      import('./components/situacao-cadastral/situacao-cadastral.component').then(m => m.SituacaoCadastralComponent),
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['ADMIN'] }
+    data: { roles: ['CORREGEDORIA'], title: 'Atualização da Situação Cadastral', icon: 'fas fa-user-check', showBack: false }
   },
-  {
-    path: 'autos/cadastro',
-    loadComponent: () =>
-      import('./components/auto-infracao-cadastro/auto-infracao-cadastro.component').then(m => m.AutoInfracaoCadastroComponent),
-    canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['ADMIN'] }
-  },
+  // {
+  //   path: 'autos',
+  //   loadComponent: () =>
+  //     import('./components/auto-infracao-lista/auto-infracao-lista.component').then(m => m.AutoInfracaoListaComponent),
+  //   canActivate: [AuthGuard, RoleGuard],
+  //   data: { roles: ['ADMIN'], title: 'Autos de Infração', icon: 'fas fa-file-alt' }
+  // },
+  // {
+  //   path: 'autos/cadastro',
+  //   loadComponent: () =>
+  //     import('./components/auto-infracao-cadastro/auto-infracao-cadastro.component').then(m => m.AutoInfracaoCadastroComponent),
+  //   canActivate: [AuthGuard, RoleGuard],
+  //   data: { roles: ['ADMIN'], title: 'Novo Auto de Infração', icon: 'fas fa-file-alt' }
+  // },
   {
     path: 'autos/:id',
     loadComponent: () =>
       import('./components/auto-infracao-detalhe/auto-infracao-detalhe.component').then(m => m.AutoInfracaoDetalheComponent),
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['ADMIN'] }
+    data: { roles: ['CORREGEDORIA', 'AGENTE'], title: 'Detalhe do Auto de Infração', icon: 'fas fa-file-alt' }
+  },
+  {
+    path: 'public/verificar/:id',
+    loadComponent: () =>
+      import('./components/consulta-publica/consulta-publica.component').then(m => m.ConsultaPublicaComponent),
+    // pública
+    data: { title: 'Consulta Pública', icon: 'fas fa-search', showBack: false }
   },
   {
     path: 'consulta-publica',
     loadComponent: () =>
       import('./components/consulta-publica/consulta-publica.component').then(m => m.ConsultaPublicaComponent),
-    canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['ADMIN', 'AGENTE'] }
+    // Página pública – sem guards
+    data: { title: 'Consulta Pública', icon: 'fas fa-search', showBack: false }
   },
   { path: '**', redirectTo: '' }
 ];

@@ -206,7 +206,7 @@
 @media (max-width: 768px) {
   .dashboard {
     &__header {
-      flex-direction: column;
+      flex-direction: row;
       align-items: flex-start;
       gap: 1rem;
     }

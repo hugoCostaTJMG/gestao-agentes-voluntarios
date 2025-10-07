@@ -1,0 +1,27 @@
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.page-header__title {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+
+.page-header__title i {
+  color: var(--primary-color);
+  font-size: 1.25rem;
+}
+
+.page-header__title h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .page-header__title h1 { font-size: 1.25rem; }
+}

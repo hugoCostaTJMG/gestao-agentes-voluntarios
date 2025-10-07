@@ -3,6 +3,7 @@ package br.gov.corregedoria.agentes.service;
 import br.gov.corregedoria.agentes.entity.*;
 import br.gov.corregedoria.agentes.repository.*;
 import br.gov.corregedoria.agentes.util.AuditoriaUtil;
+import br.gov.corregedoria.agentes.util.DocumentoUtil;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,9 @@ public class AutoInfracaoService {
                                   String usuarioLogado) {
         AgenteVoluntario agente = agenteRepository.findById(agenteId)
                 .orElseThrow(() -> new EntityNotFoundException("Agente não encontrado: " + agenteId));
+
+        // Sanitiza e valida CPF/CNPJ e CPF de testemunha (se informado)
+        sanitizeAndValidateDocumentos(auto);
         auto.setAgente(agente);
         auto.setNomeAgente(agente.getNomeCompleto());
         auto.setMatriculaAgente(usuarioLogado); // assume login é a matrícula
@@ -64,6 +68,8 @@ public class AutoInfracaoService {
                                   String perfilUsuario,
                                   String usuarioLogado) {
         AutoInfracao existente = obterParaEdicao(id, agenteId, perfilUsuario);
+
+        sanitizeAndValidateDocumentos(dadosAtualizados);
 
         existente.setNomeAutuado(dadosAtualizados.getNomeAutuado());
         existente.setCpfCnpjAutuado(dadosAtualizados.getCpfCnpjAutuado());
@@ -88,6 +94,34 @@ public class AutoInfracaoService {
         return existente;
     }
 
+    private void sanitizeAndValidateDocumentos(AutoInfracao auto) {
+        // CPF/CNPJ autuado obrigatório
+        String doc = DocumentoUtil.cleanDigits(auto.getCpfCnpjAutuado());
+        if (doc.length() == 11) {
+            if (!DocumentoUtil.isValidCPF(doc)) {
+                throw new IllegalArgumentException("CPF do autuado inválido");
+            }
+        } else if (doc.length() == 14) {
+            if (!DocumentoUtil.isValidCNPJ(doc)) {
+                throw new IllegalArgumentException("CNPJ do autuado inválido");
+            }
+        } else {
+            throw new IllegalArgumentException("Documento do autuado deve ser CPF (11) ou CNPJ (14) válido");
+        }
+        auto.setCpfCnpjAutuado(doc);
+
+        // CPF testemunha opcional
+        if (auto.getCpfTestemunha() != null && !auto.getCpfTestemunha().isBlank()) {
+            String cpfT = DocumentoUtil.cleanDigits(auto.getCpfTestemunha());
+            if (!cpfT.isBlank()) {
+                if (cpfT.length() != 11 || !DocumentoUtil.isValidCPF(cpfT)) {
+                    throw new IllegalArgumentException("CPF da testemunha inválido");
+                }
+                auto.setCpfTestemunha(cpfT);
+            }
+        }
+    }
+
     /**
      * Cancela um auto de infração.
      * RN013 - Justificativa obrigatória. RN014 - Status final.
@@ -100,6 +134,33 @@ public class AutoInfracaoService {
         auto = autoRepository.save(auto);
         logRepository.save(LogAuditoriaAutoInfracao.criarLogCancelamento(id, usuarioLogado, perfilUsuario, null, justificativa));
         auditoriaUtil.registrarLog(usuarioLogado, "CANCELAMENTO_AUTO", "Auto cancelado: " + id);
+        return auto;
+    }
+
+    /**
+     * Registra um auto de infração (status RASCUNHO -> REGISTRADO) e gera número único.
+     * RN010 - Imutabilidade do Auto Registrado
+     */
+    public AutoInfracao registrar(Long id, String usuarioLogado, String perfilUsuario) {
+        AutoInfracao auto = autoRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Auto não encontrado: " + id));
+
+        if (auto.getStatus() != StatusAutoInfracao.RASCUNHO) {
+            throw new IllegalStateException("Apenas autos em rascunho podem ser registrados");
+        }
+
+        // Muda status para REGISTRADO
+        auto.registrar();
+
+        // Gera número único do auto (padrão: AI-YYYYMMDD-ID)
+        if (auto.getNumeroAuto() == null || auto.getNumeroAuto().isBlank()) {
+            String data = java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.BASIC_ISO_DATE);
+            auto.setNumeroAuto("AI-" + data + "-" + auto.getId());
+        }
+
+        auto = autoRepository.save(auto);
+        logRepository.save(LogAuditoriaAutoInfracao.criarLogEdicao(id, usuarioLogado, perfilUsuario, null, "REGISTRO"));
+        auditoriaUtil.registrarLog(usuarioLogado, "REGISTRO_AUTO", "Auto registrado: " + id + " numero=" + auto.getNumeroAuto());
         return auto;
     }
 
@@ -152,15 +213,14 @@ public class AutoInfracaoService {
 
         // RN011 e RN012
         if (auto.getStatus() == StatusAutoInfracao.RASCUNHO) {
-            if (!auto.getAgente().getId().equals(agenteId)) {
+            if (agenteId == null || auto.getAgente() == null || auto.getAgente().getId() == null || !auto.getAgente().getId().equals(agenteId)) {
                 throw new IllegalStateException("Acesso negado ao rascunho");
             }
         } else {
-            if (!"SUPERVISOR".equals(perfilUsuario) && !"ADMIN".equals(perfilUsuario)) {
-                throw new IllegalStateException("Somente supervisor pode editar este auto");
+            if (!"CORREGEDORIA".equalsIgnoreCase(perfilUsuario)) {
+                throw new IllegalStateException("Somente Corregedoria pode editar este auto neste status");
             }
         }
         return auto;
     }
 }
-

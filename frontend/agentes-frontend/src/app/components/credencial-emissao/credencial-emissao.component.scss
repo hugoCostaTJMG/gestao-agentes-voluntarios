@@ -1,0 +1,30 @@
+/* Searchable select (combobox style) */
+.search-select {
+  position: relative;
+}
+
+.search-select .dropdown-menu {
+  display: block;
+  width: 100%;
+  max-height: 240px;
+  overflow: auto;
+  margin-top: 2px;
+}
+
+.search-select .dropdown-item { color: inherit; }
+.search-select .dropdown-item.active,
+.search-select .dropdown-item:active,
+.search-select .dropdown-item:focus {
+  background-color: #f2f2f2 !important;
+  color: inherit !important;
+}
+.search-select .dropdown-item:hover {
+  background-color: #f7f7f7 !important;
+  color: inherit !important;
+}
+
+
+.search-select .dropdown-item.disabled {
+  opacity: .6;
+  cursor: default;
+}

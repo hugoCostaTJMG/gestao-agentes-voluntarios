@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { AgenteVoluntario } from '../../models/interfaces';
 import { AlertComponent } from '../../shared/components/alert/alert.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-painel-agentes',
@@ -33,7 +34,7 @@ export class PainelAgentesComponent implements OnInit {
   alertType: 'primary' | 'secondary' | 'danger' | 'ghost' = 'primary';
   showAlert = false;
 
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService, private router: Router) {}
 
   ngOnInit(): void {
     this.carregarAgentes();
@@ -65,14 +66,20 @@ export class PainelAgentesComponent implements OnInit {
   }
 
   aplicarFiltros(): void {
+    const norm = (s: string = '') => s
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
+
     this.agentesFiltrados = this.agentes.filter(agente => {
-      const nomeMatch = !this.filtros.nome ||
-        agente.nomeCompleto.toLowerCase().includes(this.filtros.nome.toLowerCase());
+      const nomeAgente = agente.nomeCompleto || (agente as any).nome || '';
+      const nomeMatch = !this.filtros.nome || norm(nomeAgente).includes(norm(this.filtros.nome));
 
-      const statusMatch = !this.filtros.status || agente.status === this.filtros.status;
+      const statusMatch = !this.filtros.status || this.normalizarStatus(agente.status) === this.filtros.status;
 
-      const comarcaMatch = !this.filtros.comarca ||
-        (agente.comarcas && agente.comarcas.some(c => c.nomeComarca === this.filtros.comarca));
+      const comarcaMatch = !this.filtros.comarca || (
+        agente.comarcas && agente.comarcas.some(c => norm(c.nomeComarca) === norm(this.filtros.comarca))
+      );
 
       const validadeMatch = !this.filtros.validade || this.verificarValidade(agente);
 
@@ -118,22 +125,34 @@ export class PainelAgentesComponent implements OnInit {
     }
   }
 
+  private normalizarStatus(status: string | undefined): string {
+    const s = (status || '').toString();
+    // Remove acentos, remove preposições comuns e normaliza caixa/espaços
+    const semAcento = s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
+    const semPreposicoes = semAcento.replace(/\b(DE|DA|DO|DAS|DOS)\b/g, ' ');
+    return semPreposicoes.replace(/\s+/g, '_').trim();
+  }
+
+  isAgenteAtivo(agente: AgenteVoluntario): boolean {
+    return this.normalizarStatus(agente.status) === 'ATIVO';
+  }
+
   getStatusClass(status: string): string {
-    switch (status) {
+    switch (this.normalizarStatus(status)) {
       case 'ATIVO': return 'bg-success';
       case 'INATIVO': return 'bg-secondary';
       case 'EM_ANALISE': return 'bg-warning';
-      case 'REVOGADO': return 'bg-danger';
+      case 'QUADRO_RESERVA': return 'bg-secondary';
       default: return 'bg-secondary';
     }
   }
 
   getStatusLabel(status: string): string {
-    switch (status) {
+    switch (this.normalizarStatus(status)) {
       case 'ATIVO': return 'Ativo';
       case 'INATIVO': return 'Inativo';
       case 'EM_ANALISE': return 'Em Análise';
-      case 'REVOGADO': return 'Revogado';
+      case 'QUADRO_RESERVA': return 'Quadro de Reserva';
       default: return status;
     }
   }
@@ -161,7 +180,20 @@ export class PainelAgentesComponent implements OnInit {
   }
 
   formatarData(data: string): string {
-    return new Date(data).toLocaleDateString('pt-BR');
+    if (!data) return '-';
+    const d = new Date(data);
+    if (isNaN(d.getTime())) {
+      // tenta formato yyyy-mm-dd
+      const m = String(data).match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (m) {
+        return `${m[3]}/${m[2]}/${m[1]}`;
+      }
+      return String(data);
+    }
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    return `${dd}/${mm}/${yyyy}`;
   }
 
   emitirCredencial(id: number): void {
@@ -202,5 +234,9 @@ export class PainelAgentesComponent implements OnInit {
 
   imprimir(): void {
     window.print();
+  }
+
+  editarAgente(id: number): void {
+    this.router.navigate([`/agentes/${id}/editar`]);
   }
 }

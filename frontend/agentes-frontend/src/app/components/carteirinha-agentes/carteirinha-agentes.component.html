@@ -1,0 +1,245 @@
+<div class="container-fluid py-4">
+  
+
+  <div *ngIf="erro" class="alert alert-danger">{{ erro }}</div>
+
+  <!-- Header estilo "manage" com busca e rádios (acessível) -->
+  <div class="filters-header mb-2" role="region" aria-label="Filtros de carteirinhas">
+    <fieldset class="radios" aria-label="Grupo de agentes">
+      <legend class="sr-only">Grupo de agentes</legend>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" id="fg-todos" name="fg" value="todos" [(ngModel)]="filtroGrupo">
+        <label class="form-check-label" for="fg-todos">Todos</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" id="fg-ativos" name="fg" value="ativos" [(ngModel)]="filtroGrupo">
+        <label class="form-check-label" for="fg-ativos">Ativos</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" id="fg-demais" name="fg" value="demais" [(ngModel)]="filtroGrupo">
+        <label class="form-check-label" for="fg-demais">Demais</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" id="fg-sel" name="fg" value="selecionados" [(ngModel)]="filtroGrupo">
+        <label class="form-check-label" for="fg-sel">Selecionados ({{ selecionadosCount }})</label>
+      </div>
+    </fieldset>
+    <div class="search-group">
+      <label for="searchAgentes" class="sr-only">Buscar por nome ou CPF</label>
+      <div class="input-group input-group-sm">
+        <span class="input-group-text" aria-hidden="true"><i class="fas fa-search"></i></span>
+        <input id="searchAgentes" type="text" class="form-control" [(ngModel)]="filtroTermo" (input)="aplicarFiltro()" placeholder="Buscar por nome ou CPF" />
+        <button class="btn btn-outline-secondary" (click)="filtroTermo=''; aplicarFiltro()" title="Limpar" aria-label="Limpar busca">
+          <i class="fas fa-times" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+  <hr class="mt-0" />
+
+  <!-- Barra de seleção (mobile-first) -->
+  <div class="action-toolbar" role="toolbar" aria-label="Ações de seleção e geração">
+    <div class="selected-info small text-muted" aria-live="polite">Selecionados: {{ selecionadosCount }}</div>
+    <div class="action-buttons">
+      <button class="btn btn-outline-primary" (click)="selecionarVisiveis()"><i class="fas fa-check-double me-1" aria-hidden="true"></i>Selecionar visíveis</button>
+      <button class="btn btn-outline-secondary" (click)="limparSelecao()"><i class="fas fa-eraser me-1" aria-hidden="true"></i>Limpar seleção</button>
+      <button class="btn btn-danger" [disabled]="selecionadosCount === 0 || loadingLote" (click)="gerarSelecionadas()">
+        <i class="fas fa-file-pdf me-1" aria-hidden="true"></i>
+        <span *ngIf="!loadingLote">Gerar selecionadas</span>
+        <span *ngIf="loadingLote"><span class="spinner-border spinner-border-sm me-1"></span>Gerando...</span>
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="text-center text-muted py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <div class="mt-2">Carregando agentes...</div>
+  </div>
+
+  <div *ngIf="!loading">
+    <div class="row g-3" *ngIf="agentesAtivosFiltrados.length + agentesDemaisFiltrados.length === 0">
+      <div class="col-12">
+        <div class="alert alert-light">Nenhum agente encontrado.</div>
+      </div>
+    </div>
+
+    <!-- Seção: Ativos -->
+    <div *ngIf="agentesAtivosFiltrados.length && (filtroGrupo === 'todos' || filtroGrupo === 'ativos')">
+      <h6 class="text-success mb-2">Ativos ({{ agentesAtivosFiltrados.length }})</h6>
+      <div class="row g-3">
+        <div class="col-xl-4 col-lg-6" *ngFor="let ag of agentesAtivosFiltrados">
+          <article class="card h-100 shadow-sm agent-card" role="article" [attr.aria-labelledby]="'card-title-'+ag.id">
+            <div class="card-body d-flex flex-column">
+              <input class="form-check-input card-select" type="checkbox" [checked]="isSelecionado(ag)" (change)="toggleSelecionado(ag)" [attr.aria-label]="'Selecionar ' + (ag.nomeCompleto || '') + ' CPF ' + cpfFormat(ag.cpf)" />
+              <div class="d-flex align-items-center mb-2">
+                <ng-container *ngIf="ag.fotoUrl; else avatarIcon">
+                  <img [src]="ag.fotoUrl" alt="Foto de {{ ag.nomeCompleto }}" class="agent-photo me-2" />
+                </ng-container>
+                <ng-template #avatarIcon>
+                  <div class="avatar me-2"><i class="fas fa-user-circle"></i></div>
+                </ng-template>
+                <div>
+                  <div class="fw-bold" [id]="'card-title-'+ag.id">{{ ag.nomeCompleto }}</div>
+                  <div class="text-muted small">{{ cpfFormat(ag.cpf) }}</div>
+                </div>
+              </div>
+
+              <div class="small mb-2">
+                <div><strong>Comarca:</strong> {{ ag.comarcas?.[0]?.nomeComarca || '—' }}</div>
+                <div>
+                  <strong>Status:</strong>
+                  <span class="badge ms-1" [ngClass]="{
+                    'bg-success': statusBadge(ag) === 'success',
+                    'bg-warning': statusBadge(ag) === 'warning',
+                    'bg-secondary': statusBadge(ag) === 'secondary',
+                    'bg-danger': statusBadge(ag) === 'danger'
+                  }">{{ ag.status }}</span>
+                </div>
+                <div><strong>Credencial:</strong> {{ credencialCodigo(ag) }}</div>
+              </div>
+
+              <div class="mt-auto">
+                <button class="btn btn-outline-primary w-100 mb-2" (click)="preview(ag)" [disabled]="ag.loadingPreview" [attr.aria-busy]="ag.loadingPreview ? 'true' : null">
+                  <i class="fas fa-eye me-2" aria-hidden="true"></i>
+                  <span *ngIf="!ag.loadingPreview">Preview</span>
+                  <span *ngIf="ag.loadingPreview"><span class="spinner-border spinner-border-sm me-2"></span>Gerando...</span>
+                </button>
+
+                <button class="btn btn-danger w-100" (click)="gerar(ag)" [disabled]="!ag.podeGerar || ag.loadingGerar || ag.verificando" [attr.aria-disabled]="(!ag.podeGerar || ag.loadingGerar || ag.verificando) ? 'true' : null">
+                  <i class="fas fa-download me-2" aria-hidden="true"></i>
+                  <span *ngIf="!ag.loadingGerar">Gerar Carteirinha</span>
+                  <span *ngIf="ag.loadingGerar"><span class="spinner-border spinner-border-sm me-2"></span>Gerando...</span>
+                </button>
+
+                <div class="small text-muted mt-2" *ngIf="ag.verificando">Verificando status...</div>
+                <div class="small text-warning mt-2" *ngIf="!ag.verificando && !ag.podeGerar && ag.mensagem">{{ ag.mensagem }}</div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <!-- Seção: Demais -->
+    <div class="mt-4" *ngIf="agentesDemaisFiltrados.length && (filtroGrupo === 'todos' || filtroGrupo === 'demais')">
+      <h6 class="text-muted mb-2">Demais ({{ agentesDemaisFiltrados.length }})</h6>
+      <div class="row g-3">
+        <div class="col-xl-4 col-lg-6" *ngFor="let ag of agentesDemaisFiltrados">
+          <article class="card h-100 shadow-sm agent-card" role="article" [attr.aria-labelledby]="'card-title-'+ag.id">
+            <div class="card-body d-flex flex-column">
+              <input class="form-check-input card-select" type="checkbox" [checked]="isSelecionado(ag)" (change)="toggleSelecionado(ag)" [attr.aria-label]="'Selecionar ' + (ag.nomeCompleto || '') + ' CPF ' + cpfFormat(ag.cpf)" />
+              <div class="d-flex align-items-center mb-2">
+                <ng-container *ngIf="ag.fotoUrl; else avatarIcon2">
+                  <img [src]="ag.fotoUrl" alt="Foto de {{ ag.nomeCompleto }}" class="agent-photo me-2" />
+                </ng-container>
+                <ng-template #avatarIcon2>
+                  <div class="avatar me-2"><i class="fas fa-user-circle"></i></div>
+                </ng-template>
+                <div>
+                  <div class="fw-bold" [id]="'card-title-'+ag.id">{{ ag.nomeCompleto }}</div>
+                  <div class="text-muted small">{{ cpfFormat(ag.cpf) }}</div>
+                </div>
+              </div>
+
+              <div class="small mb-2">
+                <div><strong>Comarca:</strong> {{ ag.comarcas?.[0]?.nomeComarca || '—' }}</div>
+                <div>
+                  <strong>Status:</strong>
+                  <span class="badge ms-1" [ngClass]="{
+                    'bg-success': statusBadge(ag) === 'success',
+                    'bg-warning': statusBadge(ag) === 'warning',
+                    'bg-secondary': statusBadge(ag) === 'secondary',
+                    'bg-danger': statusBadge(ag) === 'danger'
+                  }">{{ ag.status }}</span>
+                </div>
+                <div><strong>Credencial:</strong> {{ credencialCodigo(ag) }}</div>
+              </div>
+
+              <div class="mt-auto">
+                <button class="btn btn-outline-primary w-100 mb-2" (click)="preview(ag)" [disabled]="ag.loadingPreview" [attr.aria-busy]="ag.loadingPreview ? 'true' : null">
+                  <i class="fas fa-eye me-2" aria-hidden="true"></i>
+                  <span *ngIf="!ag.loadingPreview">Preview</span>
+                  <span *ngIf="ag.loadingPreview"><span class="spinner-border spinner-border-sm me-2"></span>Gerando...</span>
+                </button>
+
+                <button class="btn btn-danger w-100" (click)="gerar(ag)" [disabled]="!ag.podeGerar || ag.loadingGerar || ag.verificando" [attr.aria-disabled]="(!ag.podeGerar || ag.loadingGerar || ag.verificando) ? 'true' : null">
+                  <i class="fas fa-download me-2" aria-hidden="true"></i>
+                  <span *ngIf="!ag.loadingGerar">Gerar Carteirinha</span>
+                  <span *ngIf="ag.loadingGerar"><span class="spinner-border spinner-border-sm me-2"></span>Gerando...</span>
+                </button>
+
+                <div class="small text-muted mt-2" *ngIf="ag.verificando">Verificando status...</div>
+                <div class="small text-warning mt-2" *ngIf="!ag.verificando && !ag.podeGerar && ag.mensagem">{{ ag.mensagem }}</div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <!-- Seção: Selecionados (quando filtro selecionados) -->
+    <div *ngIf="filtroGrupo === 'selecionados'">
+      <h6 class="text-primary mb-2">Selecionados ({{ selecionadosCount }})</h6>
+      <div class="row g-3">
+        <div class="col-xl-4 col-lg-6" *ngFor="let ag of (agentesAtivosFiltrados.concat(agentesDemaisFiltrados) | slice:0)" [hidden]="!isSelecionado(ag)">
+          <article class="card h-100 shadow-sm agent-card" role="article" [attr.aria-labelledby]="'card-title-'+ag.id">
+            <div class="card-body d-flex flex-column">
+              <input class="form-check-input card-select" type="checkbox" [checked]="isSelecionado(ag)" (change)="toggleSelecionado(ag)" [attr.aria-label]="'Selecionar ' + (ag.nomeCompleto || '') + ' CPF ' + cpfFormat(ag.cpf)" />
+              <div class="d-flex align-items-center mb-2">
+                <ng-container *ngIf="ag.fotoUrl; else avatarIcon3">
+                  <img [src]="ag.fotoUrl" alt="Foto de {{ ag.nomeCompleto }}" class="agent-photo me-2" />
+                </ng-container>
+                <ng-template #avatarIcon3>
+                  <div class="avatar me-2"><i class="fas fa-user-circle"></i></div>
+                </ng-template>
+                <div>
+                  <div class="fw-bold" [id]="'card-title-'+ag.id">{{ ag.nomeCompleto }}</div>
+                  <div class="text-muted small">{{ cpfFormat(ag.cpf) }}</div>
+                </div>
+              </div>
+              <div class="small mb-2">
+                <div><strong>Comarca:</strong> {{ ag.comarcas?.[0]?.nomeComarca || '—' }}</div>
+                <div>
+                  <strong>Status:</strong>
+                  <span class="badge ms-1" [ngClass]="{
+                    'bg-success': statusBadge(ag) === 'success',
+                    'bg-warning': statusBadge(ag) === 'warning',
+                    'bg-secondary': statusBadge(ag) === 'secondary',
+                    'bg-danger': statusBadge(ag) === 'danger'
+                  }">{{ ag.status }}</span>
+                </div>
+                <div><strong>Credencial:</strong> {{ credencialCodigo(ag) }}</div>
+              </div>
+              <div class="mt-auto">
+                <button class="btn btn-outline-primary w-100 mb-2" (click)="preview(ag)" [disabled]="ag.loadingPreview" [attr.aria-busy]="ag.loadingPreview ? 'true' : null">
+                  <i class="fas fa-eye me-2" aria-hidden="true"></i>
+                  <span *ngIf="!ag.loadingPreview">Preview</span>
+                  <span *ngIf="ag.loadingPreview"><span class="spinner-border spinner-border-sm me-2"></span>Gerando...</span>
+                </button>
+                <button class="btn btn-danger w-100" (click)="gerar(ag)" [disabled]="!ag.podeGerar || ag.loadingGerar || ag.verificando" [attr.aria-disabled]="(!ag.podeGerar || ag.loadingGerar || ag.verificando) ? 'true' : null">
+                  <i class="fas fa-download me-2" aria-hidden="true"></i>
+                  <span *ngIf="!ag.loadingGerar">Gerar Carteirinha</span>
+                  <span *ngIf="ag.loadingGerar"><span class="spinner-border spinner-border-sm me-2"></span>Gerando...</span>
+                </button>
+                <div class="small text-muted mt-2" *ngIf="ag.verificando">Verificando status...</div>
+                <div class="small text-warning mt-2" *ngIf="!ag.verificando && !ag.podeGerar && ag.mensagem">{{ ag.mensagem }}</div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Preview -->
+  <app-modal
+    [open]="previewOpen"
+    (openChange)="previewOpen = $event"
+    title="Preview da Carteirinha"
+    [size]="'md'"
+  >
+    <div modal-body>
+      <app-carteirinha-preview [agente]="previewAgente"></app-carteirinha-preview>
+    </div>
+  </app-modal>
+</div>

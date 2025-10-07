@@ -30,8 +30,15 @@
       <app-logo variant="white" width="140px"></app-logo>
     </div>
 
-    <!-- 🔹 Direita: Menu do usuário -->
-    <ul class="navbar-nav">
+    <!-- 🔹 Direita: Links e menu do usuário -->
+    <ul class="navbar-nav align-items-center gap-2">
+      <!-- Link público: Consulta Pública (somente quando não logado) -->
+      <li class="nav-item d-none d-lg-block" *ngIf="!isLoggedIn">
+        <a class="nav-link" routerLink="/consulta-publica" aria-label="Ir para Consulta Pública">
+          <i class="fas fa-search me-1"></i> Consulta Pública
+        </a>
+      </li>
+
         <li class="nav-item dropdown" *ngIf="isLoggedIn; else loginButton">
     <a class="nav-link dropdown-toggle d-flex align-items-center" href="#"
        id="navbarDropdown" role="button" data-bs-toggle="dropdown">

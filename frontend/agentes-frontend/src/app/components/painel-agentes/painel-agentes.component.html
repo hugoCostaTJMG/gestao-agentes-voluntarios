@@ -4,6 +4,7 @@
     [type]="alertType"
     [message]="alertMessage"
     [dismissible]="true"
+    [autoCloseMs]="10000"
     (dismissed)="showAlert = false"
   ></app-alert>
   <div class="row">
@@ -54,7 +55,7 @@
                 <option value="ATIVO">Ativo</option>
                 <option value="INATIVO">Inativo</option>
                 <option value="EM_ANALISE">Em Análise</option>
-                <option value="REVOGADO">Revogado</option>
+                <option value="QUADRO_RESERVA">Quadro de Reserva</option>
               </select>
             </div>
             <div class="col-md-3">
@@ -133,9 +134,16 @@
                         <i class="fas fa-eye"></i>
                       </button>
                       <button
+                        class="btn btn-outline-warning"
+                        (click)="editarAgente(agente.id)"
+                        title="Alterar dados do agente"
+                      >
+                        <i class="fas fa-pen"></i>
+                      </button>
+                      <button
                         class="btn btn-outline-success"
                         (click)="emitirCredencial(agente.id)"
-                        [disabled]="agente.status !== 'ATIVO'"
+                        [disabled]="!isAgenteAtivo(agente)"
                         title="Emitir Credencial"
                       >
                         <i class="fas fa-id-card"></i>

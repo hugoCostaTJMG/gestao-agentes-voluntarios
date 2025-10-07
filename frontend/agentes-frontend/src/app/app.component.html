@@ -9,15 +9,19 @@
 
   <!-- Conteúdo principal -->
   <main id="main-content" role="main" aria-label="Conteúdo principal do sistema" class="flex-grow-1 p-4 app-content">
-    <app-alert
-      *ngIf="alert$ | async as alert"
-      [type]="mapAlertType(alert.type)"
-      [message]="alert.text"
-      [dismissible]="true"
-      (dismissed)="clearAlert()"
-      class="mb-3"
-    ></app-alert>
-    <router-outlet></router-outlet>
+    <div class="page-surface">
+      <app-page-header></app-page-header>
+      <app-alert
+        *ngIf="alert$ | async as alert"
+        [type]="mapAlertType(alert.type)"
+        [message]="alert.text"
+        [dismissible]="true"
+        [autoCloseMs]="10000"
+        (dismissed)="clearAlert()"
+        class="mb-3"
+      ></app-alert>
+      <router-outlet></router-outlet>
+    </div>
   </main>
 </div>
 

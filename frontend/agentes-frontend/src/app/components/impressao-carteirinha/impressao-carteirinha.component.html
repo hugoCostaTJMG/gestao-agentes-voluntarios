@@ -1,12 +1,4 @@
 <div class="container-fluid py-4">
-  <!-- Botão Voltar -->
-  <div class="row mb-3">
-    <div class="col-12">
-      <button type="button" class="btn btn-outline-secondary btn-sm" (click)="voltar()">
-        <i class="fas fa-arrow-left me-2"></i>Voltar
-      </button>
-    </div>
-  </div>
 
   <!-- Título da Página -->
   <div class="row mb-4">
@@ -57,7 +49,7 @@
             <div class="col-md-3 text-center mb-3">
               <div class="foto-container">
                 <img 
-                  [src]="agente.fotoPath ? '/api/uploads/' + agente.fotoPath : '/assets/images/foto_padrao.png'" 
+                  [src]="fotoUrl || '/assets/images/foto_padrao.png'" 
                   [alt]="agente.nomeCompleto"
                   class="img-thumbnail foto-agente"
                   style="width: 120px; height: 150px; object-fit: cover;">
@@ -268,3 +260,14 @@
 
 </div>
 
+<!-- Modal de Preview -->
+<app-modal
+  [open]="previewOpen"
+  (openChange)="previewOpen = $event"
+  title="Preview da Carteirinha"
+  [size]="'md'"
+>
+  <div modal-body>
+    <app-carteirinha-preview [agente]="agente"></app-carteirinha-preview>
+  </div>
+</app-modal>
