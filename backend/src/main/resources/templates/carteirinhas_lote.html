@@ -23,7 +23,8 @@
 
     .page { width: 210mm; display: block; }
     .pair { display: block; text-align: center; page-break-inside: avoid; margin: 8mm 0; justify-items: center; }
-    .cards-row { width: 178mm; margin: 0 auto; border-collapse: separate; border-spacing: 8mm 0; table-layout: fixed; }
+        .cards-row { width: 172mm; margin-left: 19mm; margin-right: 19mm; border-collapse: separate; border-spacing: 2mm 0; table-layout: fixed; }
+
     .cards-row td { vertical-align: top; padding: 0; }
     .cards-col { width: 85mm; margin: 0 auto; border-collapse: separate; border-spacing: 0 8mm; table-layout: fixed; }
     .cards-col td { vertical-align: top; width: 85mm; padding: 0; }
@@ -38,16 +39,16 @@
     }
 
     .ribbon {
-      position: absolute; left: -2mm; right: -2mm; height: 3mm; top: 0;
+      position: absolute; left: -2mm; right: -2mm; height: 2mm; top: 0;
       background: #d82020; background-color: #d82020 !important;
       background: var(--brand-red);
       color: #fff; text-align: center; font-weight: 800;
-      font-size: 6pt; line-height: 3.5mm; letter-spacing: var(--trk-wide); text-transform: uppercase;
+      font-size: 5pt; line-height: 2.5mm; letter-spacing: var(--trk-wide); text-transform: uppercase;
       z-index: 2;
     }
 
     .inner {
-      position: absolute; top: 4mm; right: 0mm; bottom: 0mm; left: 0mm;
+      position: absolute; top: 2mm; right: 0mm; bottom: 0mm; left: 0mm;
       background: #efefef; padding: 0.3mm 0.6mm; box-sizing: border-box; font-size: 6pt;
     }
 
@@ -70,7 +71,7 @@
     .left-col { width: 28mm; }
     .photo-img, .photo-ph { width: 16mm; height: 20mm; border: 0.28mm solid #000; object-fit: cover; background: #fafafa; display: block; margin: 0 auto; }
 
-    .rule { margin-top: 5mm; height: 0; border-top: 0.35mm solid #000; }
+    .rule { margin-top: 9mm; height: 0; border-top: 0.35mm solid #000; }
     .judge { margin-top: 0.6mm; text-align: center; font-size: 4.4pt; letter-spacing: var(--trk-wide); text-transform: uppercase; }
     .legal { margin-top: 0.6mm; font-size: 4.4pt; }
 
@@ -82,7 +83,7 @@
     .qr-field { background: #fff; display: flex; align-items: center; justify-content: center; height: 10mm; box-sizing: border-box; }
     .qr-img { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; background: #fff; }
 
-    .sign { margin-top: 7.5mm; }
+    .sign { margin-top: 11.5mm; }
     .sign .rule { margin-top: 0; }
     .sign-caption { margin-top: 0.6mm; text-align: center; font-size: 4pt; text-transform: uppercase; }
   </style>
