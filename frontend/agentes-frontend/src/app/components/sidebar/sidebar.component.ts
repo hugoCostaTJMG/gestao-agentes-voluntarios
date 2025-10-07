@@ -27,6 +27,7 @@ export class SidebarComponent implements OnInit {
   isLoggedIn = false;
   private readonly menuItems: MenuItem[] = [
     { label: 'Dashboard', icon: 'fas fa-tachometer-alt', link: '/', roles: ['CORREGEDORIA', 'COMARCA', 'AGENTE'], exact: true },
+    { label: 'Meu Perfil', icon: 'fas fa-user', link: '/perfil', roles: ['CORREGEDORIA', 'COMARCA', 'AGENTE'] },
     { label: 'Carteirinha', icon: 'fas fa-id-badge', link: '/carteirinha', roles: ['AGENTE'] },
     { label: 'Agentes Voluntários', icon: 'fas fa-users', link: '/agentes', roles: ['CORREGEDORIA', 'COMARCA'] },
     { label: 'Impressão Carteirinhas', icon: 'fas fa-id-badge', link: '/carteirinha-agentes', roles: ['CORREGEDORIA'] },
@@ -56,6 +57,7 @@ export class SidebarComponent implements OnInit {
     if (this.permissionService.hasAnyRole(['CORREGEDORIA', 'COMARCA'])) {
       const weight: Record<string, number> = {
         '/': 10,
+        '/perfil': 15,
         '/agentes': 20,
         '/agentes/cadastro': 30,
         '/credenciais': 40,

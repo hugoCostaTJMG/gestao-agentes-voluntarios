@@ -1,0 +1,89 @@
+<div class="perfil-page container py-4">
+  <div class="page-surface">
+    <header class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+      <div>
+        <h1 class="page-title mb-1">Meu perfil</h1>
+        <p class="text-muted mb-0">Visualize com segurança as informações cadastradas no sistema.</p>
+      </div>
+      <span class="badge rounded-pill perfil-badge" *ngIf="usuario">
+        <i class="fas fa-shield-alt me-2"></i>
+        {{ perfil || 'Perfil não identificado' }}
+      </span>
+    </header>
+
+    <section *ngIf="loading" class="text-center py-5" aria-live="polite">
+      <div class="spinner-border" role="status" aria-hidden="true"></div>
+      <p class="text-muted mt-3 mb-0">Carregando informações do perfil…</p>
+    </section>
+
+    <ng-container *ngIf="!loading">
+      <div *ngIf="erro" class="alert alert-{{ erroTipo }} d-flex align-items-center" role="alert">
+        <i class="fas fa-circle-info me-2"></i>
+        <span>{{ erro }}</span>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header">
+          <i class="fas fa-id-card me-2"></i>
+          Dados básicos
+        </div>
+        <div class="card-body">
+          <div class="row g-4">
+            <div class="col-12 col-md-6">
+              <span class="info-label">Nome completo</span>
+              <p class="info-value mb-0">{{ nome }}</p>
+            </div>
+            <div class="col-12 col-md-6">
+              <span class="info-label">E-mail</span>
+              <p class="info-value mb-0">{{ email }}</p>
+            </div>
+            <div class="col-12 col-md-6">
+              <span class="info-label">CPF</span>
+              <p class="info-value mb-0">{{ cpf }}</p>
+            </div>
+            <div class="col-12 col-md-6">
+              <span class="info-label">Telefone</span>
+              <p class="info-value mb-0">{{ telefone }}</p>
+            </div>
+            <div class="col-12 col-md-6">
+              <span class="info-label">Status do cadastro</span>
+              <p class="info-value mb-0">
+                <span class="badge text-uppercase badge-status" [ngClass]="statusBadgeClass()">{{ status }}</span>
+              </p>
+            </div>
+            <div class="col-12 col-md-6">
+              <span class="info-label">Data de cadastro</span>
+              <p class="info-value mb-0">{{ dataCadastro }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <i class="fas fa-clipboard-list me-2"></i>
+          Informações complementares
+        </div>
+        <div class="card-body">
+          <div class="row g-4">
+            <div class="col-12 col-md-6">
+              <span class="info-label">Disponibilidade informada</span>
+              <p class="info-value mb-0">{{ disponibilidade }}</p>
+            </div>
+            <div class="col-12 col-md-6">
+              <span class="info-label">Comarcas vinculadas</span>
+              <p class="info-value mb-0">{{ comarcas }}</p>
+            </div>
+            <div class="col-12">
+              <span class="info-label">Áreas de atuação</span>
+              <p class="info-value mb-0">{{ areasAtuacao }}</p>
+            </div>
+          </div>
+          <p class="text-muted mt-4 mb-0" *ngIf="!agente">
+            Informações detalhadas são exibidas quando há um cadastro de agente associado ao usuário.
+          </p>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>
