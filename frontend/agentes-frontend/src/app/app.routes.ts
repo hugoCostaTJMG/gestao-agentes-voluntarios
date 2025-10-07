@@ -23,6 +23,13 @@ export const routes: Routes = [
     data: { roles: ['AGENTE'] }
   },
   {
+    path: 'perfil',
+    loadComponent: () =>
+      import('./components/perfil/perfil.component').then(m => m.PerfilComponent),
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['CORREGEDORIA', 'COMARCA', 'AGENTE'], title: 'Meu Perfil', icon: 'fas fa-user', showBack: false }
+  },
+  {
     path: 'carteirinha-agentes',
     loadComponent: () =>
       import('./components/carteirinha-agentes/carteirinha-agentes.component').then(m => m.CarteirinhaAgentesComponent),

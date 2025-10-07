@@ -1,0 +1,66 @@
+@use '../../shared/general/colors/colors' as colors;
+
+.perfil-page {
+  .page-surface {
+    border-radius: 1.25rem;
+  }
+
+  .page-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: colors.$neutral-800;
+  }
+
+  .perfil-badge {
+    background-color: rgba(colors.$red-800, 0.1);
+    color: colors.$red-800;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+  }
+
+  .info-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    color: colors.$neutral-500;
+  }
+
+  .info-value {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: colors.$neutral-800;
+  }
+
+  .badge-status {
+    padding: 0.45rem 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  .card {
+    border-radius: 1rem;
+    overflow: hidden;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 0.02em;
+  }
+
+  .spinner-border {
+    color: colors.$red-700;
+  }
+
+  @media (max-width: 768px) {
+    .page-surface {
+      padding: 1rem;
+    }
+
+    .page-title {
+      font-size: 1.5rem;
+    }
+  }
+}
