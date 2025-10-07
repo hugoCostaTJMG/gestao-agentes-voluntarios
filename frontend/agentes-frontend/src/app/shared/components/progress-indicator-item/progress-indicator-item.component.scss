@@ -1,0 +1,309 @@
+@import "../../general/colors/colors.scss";
+
+:host {
+  display: block;
+}
+
+.progress-indicator-item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  color: $neutral-700;
+  transition: color 150ms cubic-bezier(0.2, 0, 0.38, 0.9);
+
+  &.orientation-horizontal {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.75rem;
+  }
+
+  &.orientation-vertical {
+    flex-direction: row;
+    align-items: flex-start;
+    text-align: left;
+    gap: 0.75rem;
+  }
+
+  &__interactive {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem;
+    border-radius: 999px;
+    outline: none;
+    transition: box-shadow 150ms cubic-bezier(0.2, 0, 0.38, 0.9),
+      color 150ms cubic-bezier(0.2, 0, 0.38, 0.9),
+      background-color 150ms cubic-bezier(0.2, 0, 0.38, 0.9);
+    cursor: default;
+    gap: 0.5rem;
+    background-color: transparent;
+  }
+
+  &.is-clickable &__interactive {
+    cursor: pointer;
+  }
+
+  &.is-disabled &__interactive,
+  &.is-skeleton &__interactive,
+  &__interactive[aria-disabled='true'] {
+    cursor: default;
+  }
+
+  &__interactive:focus-visible {
+    box-shadow: 0 0 0 2px $neutral-50, 0 0 0 4px $blue-600;
+  }
+
+  &.orientation-horizontal &__interactive {
+    min-width: calc(var(--pi-bullet-size) + 0.75rem);
+    min-height: calc(var(--pi-bullet-size) + 0.75rem);
+    width: 100%;
+  }
+
+  &.orientation-vertical &__interactive {
+    flex-direction: column;
+    min-height: calc(var(--pi-bullet-size) + 0.75rem);
+    gap: 0.5rem;
+  }
+
+  &__connector {
+    background-color: $neutral-200;
+    transition: background-color 150ms cubic-bezier(0.2, 0, 0.38, 0.9);
+    border-radius: 999px;
+  }
+
+  &.orientation-horizontal &__connector {
+    flex: 1 1 auto;
+    height: var(--pi-connector);
+  }
+
+  &.orientation-vertical &__connector {
+    width: var(--pi-connector);
+    min-height: 0.75rem;
+    flex: 1 1 auto;
+  }
+
+  &__connector.is-hidden {
+    visibility: hidden;
+  }
+
+  &__bullet {
+    width: var(--pi-bullet-size);
+    height: var(--pi-bullet-size);
+    border-radius: 50%;
+    border: 2px solid $neutral-300;
+    background-color: $neutral-50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    color: $neutral-50;
+    transition: border-color 150ms cubic-bezier(0.2, 0, 0.38, 0.9),
+      background-color 150ms cubic-bezier(0.2, 0, 0.38, 0.9),
+      color 150ms cubic-bezier(0.2, 0, 0.38, 0.9),
+      box-shadow 150ms cubic-bezier(0.2, 0, 0.38, 0.9);
+  }
+
+  &__bullet-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  &__icon {
+    display: block;
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+
+  &__labels {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    max-width: 10rem;
+  }
+
+  &.orientation-horizontal &__labels {
+    align-items: center;
+  }
+
+  &.orientation-vertical &__labels {
+    align-items: flex-start;
+  }
+
+  &__label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: inherit;
+    transition: color 150ms cubic-bezier(0.2, 0, 0.38, 0.9),
+      text-decoration-color 150ms cubic-bezier(0.2, 0, 0.38, 0.9);
+  }
+
+  &__optional {
+    font-size: 0.75rem;
+    color: $neutral-600;
+  }
+
+  &.is-current &__label {
+    color: $blue-600;
+  }
+
+  &.is-error &__label {
+    color: $red-600;
+  }
+
+  &.is-disabled &__label,
+  &.is-disabled &__optional {
+    color: $neutral-500;
+  }
+
+  &.is-clickable &__interactive:hover ~ &__labels .progress-indicator-item__label {
+    text-decoration: underline;
+  }
+
+  &.is-clickable &__interactive:hover .progress-indicator-item__bullet {
+    border-color: $blue-600;
+  }
+
+  &.is-disabled &__interactive:hover ~ &__labels .progress-indicator-item__label,
+  &.is-skeleton &__interactive:hover ~ &__labels .progress-indicator-item__label {
+    text-decoration: none;
+  }
+
+  &.is-disabled &__interactive:hover .progress-indicator-item__bullet,
+  &.is-skeleton &__interactive:hover .progress-indicator-item__bullet {
+    border-color: $neutral-300;
+  }
+
+  &__tooltip {
+    position: absolute;
+    max-width: 14rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.25rem;
+    background-color: $neutral-800;
+    color: $neutral-50;
+    font-size: 0.75rem;
+    line-height: 1.2;
+    box-shadow: 0 4px 12px rgba($neutral-900, 0.2);
+    opacity: 0;
+    visibility: hidden;
+    transform: translate(-50%, -0.5rem);
+    transition: opacity 150ms cubic-bezier(0.2, 0, 0.38, 0.9),
+      transform 150ms cubic-bezier(0.2, 0, 0.38, 0.9);
+    z-index: 10;
+    left: 50%;
+    top: 100%;
+  }
+
+  &.orientation-vertical &__tooltip {
+    left: calc(var(--pi-bullet-size) + 1.5rem);
+    top: 50%;
+    transform: translate(0, -50%);
+  }
+
+  &__tooltip::after {
+    content: "";
+    position: absolute;
+    width: 0.5rem;
+    height: 0.5rem;
+    background-color: $neutral-800;
+    transform: rotate(45deg);
+    left: 50%;
+    top: -0.25rem;
+    margin-left: -0.25rem;
+  }
+
+  &.orientation-vertical &__tooltip::after {
+    left: -0.25rem;
+    top: 50%;
+    margin-top: -0.25rem;
+  }
+
+  &__tooltip.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, 0);
+  }
+
+  &.orientation-vertical &__tooltip.is-visible {
+    transform: translate(0, -50%);
+  }
+
+  &__tooltip-text {
+    display: block;
+  }
+
+  &.is-current &__bullet {
+    border-color: $blue-600;
+  }
+
+  &.is-current &__bullet::after {
+    content: "";
+    position: absolute;
+    width: calc(var(--pi-bullet-size) / 2);
+    height: calc(var(--pi-bullet-size) / 2);
+    border-radius: 50%;
+    background-color: $blue-600;
+  }
+
+  &.is-complete &__bullet {
+    background-color: $blue-600;
+    border-color: $blue-600;
+    color: $neutral-50;
+  }
+
+  &.is-error &__bullet {
+    background-color: $red-600;
+    border-color: $red-600;
+    color: $neutral-50;
+  }
+
+  &.is-complete &__connector,
+  &.is-current &__connector--before {
+    background-color: $blue-600;
+  }
+
+  &.is-error &__connector--before {
+    background-color: $red-600;
+  }
+
+  &.is-disabled {
+    opacity: 0.6;
+  }
+
+  &.is-skeleton {
+    color: $neutral-500;
+  }
+
+  &__bullet-skeleton {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: $neutral-200;
+    animation: progress-skeleton 1.6s ease-in-out infinite;
+  }
+
+  &__skeleton-label {
+    width: 5rem;
+    height: 0.75rem;
+    border-radius: 999px;
+    background-color: $neutral-200;
+    animation: progress-skeleton 1.6s ease-in-out infinite;
+  }
+}
+
+@keyframes progress-skeleton {
+  0% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0.45;
+  }
+}
