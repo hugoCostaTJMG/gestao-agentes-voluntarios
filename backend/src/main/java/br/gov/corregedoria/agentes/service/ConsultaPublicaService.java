@@ -4,6 +4,7 @@ import br.gov.corregedoria.agentes.dto.ConsultaPublicaDTO;
 import br.gov.corregedoria.agentes.entity.AgenteVoluntario;
 import br.gov.corregedoria.agentes.entity.Credencial;
 import br.gov.corregedoria.agentes.repository.CredencialRepository;
+import br.gov.corregedoria.agentes.repository.AgenteVoluntarioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,9 @@ public class ConsultaPublicaService {
 
     @Autowired
     private CredencialRepository credencialRepository;
+
+    @Autowired
+    private AgenteVoluntarioRepository agenteVoluntarioRepository;
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
@@ -70,5 +74,27 @@ public class ConsultaPublicaService {
      */
     public boolean credencialValida(Long credencialId) {
         return credencialRepository.existsById(credencialId);
+    }
+
+    /**
+     * Consulta pública por CPF (apenas dados públicos do agente)
+     */
+    public ConsultaPublicaDTO consultarPorCpf(String cpf) {
+        if (cpf == null) throw new EntityNotFoundException("CPF inválido");
+        String digits = cpf.replaceAll("\\D", "");
+        return agenteVoluntarioRepository.findByCpf(digits)
+                .map(agente -> {
+                    String comarcasAtuacao = agente.getComarcas().stream()
+                            .map(c -> c.getNomeComarca())
+                            .collect(Collectors.joining(", "));
+                    return new ConsultaPublicaDTO(
+                            agente.getId(),
+                            agente.getNomeCompleto(),
+                            agente.getStatus().getDescricao(),
+                            agente.getDataCadastro().format(DATE_FORMATTER),
+                            comarcasAtuacao
+                    );
+                })
+                .orElseThrow(() -> new EntityNotFoundException("Agente não encontrado para o CPF informado"));
     }
 }

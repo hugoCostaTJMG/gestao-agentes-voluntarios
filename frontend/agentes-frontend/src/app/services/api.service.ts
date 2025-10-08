@@ -255,6 +255,12 @@ verificarStatusCarteirinha(agenteId: number): Observable<{ podeGerar: boolean, m
     return this.http.get<boolean>(`${this.baseUrl}/public/validar/${credencialId}`);
   }
 
+  verificarPublicoPorCpf(cpf: string): Observable<ConsultaPublica> {
+    const base = this.getPublicApiBase();
+    const digits = (cpf || '').toString().replace(/\D/g, '');
+    return this.http.get<ConsultaPublica>(`${base}/public/consulta/cpf/${digits}`);
+  }
+
   // ===== COMARCAS =====
 
   listarComarcas(): Observable<Comarca[]> {

@@ -22,21 +22,22 @@
         </div>
 
         <div class="card-body">
-          <form (ngSubmit)="consultarCredencial()" class="consulta-card__form" aria-label="Formulário para consulta de credencial de agente voluntário">
+          <form (ngSubmit)="consultarPorCpf()" class="consulta-card__form" aria-label="Formulário para consulta pública por CPF">
             <div class="mb-3">
-              <label class="form-label" for="numeroCredencial">Número da Credencial</label>
+              <label class="form-label" for="cpf">CPF</label>
               <input
-                id="numeroCredencial"
-                name="numeroCredencial"
+                id="cpf"
+                name="cpf"
                 type="text"
                 class="form-control"
-                [(ngModel)]="numeroCredencial"
-                placeholder="AGV-2024-001"
+                [(ngModel)]="cpf"
+                placeholder="000.000.000-00"
                 autocomplete="off"
                 aria-required="true"
-                [attr.aria-describedby]="'numeroCredencialHelp'"
+                [attr.aria-describedby]="'cpfHelp'"
+                cpfMask
               />
-              <div id="numeroCredencialHelp" class="form-text">Digite o número da credencial ou escaneie o QR Code</div>
+              <div id="cpfHelp" class="form-text">Digite o CPF do agente ou escaneie o QR Code</div>
             </div>
 
             <app-button
@@ -44,7 +45,7 @@
               type="secondary"
               size="lg"
               iconLeft="fas fa-search"
-              label="Consultar Credencial"
+              label="Consultar"
               [loading]="loadingConsulta"
               buttonType="submit"
             ></app-button>

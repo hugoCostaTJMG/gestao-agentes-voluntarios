@@ -54,6 +54,24 @@ public class ConsultaPublicaController {
         return ResponseEntity.ok(valida);
     }
 
+    @Operation(summary = "Consulta pública por CPF",
+               description = "Consulta dados públicos do agente a partir do CPF (somente informações básicas)")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Agente localizado"),
+        @ApiResponse(responseCode = "404", description = "Agente não encontrado")
+    })
+    @GetMapping("/consulta/cpf/{cpf}")
+    public ResponseEntity<ConsultaPublicaDTO> consultarPorCpf(
+            @Parameter(description = "CPF do agente (com ou sem máscara)")
+            @PathVariable String cpf) {
+        try {
+            ConsultaPublicaDTO dto = consultaPublicaService.consultarPorCpf(cpf);
+            return ResponseEntity.ok(dto);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @Operation(summary = "Página de verificação", 
                description = "Página HTML para exibição dos dados públicos do agente")
     @GetMapping("/verificar/{credencialId}/pagina")

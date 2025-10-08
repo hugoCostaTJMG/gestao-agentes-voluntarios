@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ButtonComponent } from '../../shared/components/buttons/button/button.component';
 import { BadgeComponent } from '../../shared/components/badge/badge.component';
 import { AlertComponent } from '../../shared/components/alert/alert.component';
+import { CpfMaskDirective } from '../../shared/directives/cpf-mask.directive';
 import { ApiService } from '../../services/api.service';
 import { ConsultaPublica } from '../../models/interfaces';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -11,12 +12,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 @Component({
   selector: 'app-consulta-publica',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgIf, ButtonComponent, BadgeComponent, AlertComponent],
+  imports: [CommonModule, FormsModule, NgIf, ButtonComponent, BadgeComponent, AlertComponent, CpfMaskDirective],
   templateUrl: './consulta-publica.component.html',
   styleUrls: ['./consulta-publica.component.scss']
 })
 export class ConsultaPublicaComponent implements OnInit, OnDestroy {
   numeroCredencial = '';
+  cpf = '';
   loadingConsulta = false;
   resultado?: ConsultaPublica;
   mensagem?: { tipo: 'success' | 'error'; texto: string };
@@ -70,6 +72,31 @@ export class ConsultaPublicaComponent implements OnInit, OnDestroy {
         this.loadingConsulta = false;
         this.resultado = undefined;
         this.mensagem = { tipo: 'error', texto: 'Credencial não encontrada ou inválida.' };
+      }
+    });
+  }
+
+  consultarPorCpf(): void {
+    const digits = (this.cpf || '').replace(/\D/g, '');
+    if (!this.isValidCPF(digits)) {
+      this.mensagem = { tipo: 'error', texto: 'Informe um CPF válido para continuar.' };
+      this.resultado = undefined;
+      return;
+    }
+    this.loadingConsulta = true;
+    this.mensagem = undefined;
+    this.resultado = undefined;
+
+    this.apiService.verificarPublicoPorCpf(digits).subscribe({
+      next: (dados) => {
+        this.resultado = dados;
+        this.loadingConsulta = false;
+        this.mensagem = { tipo: 'success', texto: 'Agente localizado com sucesso.' };
+      },
+      error: () => {
+        this.loadingConsulta = false;
+        this.resultado = undefined;
+        this.mensagem = { tipo: 'error', texto: 'Agente não encontrado para o CPF informado.' };
       }
     });
   }
@@ -294,5 +321,18 @@ export class ConsultaPublicaComponent implements OnInit, OnDestroy {
 
   limparMensagem(): void {
     this.mensagem = undefined;
+  }
+
+  private isValidCPF(cpf: string): boolean {
+    const s = (cpf || '').replace(/\D/g, '');
+    if (s.length !== 11) return false;
+    if (/^(\d)\1{10}$/.test(s)) return false;
+    const calc = (base: string, start: number) => {
+      let sum = 0; for (let i = 0; i < base.length; i++) sum += parseInt(base[i], 10) * (start - i);
+      const mod = sum % 11; return mod < 2 ? 0 : 11 - mod;
+    };
+    const d1 = calc(s.substring(0, 9), 10);
+    const d2 = calc(s.substring(0, 9) + String(d1), 11);
+    return s === s.substring(0, 9) + String(d1) + String(d2);
   }
 }
