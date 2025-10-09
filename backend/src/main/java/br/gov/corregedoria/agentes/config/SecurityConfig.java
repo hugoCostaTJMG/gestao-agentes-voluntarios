@@ -21,6 +21,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.security.oauth2.jwt.*;
+import br.gov.corregedoria.agentes.repository.AgenteVoluntarioRepository;
+import br.gov.corregedoria.agentes.util.DocumentoUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
@@ -71,6 +73,9 @@ public class SecurityConfig {
 
     @Autowired
     private ClientRegistrationRepository clientRegistrationRepository;
+
+    @Autowired
+    private AgenteVoluntarioRepository agenteVoluntarioRepository;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -189,6 +194,9 @@ public class SecurityConfig {
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtAuthenticationConverter authenticationConverter = new JwtAuthenticationConverter();
+        // Define o principal como preferred_username (CPF para agentes),
+        // assim Authentication#getName() reflete o identificador de login
+        authenticationConverter.setPrincipalClaimName("preferred_username");
         authenticationConverter.setJwtGrantedAuthoritiesConverter(jwt -> {
             Collection<GrantedAuthority> authorities = new ArrayList<>();
 
@@ -213,10 +221,41 @@ public class SecurityConfig {
                 }
             }
 
-            System.out.println("Authorities extraídas do JWT: " + authorities);
+            // Se o preferred_username for um CPF válido presente no banco, conceder ROLE_AGENTE dinamicamente
+            try {
+                String cpf = extractCpfFromJwt(jwt);
+                if (cpf != null && cpf.length() == 11 && DocumentoUtil.isValidCPF(cpf)) {
+                    boolean exists = false;
+                    try { exists = agenteVoluntarioRepository.existsByCpf(cpf); } catch (Exception ignored) {}
+                    if (exists) {
+                        authorities.add(new SimpleGrantedAuthority("ROLE_AGENTE"));
+                    }
+                }
+            } catch (Exception ignored) {}
+
             return authorities;
         });
         return authenticationConverter;
+    }
+
+    private static String extractCpfFromJwt(Jwt jwt) {
+        try {
+            String cpf = null;
+            Object c1 = jwt.getClaims().get("cpf");
+            if (c1 instanceof String s && !s.isBlank()) cpf = s;
+            if (cpf == null) {
+                Object c2 = jwt.getClaims().get("documento");
+                if (c2 instanceof String s && !s.isBlank()) cpf = s;
+            }
+            if (cpf == null) {
+                Object c3 = jwt.getClaims().get("preferred_username");
+                if (c3 instanceof String s && !s.isBlank()) cpf = s;
+            }
+            if (cpf == null) return null;
+            return cpf.replaceAll("\\D", "");
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Bean

@@ -50,26 +50,33 @@ public class AuthController {
 
         // extrai roles para determinar o perfil funcional
         Set<String> roles = extractRoles(jwt);
+
+        // Detecta login de agente via preferred_username sendo um CPF
+        String preferredUsername = getStringClaim(jwt, "preferred_username");
+        String preferredDigits = DocumentoUtil.cleanDigits(preferredUsername);
+        boolean isCpfLogin = preferredDigits != null && preferredDigits.length() == 11 && DocumentoUtil.isValidCPF(preferredDigits);
+
         if (roles.contains("CORREGEDORIA")) {
             dto.setPerfil("CORREGEDORIA");
         } else if (roles.contains("COMARCA")) {
             dto.setPerfil("COMARCA");
-        } else if (roles.contains("AGENTE")) {
+        } else if (isCpfLogin) {
+            // Não dependemos mais da role 'AGENTE' no Keycloak. Se o login é CPF, tratamos como AGENTE.
             dto.setPerfil("AGENTE");
         } else {
             dto.setPerfil(roles.stream().findFirst().orElse(""));
         }
 
-        // tenta obter CPF do token
-        String cpf = getStringClaim(jwt, "cpf");
-        if (cpf == null) {
+        // Obtém CPF: prioriza preferred_username quando for CPF
+        String cpfFromToken = getStringClaim(jwt, "cpf");
+        if (cpfFromToken == null) {
             // fallback para possíveis mapeamentos customizados
-            cpf = getStringClaim(jwt, "documento");
+            cpfFromToken = getStringClaim(jwt, "documento");
         }
-        String cpfClean = DocumentoUtil.cleanDigits(cpf);
+        String cpfClean = isCpfLogin ? preferredDigits : DocumentoUtil.cleanDigits(cpfFromToken);
         dto.setCpf(cpfClean);
 
-        // Se perfil AGENTE, valida existência no banco por CPF
+        // Se login via CPF (agente), valida existência no banco por CPF
         if ("AGENTE".equalsIgnoreCase(dto.getPerfil())) {
             if (cpfClean == null || cpfClean.isBlank()) {
                 return ResponseEntity.status(404).build();

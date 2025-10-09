@@ -3,6 +3,7 @@ package br.gov.corregedoria.agentes.controller;
 import br.gov.corregedoria.agentes.dto.AgenteVoluntarioDTO;
 import br.gov.corregedoria.agentes.dto.AgenteVoluntarioResponseDTO;
 import br.gov.corregedoria.agentes.entity.StatusAgente;
+import br.gov.corregedoria.agentes.dto.FotoAgenteDTO;
 import br.gov.corregedoria.agentes.service.AgenteVoluntarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -101,6 +102,10 @@ public class AgenteVoluntarioController {
                 Object doc = jwt.getClaims().get("documento");
                 cpf = doc instanceof String ? (String) doc : null;
             }
+            if (cpf == null || cpf.isBlank()) {
+                Object preferred = jwt.getClaims().get("preferred_username");
+                cpf = preferred instanceof String ? (String) preferred : null;
+            }
             if (cpf == null) return null;
             return cpf.replaceAll("\\D", "");
         } catch (Exception e) {
@@ -108,37 +113,60 @@ public class AgenteVoluntarioController {
         }
     }
 
-    @Operation(summary = "Obter foto do agente", description = "Retorna a foto do agente, caso cadastrada")
+    @Operation(summary = "Obter foto do agente (admin)", description = "Retorna a foto do agente por ID (uso administrativo)")
     @GetMapping("/{id}/foto")
-    @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('COMARCA') or hasRole('AGENTE')")
-    public ResponseEntity<byte[]> obterFoto(@Parameter(description = "ID do agente") @PathVariable Long id,
-                                            @AuthenticationPrincipal Jwt jwt,
-                                            Authentication authentication) {
-        // Se for AGENTE, restringe à própria foto
-        try {
-            boolean isAgente = authentication != null && authentication.getAuthorities().stream()
-                    .anyMatch(a -> "ROLE_AGENTE".equalsIgnoreCase(a.getAuthority()));
-            if (isAgente && jwt != null) {
-                String cpf = extractCpfFromJwt(jwt);
-                if (cpf != null && !cpf.isBlank()) {
-                    try {
-                        AgenteVoluntarioResponseDTO me = agenteService.buscarPorCpf(cpf);
-                        if (me.getId() != null && !me.getId().equals(id)) {
-                            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-                        }
-                    } catch (Exception ignored) {
-                        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-                    }
-                }
-            }
-        } catch (Exception ignored) { }
-
+    @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('COMARCA')")
+    public ResponseEntity<byte[]> obterFoto(@Parameter(description = "ID do agente") @PathVariable Long id) {
         return agenteService.obterFotoAgente(id)
                 .filter(foto -> foto != null && foto.length > 0)
                 .map(foto -> ResponseEntity.ok()
                         .contentType(MediaType.parseMediaType(deduzirMimeImagem(foto)))
                         .body(foto))
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @Operation(summary = "Obter minha foto (agente)", description = "Retorna a foto do próprio agente autenticado")
+    @GetMapping("/me/foto")
+    @PreAuthorize("hasRole('AGENTE')")
+    public ResponseEntity<byte[]> obterMinhaFoto(@AuthenticationPrincipal Jwt jwt) {
+        if (jwt == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        String cpf = extractCpfFromJwt(jwt);
+        if (cpf == null || cpf.isBlank()) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        try {
+            AgenteVoluntarioResponseDTO me = agenteService.buscarPorCpf(cpf);
+            return agenteService.obterFotoAgente(me.getId())
+                    .filter(foto -> foto != null && foto.length > 0)
+                    .map(foto -> ResponseEntity.ok()
+                            .contentType(MediaType.parseMediaType(deduzirMimeImagem(foto)))
+                            .body(foto))
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    @Operation(summary = "Obter fotos em lote", description = "Retorna fotos de múltiplos agentes para impressão de carteirinhas")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Lista de fotos retornada"),
+        @ApiResponse(responseCode = "403", description = "Acesso negado")
+    })
+    @PostMapping(value = "/fotos", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('CORREGEDORIA')")
+    public ResponseEntity<List<FotoAgenteDTO>> obterFotosEmLote(@RequestBody List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return ResponseEntity.ok(List.of());
+        }
+        List<FotoAgenteDTO> result = ids.stream().map(id -> {
+            byte[] foto = agenteService.obterFotoAgente(id).orElse(null);
+            String mime = foto != null ? deduzirMimeImagem(foto) : null;
+            String base64 = (foto != null && foto.length > 0) ? java.util.Base64.getEncoder().encodeToString(foto) : null;
+            FotoAgenteDTO dto = new FotoAgenteDTO();
+            dto.setAgenteId(id);
+            dto.setMimeType(mime);
+            dto.setFotoBase64(base64);
+            return dto;
+        }).toList();
+        return ResponseEntity.ok(result);
     }
 
     private static String deduzirMimeImagem(byte[] data) {

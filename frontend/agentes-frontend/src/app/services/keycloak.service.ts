@@ -171,7 +171,10 @@ export class KeycloakService {
       Object.values(resourceAccess).forEach((access: any) => access?.roles?.forEach((r: string) => roles.add(r.toUpperCase())));
       if (roles.has('CORREGEDORIA')) return 'CORREGEDORIA';
       if (roles.has('COMARCA')) return 'COMARCA';
-      if (roles.has('AGENTE')) return 'AGENTE';
+      // Não dependemos mais da role 'AGENTE'. Se preferred_username parecer CPF, tratamos como AGENTE
+      const preferred = String(payload?.preferred_username || '');
+      const digits = preferred.replace(/\D/g, '');
+      if (digits.length === 11) return 'AGENTE';
       return null;
     } catch {
       return null;

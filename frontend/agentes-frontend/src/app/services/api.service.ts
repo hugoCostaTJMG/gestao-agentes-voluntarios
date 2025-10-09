@@ -214,7 +214,13 @@ verificarStatusCarteirinha(agenteId: number): Observable<{ podeGerar: boolean, m
 
   // ===== FOTOS DE AGENTES =====
   getFotoAgente(agenteId: number): Observable<Blob> {
-    return this.http.get(`${this.baseUrl}/api/agentes/${agenteId}/foto`, {
+    const me = this.authService.getCurrentUser();
+    const perfil = (me?.perfil || '').toUpperCase();
+    const sameAgent = !!me?.id && Number(me.id) === Number(agenteId);
+    const endpoint = perfil === 'AGENTE' && sameAgent
+      ? `${this.baseUrl}/api/agentes/me/foto`
+      : `${this.baseUrl}/api/agentes/${agenteId}/foto`;
+    return this.http.get(endpoint, {
       headers: this.getAuthHeaders(),
       responseType: 'blob'
     });

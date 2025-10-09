@@ -33,8 +33,15 @@ export class PerfilComponent implements OnInit {
       this.erroTipo = 'danger';
       return;
     }
-
-    this.carregarPerfil();
+    // Se for AGENTE, carrega dados completos do banco (buscarAgenteMe)
+    // Caso contrário, usa apenas os dados do token (Keycloak) sem chamar o endpoint de agente
+    if ((this.usuario.perfil || '').toUpperCase() === 'AGENTE') {
+      this.carregarPerfil();
+    } else {
+      this.loading = false;
+      this.agente = undefined;
+      this.erro = '';
+    }
   }
 
   get nome(): string {
@@ -50,11 +57,15 @@ export class PerfilComponent implements OnInit {
   }
 
   get cpf(): string {
-    return this.formatarCPF(this.agente?.cpf);
+    // Se houver agente, usa CPF do banco; senão, tenta do token (/auth/me)
+    const cpf = this.agente?.cpf || this.usuario?.cpf;
+    return this.formatarCPF(cpf);
   }
 
   get telefone(): string {
-    return this.formatarTelefone(this.agente?.telefone);
+    // Se houver agente, usa telefone do banco; senão, tenta do token (/auth/me)
+    const tel = this.agente?.telefone || this.usuario?.telefone;
+    return this.formatarTelefone(tel);
   }
 
   get disponibilidade(): string {
@@ -66,22 +77,39 @@ export class PerfilComponent implements OnInit {
   }
 
   get dataCadastro(): string {
-    if (!this.agente?.dataCadastro) {
-      return '—';
+    const raw = (this.agente?.dataCadastro || '').toString().trim();
+    if (!raw) return '—';
+
+    // Se já vier formatado em pt-BR (ex.: "15/09/2025 18:00"), apenas retorna
+    if (/^\d{2}\/\d{2}\/\d{4}(\s+\d{2}:\d{2}(:\d{2})?)?$/.test(raw)) {
+      return raw;
     }
 
-    try {
-      return new Intl.DateTimeFormat('pt-BR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      }).format(new Date(this.agente.dataCadastro));
-    } catch (error) {
-      console.warn('Não foi possível formatar dataCadastro do perfil.', error);
-      return '—';
+    // Se vier em ISO (ex.: 2025-09-15T18:00:00Z), formata para pt-BR
+    if (/^\d{4}-\d{2}-\d{2}/.test(raw)) {
+      try {
+        const d = new Date(raw);
+        if (!isNaN(d.getTime())) {
+          return new Intl.DateTimeFormat('pt-BR', {
+            day: '2-digit', month: '2-digit', year: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+          }).format(d);
+        }
+      } catch {}
     }
+
+    // Tentativa final: tentar parse padrão do JS; se falhar, retorna como veio
+    try {
+      const d = new Date(raw);
+      if (!isNaN(d.getTime())) {
+        return new Intl.DateTimeFormat('pt-BR', {
+          day: '2-digit', month: '2-digit', year: 'numeric',
+          hour: '2-digit', minute: '2-digit'
+        }).format(d);
+      }
+    } catch {}
+
+    return raw;
   }
 
   get comarcas(): string {
