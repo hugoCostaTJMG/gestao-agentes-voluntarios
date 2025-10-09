@@ -20,6 +20,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import br.gov.corregedoria.agentes.util.DocumentoUtil;
 
 @Service
 public class DashboardService {
@@ -36,8 +37,16 @@ public class DashboardService {
     private static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     public DashboardOverviewDTO overview(Authentication authentication) {
-        if (authentication != null && hasRole(authentication, "ROLE_AGENTE") && !hasRole(authentication, "ROLE_ADMIN")) {
-            return overviewForAgente(authentication.getName());
+        if (authentication != null) {
+            boolean isAgente = hasRole(authentication, "ROLE_AGENTE");
+            boolean isCorregedoria = hasRole(authentication, "ROLE_CORREGEDORIA");
+            boolean isComarca = hasRole(authentication, "ROLE_COMARCA");
+
+            // Usuários com perfil de gestão (Corregedoria/Comarca) devem ver o overview administrativo
+            if (!isCorregedoria && !isComarca && isAgente) {
+                String usuario = DocumentoUtil.cleanDigits(authentication.getName());
+                return overviewForAgente(usuario);
+            }
         }
         return overviewForAdmin();
     }

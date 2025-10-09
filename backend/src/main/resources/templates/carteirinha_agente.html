@@ -27,7 +27,15 @@
 
     /* Dimensões da página A4 em retrato */
     .page { width: 210mm; height: 297mm; display: table; }
-    .pair { display: table-cell; vertical-align: middle; text-align: center; }
+    /* Container das duas faces. Removemos o espaço entre inline-blocks
+       zerando o font-size e evitando quebra de linha. */
+    .pair {
+      display: table-cell;
+      vertical-align: middle;
+      text-align: center;
+      font-size: 0;         /* elimina gap entre .card .card */
+      white-space: nowrap;  /* mantém as duas faces coladas */
+    }
     .cards-row { width: 236mm; margin: 0 auto; border-collapse: separate; border-spacing: 8mm 0; }
     .cards-row td { vertical-align: top; }
 
@@ -41,7 +49,7 @@
       background: #efefef;
       border: 2mm solid #d82020;
       border-top: 0;
-      border-bottom: 1mm solid #d82020;
+      border-bottom: 2mm solid #d82020;
       box-sizing: border-box;
       overflow: hidden;
     }
@@ -84,7 +92,7 @@
        border-bottom: none;
     }
     .field {
-      background: #ffffff; border: 0.18mm solid #cfcfcf;
+      background: #ffffff; 
       min-height: 4mm; padding: 1.0mm 0.5mm; line-height: 1.2; box-sizing: border-box;
     }
     .field.tall { min-height: 10mm; } /* Nome */
@@ -116,7 +124,7 @@
     .fil-row { display: flex; gap: 0mm; align-items: stretch; margin-top: 1.4mm; }
     .fil-left { flex: 1 1 auto; min-width: 0; }
     .qr-wrap { flex: 0 0 0mm; display: flex; flex-direction: column; }
-    .qr-bar { height: 4mm; background: #dedede; color: #444444; display: flex; align-items: center; padding: 0 1.6mm; box-sizing: border-box; font-weight: 700; font-size: 4.5pt; letter-spacing: 0.06em; text-transform: uppercase; border: 0.18mm solid #cfcfcf; border-bottom: none; }
+    .qr-bar { height: 4mm; background: #dedede; color: #444444; display: flex; align-items: center; padding: 0 1.6mm; box-sizing: border-box; font-weight: 700; font-size: 4.5pt; letter-spacing: 0.06em; text-transform: uppercase; border-bottom: none; }
     .qr-field { background: #ffffff; display: flex; align-items: center; justify-content: center; height: 10mm; box-sizing: border-box; }
     .qr-img {
       width: 100%; height: 100%; object-fit: contain;
@@ -124,7 +132,7 @@
     }
 
     /* Assinatura */
-    .sign { margin-top: 5mm; }
+    .sign { margin-top: 6.2mm; }
     .sign .rule { margin-top: 0; }
     .sign-caption { margin-top: 0.6mm; text-align: center; font-size: 4pt; text-transform: uppercase; }
     .right { text-align: right; }
@@ -164,17 +172,16 @@
           <table class="table" style="margin-top:1mm;">
             <tr>
               <!-- Coluna da foto -->
-              <td class="left-col" style="align-items: center;">
-                <div th:if="${foto != null}" style="justify-self: center;"><img th:src="${foto}" style="justify-self: center;" alt="Foto" class="photo-img" /></div>
-                <div th:if="${foto == null}" class="photo-ph" style="justify-self: center; display: none;"></div>
+              <td class="left-col" style="vertical-align: top;">
+                <div th:if="${foto != null}" style="text-align:center; margin-left: -5mm;"><img th:src="${foto}" alt="Foto" class="photo-img" /></div>
               </td>
               <!-- Coluna direita com comarca + nome empilhados -->
-              <td style="padding-left:3mm;">
-                <div class="block" style="margin-top:0;">
+              <td >
+                <div class="block" style="margin-top:0; margin-left: -5mm;">
                   <div class="bar">Válida na Comarca de</div>
                   <div class="field" th:text="${comarca}"></div>
                 </div>
-                <div class="block">
+                <div class="block" style="margin-left: -5mm;">
                   <div class="bar">Nome</div>
                   <div class="field tall" th:text="${nomeCompleto}"></div>
                 </div>
@@ -182,8 +189,8 @@
             </tr>
           </table>
 
-          <div class="rule"></div>
-          <div class="judge">Juiz de Direito da Infância e da Juventude</div>
+          <div class="rule" style="margin-left: 23.5mm;"></div>
+          <div class="judge" style="margin-left: 23mm;">Juiz de Direito da Infância e da Juventude</div>
           <div class="legal">Credencial conforme o disposto no art. 362, §1º do Provimento nº 355/2018</div>
         </div>
       </section>
@@ -262,7 +269,6 @@
           <div class="sign">
             <div class="rule"></div>
             <div class="sign-caption">Assinatura do Agente Voluntário de Proteção à Criança e ao Adolescente</div>
-            <div class="small right" style="margin-top:0.6mm;">Nº <span th:text="${numeroCredencial}"></span></div>
           </div>
         </div>
       </section>
