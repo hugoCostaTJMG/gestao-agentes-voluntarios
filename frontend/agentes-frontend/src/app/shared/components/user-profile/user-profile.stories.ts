@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/angular';
 import { applicationConfig, moduleMetadata } from '@storybook/angular';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { action } from '@storybook/addon-actions';
 import { throwError } from 'rxjs';
 import { delay } from 'rxjs/operators';
 
@@ -33,10 +32,6 @@ const meta: Meta<UserProfileComponent> = {
     fluid: true,
     skeleton: false,
     readonly: false,
-    saved: action('saved'),
-    canceled: action('canceled'),
-    avatarChanged: action('avatarChanged'),
-    passwordChanged: action('passwordChanged'),
   },
   argTypes: {
     size: {
@@ -52,6 +47,10 @@ const meta: Meta<UserProfileComponent> = {
     fluid: {
       control: 'boolean',
     },
+    saved: { action: 'saved' },
+    canceled: { action: 'canceled' },
+    avatarChanged: { action: 'avatarChanged' },
+    passwordChanged: { action: 'passwordChanged' },
   },
   tags: ['autodocs'],
 };

@@ -1,0 +1,9 @@
+<span class="tag" [ngClass]="[kind, size, disabled ? 'disabled' : '']" (click)="onClick()" role="status">
+  <i *ngIf="iconLeft" [class]="iconLeft" aria-hidden="true"></i>
+  <span>{{ text }}</span>
+  <button *ngIf="filter" type="button" class="tag-close" (click)="onClose($event)" [attr.aria-label]="'Remover'">
+    <i class="fas fa-times"></i>
+  </button>
+  <i *ngIf="iconRight && !filter" [class]="iconRight" aria-hidden="true"></i>
+</span>
+

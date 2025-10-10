@@ -1,0 +1,43 @@
+<div class="ti-container" [ngClass]="containerClasses">
+  <label *ngIf="label && !hideLabel" class="ti-label" [for]="inputId">{{ label }}</label>
+
+  <div class="ti-field">
+    <i *ngIf="prefixIcon" [class]="prefixIcon" class="ti-prefix" aria-hidden="true"></i>
+    <input
+      class="ti-input"
+      [id]="inputId"
+      type="text"
+      [attr.name]="name || null"
+      [placeholder]="placeholder"
+      [attr.autocomplete]="autocomplete"
+      [disabled]="disabled || skeleton"
+      [readonly]="readonly"
+      [required]="required"
+      [attr.aria-label]="computedAriaLabel"
+      [attr.aria-invalid]="showError ? 'true' : null"
+      [attr.aria-describedby]="describedBy"
+      [ngModel]="value"
+      (ngModelChange)="value = $event"
+      (input)="onInput($event)"
+      (focus)="onFocus()"
+      (blur)="onBlur()"
+      (keydown)="onKeydown($event)"
+      [attr.maxLength]="maxLength !== null ? maxLength : null"
+    />
+    <button *ngIf="clearable && value && !disabled && !readonly && !skeleton"
+            type="button" class="ti-clear"
+            (click)="value=''; valueChange.emit(''); changed.emit('')"
+            [attr.aria-label]="'Limpar'">
+      <i class="fas fa-times"></i>
+    </button>
+    <i *ngIf="suffixIcon && !(clearable && value)" [class]="suffixIcon" class="ti-suffix" aria-hidden="true"></i>
+  </div>
+
+  <div class="ti-meta">
+    <div *ngIf="showError && errorMessage" class="ti-error" [id]="errorId">{{ errorMessage }}</div>
+    <div *ngIf="!showError && showWarning && warningMessage" class="ti-warn" [id]="warnId">{{ warningMessage }}</div>
+    <div *ngIf="!showError && !showWarning && helperText" class="ti-helper" [id]="helperId">{{ helperText }}</div>
+    <div *ngIf="maxLength !== null" class="ti-counter" [id]="counterId">{{ (value || '').length }}/{{ maxLength }}</div>
+  </div>
+</div>
+

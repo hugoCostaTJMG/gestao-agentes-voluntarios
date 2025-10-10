@@ -1,0 +1,29 @@
+.ti-container { display: block; }
+.ti-label { display: inline-block; margin-bottom: 4px; font-weight: 600; color: #495057; }
+.ti-field { position: relative; display: flex; align-items: center; }
+.ti-input {
+  width: 100%;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #212529;
+  outline: none;
+}
+.ti-container.size-sm .ti-input { padding: 6px 10px; font-size: 13px; }
+.ti-container.size-lg .ti-input { padding: 10px 14px; font-size: 15px; }
+.ti-container.is-invalid .ti-input { border-color: var(--danger-color); }
+.ti-container.is-warn .ti-input { border-color: var(--warning-color); }
+.ti-container.is-focused .ti-input { box-shadow: 0 0 0 2px rgba(216,32,32,.15); border-color: var(--primary-color); }
+.ti-container.is-disabled .ti-input { background: #f8f9fa; color: #6c757d; }
+.ti-prefix { position: absolute; left: 10px; color: #6c757d; }
+.ti-suffix { position: absolute; right: 10px; color: #6c757d; }
+.ti-clear { position: absolute; right: 6px; border: none; background: transparent; color: #6c757d; cursor: pointer; padding: 4px; }
+.with-prefix .ti-input { padding-left: 32px; }
+.with-suffix .ti-input { padding-right: 32px; }
+.ti-meta { display: flex; margin-top: 4px; gap: 8px; align-items: baseline; }
+.ti-helper { color: #6c757d; font-size: 12px; }
+.ti-error { color: var(--danger-color); font-size: 12px; }
+.ti-warn { color: var(--warning-color); font-size: 12px; }
+.ti-counter { margin-left: auto; color: #6c757d; font-size: 12px; }
+

@@ -1,0 +1,23 @@
+.ta-label { display: inline-block; margin-bottom: 4px; font-weight: 600; color: #495057; }
+.ta-input {
+  width: 100%;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #212529;
+  outline: none;
+  resize: vertical;
+}
+.ta-container.size-sm .ta-input { padding: 6px 10px; font-size: 13px; }
+.ta-container.size-lg .ta-input { padding: 10px 14px; font-size: 15px; }
+.ta-container.is-invalid .ta-input { border-color: var(--danger-color); }
+.ta-container.is-warn .ta-input { border-color: var(--warning-color); }
+.ta-container.is-focused .ta-input { box-shadow: 0 0 0 2px rgba(216,32,32,.15); border-color: var(--primary-color); }
+.ta-container.is-disabled .ta-input { background: #f8f9fa; color: #6c757d; }
+.ta-meta { display: flex; margin-top: 4px; gap: 8px; align-items: baseline; }
+.ta-helper { color: #6c757d; font-size: 12px; }
+.ta-error { color: var(--danger-color); font-size: 12px; }
+.ta-warn { color: var(--warning-color); font-size: 12px; }
+.ta-counter { margin-left: auto; color: #6c757d; font-size: 12px; }
+

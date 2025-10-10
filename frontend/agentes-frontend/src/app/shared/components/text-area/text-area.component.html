@@ -1,0 +1,29 @@
+<div class="ta-container" [ngClass]="containerClasses">
+  <label *ngIf="label && !hideLabel" class="ta-label" [for]="id">{{ label }}</label>
+  <textarea
+    class="ta-input"
+    [id]="id"
+    [attr.name]="name || null"
+    [placeholder]="placeholder"
+    [disabled]="disabled || skeleton"
+    [readonly]="readonly"
+    [required]="required"
+    [rows]="rows"
+    [attr.aria-label]="computedAriaLabel"
+    [attr.aria-invalid]="showError ? 'true' : null"
+    [attr.aria-describedby]="helperId"
+    [ngModel]="value"
+    (ngModelChange)="value = $event"
+    (input)="onInput($event)"
+    (focus)="onFocus()"
+    (blur)="onBlur()"
+    [attr.maxLength]="maxLength !== null ? maxLength : null"
+  ></textarea>
+  <div class="ta-meta">
+    <div *ngIf="showError && errorMessage" class="ta-error" [id]="errorId">{{ errorMessage }}</div>
+    <div *ngIf="!showError && showWarning && warningMessage" class="ta-warn" [id]="warnId">{{ warningMessage }}</div>
+    <div *ngIf="!showError && !showWarning && helperText" class="ta-helper" [id]="helperId">{{ helperText }}</div>
+    <div *ngIf="maxLength !== null" class="ta-counter" [id]="counterId">{{ (value || '').length }}/{{ maxLength }}</div>
+  </div>
+</div>
+

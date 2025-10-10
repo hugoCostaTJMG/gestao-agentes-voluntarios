@@ -1,0 +1,6 @@
+<div class="srch" [ngClass]="['size-' + size, fluid ? 'is-fluid' : '']">
+  <i class="fas fa-search srch-icon" aria-hidden="true"></i>
+  <input class="srch-input" [placeholder]="placeholder" [disabled]="disabled" [ngModel]="value" (ngModelChange)="onInput($event)" (keyup.enter)="onSubmit()"/>
+  <button class="srch-button" type="button" (click)="onSubmit()" [disabled]="disabled">Pesquisar</button>
+</div>
+

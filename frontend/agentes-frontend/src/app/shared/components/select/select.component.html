@@ -1,0 +1,15 @@
+<div class="sel-container" [ngClass]="containerClasses">
+  <label *ngIf="label" class="sel-label">{{ label }}</label>
+  <app-dropdown [options]="options"
+                [placeholder]="placeholder"
+                [multiSelect]="multi"
+                [parentCheckbox]="multi"
+                [fluid]="true"
+                (changed)="onChanged($event)"></app-dropdown>
+  <div class="sel-meta">
+    <div *ngIf="invalid && errorMessage" class="sel-error">{{ errorMessage }}</div>
+    <div *ngIf="!invalid && warn && warningMessage" class="sel-warn">{{ warningMessage }}</div>
+    <div *ngIf="!invalid && !warn && helperText" class="sel-helper">{{ helperText }}</div>
+  </div>
+</div>
+

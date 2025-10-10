@@ -1,0 +1,8 @@
+.sel-label { display: inline-block; margin-bottom: 4px; font-weight: 600; color: #495057; }
+.sel-container.is-invalid app-dropdown .trigger { border-color: var(--danger-color); }
+.sel-container.is-warn app-dropdown .trigger { border-color: var(--warning-color); }
+.sel-meta { display: flex; margin-top: 4px; gap: 8px; align-items: baseline; }
+.sel-error { color: var(--danger-color); font-size: 12px; }
+.sel-warn { color: var(--warning-color); font-size: 12px; }
+.sel-helper { color: #6c757d; font-size: 12px; }
+

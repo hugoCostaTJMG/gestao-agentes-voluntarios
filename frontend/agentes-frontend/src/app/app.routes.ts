@@ -41,7 +41,7 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./components/impressao-carteirinha/impressao-carteirinha.component').then(m => m.ImpressaoCarteirinhaComponent),
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['CORREGEDORIA'] }
+    data: { roles: ['CORREGEDORIA'], title: 'Impressão de Carteirinha', icon: 'fas fa-id-card', showBack: true }
   },
   {
     path: 'agentes',

@@ -41,10 +41,21 @@ public class CredencialController {
     @PreAuthorize("hasRole('CORREGEDORIA')")
     public ResponseEntity<CredencialDTO> emitirCredencial(
             @Parameter(description = "ID do agente") @PathVariable Long agenteId,
-            Authentication authentication) throws WriterException, IOException {
-        
-        String usuarioLogado = authentication.getName();
-        CredencialDTO response = credencialService.emitirCredencial(agenteId, usuarioLogado);
+            Authentication authentication,
+            @org.springframework.security.core.annotation.AuthenticationPrincipal org.springframework.security.oauth2.jwt.Jwt jwt
+    ) throws WriterException, IOException {
+
+        // Salva o preferred_username do usuário emissor
+        String preferred = null;
+        if (jwt != null) {
+            try { preferred = jwt.getClaimAsString("preferred_username"); } catch (Exception ignored) {}
+        }
+        if (preferred == null || preferred.isBlank()) {
+            // Fallback: principal já configurado para preferred_username
+            preferred = authentication != null ? authentication.getName() : "DESCONHECIDO";
+        }
+
+        CredencialDTO response = credencialService.emitirCredencial(agenteId, preferred);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

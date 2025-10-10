@@ -1,0 +1,12 @@
+.tag { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 2px 8px; font-size: 12px; line-height: 1.4; border: 1px solid transparent; user-select: none; }
+.tag.sm { padding: 1px 6px; font-size: 11px; }
+.tag.primary { background: rgba(216,32,32,.08); color: var(--primary-color); border-color: rgba(216,32,32,.25); }
+.tag.secondary { background: #f1f3f5; color: #495057; border-color: #e9ecef; }
+.tag.success { background: rgba(25,135,84,.08); color: var(--success-color); border-color: rgba(25,135,84,.25); }
+.tag.warning { background: rgba(255,193,7,.12); color: var(--warning-color); border-color: rgba(255,193,7,.25); }
+.tag.danger { background: rgba(220,53,69,.10); color: var(--danger-color); border-color: rgba(220,53,69,.25); }
+.tag.info { background: rgba(13,110,253,.08); color: var(--info-color); border-color: rgba(13,110,253,.25); }
+.tag.neutral { background: #f8f9fa; color: #495057; border-color: #e9ecef; }
+.tag.disabled { opacity: .6; pointer-events: none; }
+.tag .tag-close { border: 0; background: transparent; color: inherit; cursor: pointer; padding: 0 2px; }
+
