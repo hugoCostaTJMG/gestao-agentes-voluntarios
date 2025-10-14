@@ -5,52 +5,67 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 @Entity
-@Table(name = "RESPONSAVEL")
+@Table(name = "responsavel")
 public class Responsavel {
 
     @Id
-    @Column(name = "ID_RESPONSAVEL", length = 255)
-    private String idResponsavel;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_RESPONSAVEL")
+    @SequenceGenerator(name = "S_RESPONSAVEL", sequenceName = "S_RESPONSAVEL", allocationSize = 1)
+    @Column(name = "id", updatable = false, nullable = false)
+    private Long id;
 
     @NotBlank
     @Size(max = 255)
-    @Column(name = "NOME_RESPONSAVEL", nullable = false, length = 255)
+    @Column(name = "id_responsavel_str", nullable = false, unique = true, length = 255)
+    private String idResponsavelStr;
+
+    @NotBlank
+    @Size(max = 255)
+    @Column(name = "nome_responsavel", nullable = false, length = 255)
     private String nomeResponsavel;
 
     @Size(max = 20)
-    @Column(name = "RG_RESPONSAVEL", length = 20)
+    @Column(name = "rg_responsavel", length = 20)
     private String rgResponsavel;
 
     @Size(max = 14)
-    @Column(name = "CPF_RESPONSAVEL", length = 14, unique = true)
+    @Column(name = "cpf_responsavel", length = 14, unique = true)
     private String cpfResponsavel;
 
     @Size(max = 255)
-    @Column(name = "CONDICAO_RESPONSAVEL", length = 255)
+    @Column(name = "condicao_responsavel", length = 255)
     private String condicaoResponsavel;
 
     @Size(max = 500)
-    @Column(name = "ENDERECO_RESPONSAVEL", length = 500)
+    @Column(name = "endereco_responsavel", length = 500)
     private String enderecoResponsavel;
 
     @Size(max = 255)
-    @Column(name = "COMPLEMENTO_RESPONSAVEL", length = 255)
+    @Column(name = "complemento_responsavel", length = 255)
     private String complementoResponsavel;
 
     @Size(max = 255)
-    @Column(name = "BAIRRO_RESPONSAVEL", length = 255)
+    @Column(name = "bairro_responsavel", length = 255)
     private String bairroResponsavel;
 
     @Size(max = 255)
-    @Column(name = "CIDADE_RESPONSAVEL", length = 255)
+    @Column(name = "cidade_responsavel", length = 255)
     private String cidadeResponsavel;
 
-    public String getIdResponsavel() {
-        return idResponsavel;
+    public Long getId() {
+        return id;
     }
 
-    public void setIdResponsavel(String idResponsavel) {
-        this.idResponsavel = idResponsavel;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getIdResponsavelStr() {
+        return idResponsavelStr;
+    }
+
+    public void setIdResponsavelStr(String idResponsavelStr) {
+        this.idResponsavelStr = idResponsavelStr;
     }
 
     public String getNomeResponsavel() {

@@ -5,44 +5,59 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 @Entity
-@Table(name = "ESTABELECIMENTO")
+@Table(name = "estabelecimento")
 public class Estabelecimento {
 
     @Id
-    @Column(name = "ID_ESTABELECIMENTO", length = 255)
-    private String idEstabelecimento;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_ESTABELECIMENTO")
+    @SequenceGenerator(name = "S_ESTABELECIMENTO", sequenceName = "S_ESTABELECIMENTO", allocationSize = 1)
+    @Column(name = "id", updatable = false, nullable = false)
+    private Long id;
+
+    @NotBlank
+    @Size(max = 255)
+    @Column(name = "id_estabelecimento_str", nullable = false, unique = true, length = 255)
+    private String idEstabelecimentoStr;
 
     @Size(max = 18)
-    @Column(name = "CNPJ", unique = true, length = 18)
+    @Column(name = "cnpj", unique = true, length = 18)
     private String cnpj;
 
     @NotBlank
     @Size(max = 255)
-    @Column(name = "NOME_ESTABELECIMENTO", nullable = false, length = 255)
+    @Column(name = "nome_estabelecimento", nullable = false, length = 255)
     private String nomeEstabelecimento;
 
     @Size(max = 500)
-    @Column(name = "ENDERECO_ESTABELECIMENTO", length = 500)
+    @Column(name = "endereco_estabelecimento", length = 500)
     private String enderecoEstabelecimento;
 
     @Size(max = 255)
-    @Column(name = "COMPLEMENTO_ESTABELECIMENTO", length = 255)
+    @Column(name = "complemento_estabelecimento", length = 255)
     private String complementoEstabelecimento;
 
     @Size(max = 255)
-    @Column(name = "BAIRRO_ESTABELECIMENTO", length = 255)
+    @Column(name = "bairro_estabelecimento", length = 255)
     private String bairroEstabelecimento;
 
     @Size(max = 255)
-    @Column(name = "CIDADE_ESTABELECIMENTO", length = 255)
+    @Column(name = "cidade_estabelecimento", length = 255)
     private String cidadeEstabelecimento;
 
-    public String getIdEstabelecimento() {
-        return idEstabelecimento;
+    public Long getId() {
+        return id;
     }
 
-    public void setIdEstabelecimento(String idEstabelecimento) {
-        this.idEstabelecimento = idEstabelecimento;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getIdEstabelecimentoStr() {
+        return idEstabelecimentoStr;
+    }
+
+    public void setIdEstabelecimentoStr(String idEstabelecimentoStr) {
+        this.idEstabelecimentoStr = idEstabelecimentoStr;
     }
 
     public String getCnpj() {

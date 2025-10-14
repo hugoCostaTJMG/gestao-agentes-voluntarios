@@ -170,7 +170,7 @@ public class AutoInfracaoController {
     @Operation(summary = "Remover menor envolvido do Auto")
     @DeleteMapping("/{id}/menores/{idMenor}")
     @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('AGENTE')")
-    public ResponseEntity<Void> removerMenor(@PathVariable Long id, @PathVariable String idMenor) {
+    public ResponseEntity<Void> removerMenor(@PathVariable Long id, @PathVariable Long idMenor) {
         autoService.removerMenor(id, idMenor);
         return ResponseEntity.noContent().build();
     }
@@ -178,7 +178,7 @@ public class AutoInfracaoController {
     @Operation(summary = "Associar testemunha ao Auto")
     @PostMapping("/{id}/testemunhas/{idTestemunha}")
     @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('AGENTE')")
-    public ResponseEntity<AutoInfracao> associarTestemunha(@PathVariable Long id, @PathVariable String idTestemunha) {
+    public ResponseEntity<AutoInfracao> associarTestemunha(@PathVariable Long id, @PathVariable Long idTestemunha) {
         AutoInfracao atualizado = autoService.associarTestemunha(id, idTestemunha);
         return ResponseEntity.ok(atualizado);
     }
@@ -186,7 +186,7 @@ public class AutoInfracaoController {
     @Operation(summary = "Desassociar testemunha do Auto")
     @DeleteMapping("/{id}/testemunhas/{idTestemunha}")
     @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('AGENTE')")
-    public ResponseEntity<AutoInfracao> desassociarTestemunha(@PathVariable Long id, @PathVariable String idTestemunha) {
+    public ResponseEntity<AutoInfracao> desassociarTestemunha(@PathVariable Long id, @PathVariable Long idTestemunha) {
         AutoInfracao atualizado = autoService.desassociarTestemunha(id, idTestemunha);
         return ResponseEntity.ok(atualizado);
     }

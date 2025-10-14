@@ -14,7 +14,8 @@ public class EstabelecimentoDtos {
     ) {}
 
     public record EstabelecimentoResponse(
-            String idEstabelecimento,
+            Long id,
+            String idEstabelecimentoStr,
             String nomeEstabelecimento,
             String cnpj,
             String enderecoEstabelecimento,

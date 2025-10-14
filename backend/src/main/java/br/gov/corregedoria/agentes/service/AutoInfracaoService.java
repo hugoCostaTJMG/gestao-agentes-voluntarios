@@ -65,8 +65,8 @@ public class AutoInfracaoService {
         auto.setStatus(StatusAutoInfracao.RASCUNHO);
 
         // Novo identificador DER
-        if (auto.getIdAutoInfracao() == null || auto.getIdAutoInfracao().isBlank()) {
-            auto.setIdAutoInfracao(java.util.UUID.randomUUID().toString());
+        if (auto.getIdAutoInfracaoStr() == null || auto.getIdAutoInfracaoStr().isBlank()) {
+            auto.setIdAutoInfracaoStr(java.util.UUID.randomUUID().toString());
         }
 
         // Preenche campos DER de comissário
@@ -78,18 +78,18 @@ public class AutoInfracaoService {
         }
 
         // Cria placeholders de relacionamento se necessário
-        if (auto.getEstabelecimento() == null || auto.getEstabelecimento().getIdEstabelecimento() == null) {
+        if (auto.getEstabelecimento() == null || auto.getEstabelecimento().getId() == null) {
             br.gov.corregedoria.agentes.entity.Estabelecimento est = new br.gov.corregedoria.agentes.entity.Estabelecimento();
-            est.setIdEstabelecimento(java.util.UUID.randomUUID().toString());
+            est.setIdEstabelecimentoStr(java.util.UUID.randomUUID().toString());
             est.setNomeEstabelecimento(auto.getNomeAutuado());
             // se for CNPJ
             String doc = auto.getCpfCnpjAutuado();
             if (doc != null && doc.length() == 14) { est.setCnpj(doc); }
             auto.setEstabelecimento(estabelecimentoRepository.save(est));
         }
-        if (auto.getResponsavel() == null || auto.getResponsavel().getIdResponsavel() == null) {
+        if (auto.getResponsavel() == null || auto.getResponsavel().getId() == null) {
             br.gov.corregedoria.agentes.entity.Responsavel resp = new br.gov.corregedoria.agentes.entity.Responsavel();
-            resp.setIdResponsavel(java.util.UUID.randomUUID().toString());
+            resp.setIdResponsavelStr(java.util.UUID.randomUUID().toString());
             resp.setNomeResponsavel(auto.getNomeAutuado());
             String doc = auto.getCpfCnpjAutuado();
             if (doc != null && doc.length() == 11) { resp.setCpfResponsavel(doc); }
@@ -185,14 +185,14 @@ public class AutoInfracaoService {
     public MenorEnvolvido adicionarMenor(Long autoId, @Valid MenorEnvolvido menor) {
         AutoInfracao auto = autoRepository.findById(autoId)
                 .orElseThrow(() -> new EntityNotFoundException("Auto não encontrado: " + autoId));
-        if (menor.getIdMenor() == null || menor.getIdMenor().isBlank()) {
-            menor.setIdMenor(java.util.UUID.randomUUID().toString());
+        if (menor.getIdMenorStr() == null || menor.getIdMenorStr().isBlank()) {
+            menor.setIdMenorStr(java.util.UUID.randomUUID().toString());
         }
         menor.setAutoInfracao(auto);
         return menorEnvolvidoRepository.save(menor);
     }
 
-    public void removerMenor(Long autoId, String idMenor) {
+    public void removerMenor(Long autoId, Long idMenor) {
         AutoInfracao auto = autoRepository.findById(autoId)
                 .orElseThrow(() -> new EntityNotFoundException("Auto não encontrado: " + autoId));
         MenorEnvolvido menor = menorEnvolvidoRepository.findById(idMenor)
@@ -203,7 +203,7 @@ public class AutoInfracaoService {
         menorEnvolvidoRepository.delete(menor);
     }
 
-    public AutoInfracao associarTestemunha(Long autoId, String testemunhaId) {
+    public AutoInfracao associarTestemunha(Long autoId, Long testemunhaId) {
         AutoInfracao auto = autoRepository.findById(autoId)
                 .orElseThrow(() -> new EntityNotFoundException("Auto não encontrado: " + autoId));
         Testemunha t = testemunhaRepository.findById(testemunhaId)
@@ -212,7 +212,7 @@ public class AutoInfracaoService {
         return autoRepository.save(auto);
     }
 
-    public AutoInfracao desassociarTestemunha(Long autoId, String testemunhaId) {
+    public AutoInfracao desassociarTestemunha(Long autoId, Long testemunhaId) {
         AutoInfracao auto = autoRepository.findById(autoId)
                 .orElseThrow(() -> new EntityNotFoundException("Auto não encontrado: " + autoId));
         Testemunha t = testemunhaRepository.findById(testemunhaId)

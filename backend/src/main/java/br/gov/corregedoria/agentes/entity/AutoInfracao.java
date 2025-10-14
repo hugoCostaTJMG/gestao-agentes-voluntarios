@@ -31,8 +31,8 @@ public class AutoInfracao {
     private Long id;
 
     // Identificador string adicional (para novas relações do DER)
-    @Column(name = "ID_AUTO_INFRACAO", unique = true, length = 255)
-    private String idAutoInfracao;
+    @Column(name = "id_auto_infracao_str", unique = true, length = 255)
+    private String idAutoInfracaoStr;
 
     @Column(name = "numero_auto", unique = true, length = 30)
     private String numeroAuto;
@@ -84,7 +84,7 @@ public class AutoInfracao {
     private Comarca comarca;
 
     // Campo texto para comarca conforme novo DER
-    @Column(name = "COMARCA", length = 255)
+    @Column(name = "comarca", length = 255)
     private String comarcaTexto;
     
     // === BASE LEGAL (Obrigatória) ===
@@ -96,15 +96,15 @@ public class AutoInfracao {
 
     // Novos campos do DER
     @Size(max = 500)
-    @Column(name = "FUNDAMENTO_LEGAL", length = 500)
+    @Column(name = "fundamento_legal", length = 500)
     private String fundamentoLegal;
 
     @Size(max = 255)
-    @Column(name = "ARTIGO_ECA", length = 255)
+    @Column(name = "artigo_eca", length = 255)
     private String artigoEca;
 
     @Size(max = 255)
-    @Column(name = "PORTARIA_N", length = 255)
+    @Column(name = "portaria_n", length = 255)
     private String portariaN;
     
     // === DADOS DA INFRAÇÃO (Obrigatórios) ===
@@ -118,7 +118,7 @@ public class AutoInfracao {
     private LocalTime horaInfracao;
 
     // Campo novo (DER): timestamp completo da infração
-    @Column(name = "HORARIO_INFRACAO")
+    @Column(name = "horario_infracao")
     private LocalDateTime horarioInfracao;
     
     @NotBlank(message = "Local da infração é obrigatório")
@@ -147,10 +147,10 @@ public class AutoInfracao {
     @Column(name = "sexo_crianca", length = 1)
     private String sexoCrianca;
 
-    @Column(name = "NUMERO_CRIANCAS")
+    @Column(name = "numero_criancas")
     private Integer numeroCriancas;
 
-    @Column(name = "NUMERO_ADOLESCENTES")
+    @Column(name = "numero_adolescentes")
     private Integer numeroAdolescentes;
     
     // === DADOS DAS TESTEMUNHAS (Opcionais) ===
@@ -169,21 +169,21 @@ public class AutoInfracao {
     private Boolean assinaturaAutuado;
 
     @Size(max = 255)
-    @Column(name = "NOME_COMISSARIO_AUTUANTE", length = 255)
+    @Column(name = "nome_comissario_autuante", length = 255)
     private String nomeComissarioAutuante;
 
     @Size(max = 255)
-    @Column(name = "MATRICULA_AUTUANTE", length = 255)
+    @Column(name = "matricula_autuante", length = 255)
     private String matriculaAutuante;
 
     @Lob
-    @Column(name = "OBSERVACOES")
+    @Column(name = "observacoes")
     private String observacoes;
 
-    @Column(name = "DATA_INTIMACAO")
+    @Column(name = "data_intimacao")
     private LocalDate dataIntimacao;
 
-    @Column(name = "PRAZO_DEFESA")
+    @Column(name = "prazo_defesa")
     private LocalDate prazoDefesa;
     
     // === CONTROLE DO SISTEMA ===
@@ -226,11 +226,11 @@ public class AutoInfracao {
 
     // Novos relacionamentos do DER
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "ID_ESTABELECIMENTO", referencedColumnName = "ID_ESTABELECIMENTO")
+    @JoinColumn(name = "estabelecimento_id")
     private Estabelecimento estabelecimento;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "ID_RESPONSAVEL", referencedColumnName = "ID_RESPONSAVEL")
+    @JoinColumn(name = "responsavel_id")
     private Responsavel responsavel;
 
     @OneToMany(mappedBy = "autoInfracao", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -238,9 +238,9 @@ public class AutoInfracao {
 
     @ManyToMany
     @JoinTable(
-        name = "AUTO_INFRACAO_TESTEMUNHA",
-        joinColumns = @JoinColumn(name = "ID_AUTO_INFRACAO", referencedColumnName = "ID_AUTO_INFRACAO"),
-        inverseJoinColumns = @JoinColumn(name = "ID_TESTEMUNHA", referencedColumnName = "ID_TESTEMUNHA")
+        name = "auto_infracao_testemunha",
+        joinColumns = @JoinColumn(name = "auto_id"),
+        inverseJoinColumns = @JoinColumn(name = "testemunha_id")
     )
     private Set<Testemunha> testemunhas = new HashSet<>();
     
@@ -308,6 +308,14 @@ public class AutoInfracao {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getIdAutoInfracaoStr() {
+        return idAutoInfracaoStr;
+    }
+
+    public void setIdAutoInfracaoStr(String idAutoInfracaoStr) {
+        this.idAutoInfracaoStr = idAutoInfracaoStr;
     }
 
     public String getNumeroAuto() {
@@ -543,9 +551,6 @@ public class AutoInfracao {
     }
     
     // === GETTERS/SETTERS ADICIONAIS (novo DER) ===
-    public String getIdAutoInfracao() { return idAutoInfracao; }
-    public void setIdAutoInfracao(String idAutoInfracao) { this.idAutoInfracao = idAutoInfracao; }
-
     public LocalDateTime getHorarioInfracao() { return horarioInfracao; }
     public void setHorarioInfracao(LocalDateTime horarioInfracao) { this.horarioInfracao = horarioInfracao; }
 
