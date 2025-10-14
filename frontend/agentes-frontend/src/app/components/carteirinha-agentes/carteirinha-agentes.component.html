@@ -1,7 +1,5 @@
 <div class="container-fluid py-4">
-  
-
-  <div *ngIf="erro" class="alert alert-danger">{{ erro }}</div>
+  <app-alert *ngIf="erro" type="danger" [message]="erro" [dismissible]="true" (dismissed)="erro=''" />
 
   <!-- Header estilo "manage" com busca e rádios (acessível) -->
   <div class="filters-header mb-2" role="region" aria-label="Filtros de carteirinhas">
@@ -24,15 +22,13 @@
         <label class="form-check-label" for="fg-sel">Selecionados ({{ selecionadosCount }})</label>
       </div>
     </fieldset>
-    <div class="search-group">
-      <label for="searchAgentes" class="sr-only">Buscar por nome ou CPF</label>
-      <div class="input-group input-group-sm">
-        <span class="input-group-text" aria-hidden="true"><i class="fas fa-search"></i></span>
-        <input id="searchAgentes" type="text" class="form-control" [(ngModel)]="filtroTermo" (input)="aplicarFiltro()" placeholder="Buscar por nome ou CPF" />
-        <button class="btn btn-outline-secondary" (click)="filtroTermo=''; aplicarFiltro()" title="Limpar" aria-label="Limpar busca">
-          <i class="fas fa-times" aria-hidden="true"></i>
-        </button>
-      </div>
+    <div class="search-group" style="flex:1; max-width: 420px;">
+      <app-search placeholder="Buscar por nome ou CPF"
+                  [value]="filtroTermo"
+                  (valueChange)="filtroTermo=$event"
+                  (search)="aplicarFiltro()"
+                  [fluid]="true"
+                  size="sm"></app-search>
     </div>
   </div>
   <hr class="mt-0" />
@@ -40,14 +36,10 @@
   <!-- Barra de seleção (mobile-first) -->
   <div class="action-toolbar" role="toolbar" aria-label="Ações de seleção e geração">
     <div class="selected-info small text-muted" aria-live="polite">Selecionados: {{ selecionadosCount }}</div>
-    <div class="action-buttons">
-      <button class="btn btn-outline-primary" (click)="selecionarVisiveis()"><i class="fas fa-check-double me-1" aria-hidden="true"></i>Selecionar visíveis</button>
-      <button class="btn btn-outline-secondary" (click)="limparSelecao()"><i class="fas fa-eraser me-1" aria-hidden="true"></i>Limpar seleção</button>
-      <button class="btn btn-danger" [disabled]="selecionadosCount === 0 || loadingLote" (click)="gerarSelecionadas()">
-        <i class="fas fa-file-pdf me-1" aria-hidden="true"></i>
-        <span *ngIf="!loadingLote">Gerar selecionadas</span>
-        <span *ngIf="loadingLote"><span class="spinner-border spinner-border-sm me-1"></span>Gerando...</span>
-      </button>
+    <div class="action-buttons" style="display:flex; gap:8px; flex-wrap:wrap;">
+      <app-button type="secondary" size="sm" iconLeft="fas fa-check-double" label="Selecionar visíveis" (clicked)="selecionarVisiveis()"></app-button>
+      <app-button type="tertiary" size="sm" iconLeft="fas fa-eraser" label="Limpar seleção" (clicked)="limparSelecao()"></app-button>
+      <app-button type="danger" size="sm" iconLeft="fas fa-file-pdf" [label]="loadingLote ? 'Gerando...' : 'Gerar selecionadas'" [disabled]="selecionadosCount === 0 || loadingLote" [loading]="loadingLote" (clicked)="gerarSelecionadas()"></app-button>
     </div>
   </div>
 
@@ -88,12 +80,7 @@
                 <div><strong>Comarca:</strong> {{ ag.comarcas?.[0]?.nomeComarca || '—' }}</div>
                 <div>
                   <strong>Status:</strong>
-                  <span class="badge ms-1" [ngClass]="{
-                    'bg-success': statusBadge(ag) === 'success',
-                    'bg-warning': statusBadge(ag) === 'warning',
-                    'bg-secondary': statusBadge(ag) === 'secondary',
-                    'bg-danger': statusBadge(ag) === 'danger'
-                  }">{{ ag.status }}</span>
+                  <app-badge class="ms-1" [text]="ag.status || ''" [variant]="statusBadge(ag)" tone="soft"></app-badge>
                 </div>
                 <div><strong>Credencial:</strong> {{ credencialCodigo(ag) }}</div>
               </div>

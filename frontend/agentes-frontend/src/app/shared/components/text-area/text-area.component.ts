@@ -1,6 +1,6 @@
 import { CommonModule, NgClass } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, EventEmitter, Input, Output, forwardRef } from '@angular/core';
+import { FormsModule, ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 let uniqueId = 0;
 
@@ -9,9 +9,14 @@ let uniqueId = 0;
   standalone: true,
   imports: [CommonModule, NgClass, FormsModule],
   templateUrl: './text-area.component.html',
-  styleUrls: ['./text-area.component.scss']
+  styleUrls: ['./text-area.component.scss'],
+  providers: [{
+    provide: NG_VALUE_ACCESSOR,
+    useExisting: forwardRef(() => TextAreaComponent),
+    multi: true
+  }]
 })
-export class TextAreaComponent {
+export class TextAreaComponent implements ControlValueAccessor {
   private _id = `app-text-area-${++uniqueId}`;
   private _value = '';
 
@@ -39,9 +44,8 @@ export class TextAreaComponent {
   @Input() autoResize = false;
   @Input() maxLength: number | null = null;
 
-  @Input()
   get value(): string { return this._value; }
-  set value(v: string | undefined | null) { this._value = v ?? ''; }
+  set value(v: string) { this._value = v ?? ''; }
 
   @Output() valueChange = new EventEmitter<string>();
   @Output() changed = new EventEmitter<string>();
@@ -49,6 +53,8 @@ export class TextAreaComponent {
   @Output() blurred = new EventEmitter<void>();
 
   isFocused = false;
+  private onChange: (val: any) => void = () => {};
+  private onTouched: () => void = () => {};
 
   get helperId(): string { return `${this.id}-helper`; }
   get errorId(): string { return `${this.id}-error`; }
@@ -86,9 +92,14 @@ export class TextAreaComponent {
     }
     this.valueChange.emit(this._value);
     this.changed.emit(this._value);
+    this.onChange(this._value);
   }
 
   onFocus(): void { if (!this.skeleton) { this.isFocused = true; this.focused.emit(); } }
-  onBlur(): void { this.isFocused = false; this.blurred.emit(); }
-}
+  onBlur(): void { this.isFocused = false; this.onTouched(); this.blurred.emit(); }
 
+  writeValue(obj: any): void { this._value = obj ?? ''; }
+  registerOnChange(fn: any): void { this.onChange = fn; }
+  registerOnTouched(fn: any): void { this.onTouched = fn; }
+  setDisabledState?(isDisabled: boolean): void { this.disabled = isDisabled; }
+}

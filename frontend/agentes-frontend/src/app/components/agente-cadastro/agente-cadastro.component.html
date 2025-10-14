@@ -22,13 +22,7 @@
               </div>
               
               <div class="col-12 col-lg-8">
-                <label for="nomeCompleto" class="form-label">Nome Completo *</label>
-                <input type="text" class="form-control" id="nomeCompleto" 
-                       formControlName="nomeCompleto" placeholder="Digite o nome completo">
-                <div class="invalid-feedback" 
-                     *ngIf="agenteForm.get('nomeCompleto')?.invalid && agenteForm.get('nomeCompleto')?.touched">
-                  Nome completo é obrigatório
-                </div>
+                <app-text-input label="Nome Completo *" placeholder="Digite o nome completo" formControlName="nomeCompleto" fluid="true"></app-text-input>
               </div>
               
               <div class="col-12 col-lg-4">
@@ -60,9 +54,7 @@
 
               <!-- Nacionalidade -->
               <div class="col-12 col-sm-6 col-lg-4">
-                <label for="nacionalidade" class="form-label">Nacionalidade</label>
-                <input type="text" class="form-control" id="nacionalidade" 
-                       formControlName="nacionalidade" placeholder="Ex: Brasileira">
+                <app-text-input label="Nacionalidade" placeholder="Ex: Brasileira" formControlName="nacionalidade" fluid="true"></app-text-input>
               </div>
               
               <div class="col-12 col-md-6">
@@ -77,14 +69,7 @@
               </div>
               
               <div class="col-12 col-md-6">
-                <label for="email" class="form-label">E-mail *</label>
-                <input type="email" class="form-control" id="email" 
-                       formControlName="email" placeholder="email@exemplo.com">
-                <div class="invalid-feedback" 
-                     *ngIf="agenteForm.get('email')?.invalid && agenteForm.get('email')?.touched">
-                  <span *ngIf="agenteForm.get('email')?.errors?.['required']">E-mail é obrigatório</span>
-                  <span *ngIf="agenteForm.get('email')?.errors?.['email']">E-mail deve ter formato válido</span>
-                </div>
+                <app-text-input label="E-mail *" placeholder="email@exemplo.com" formControlName="email" fluid="true"></app-text-input>
               </div>
             </div>
 
@@ -120,9 +105,7 @@
               </div>
 
               <div class="col-12 col-md-6">
-                <label for="naturalidade" class="form-label">Naturalidade</label>
-                <input type="text" class="form-control" id="naturalidade" 
-                       formControlName="naturalidade" placeholder="Ex: Belo Horizonte">
+                <app-text-input label="Naturalidade" placeholder="Ex: Belo Horizonte" formControlName="naturalidade" fluid="true"></app-text-input>
               </div>
             </div>
 
@@ -136,15 +119,11 @@
               </div>
 
               <div class="col-12 col-md-6">
-                <label for="filiacaoPai" class="form-label">Nome do Pai</label>
-                <input type="text" class="form-control" id="filiacaoPai" 
-                       formControlName="filiacaoPai" placeholder="Nome completo do pai">
+                <app-text-input label="Nome do Pai" placeholder="Nome completo do pai" formControlName="filiacaoPai" fluid="true"></app-text-input>
               </div>
 
               <div class="col-12 col-md-6">
-                <label for="filiacaoMae" class="form-label">Nome da Mãe</label>
-                <input type="text" class="form-control" id="filiacaoMae" 
-                       formControlName="filiacaoMae" placeholder="Nome completo da mãe">
+                <app-text-input label="Nome da Mãe" placeholder="Nome completo da mãe" formControlName="filiacaoMae" fluid="true"></app-text-input>
               </div>
             </div>
 
@@ -158,53 +137,31 @@
               </div>
               
               <div class="col-12 col-lg-6">
-                <label for="comarcas" class="form-label">Comarcas de Interesse *</label>
-                <select multiple class="form-select" id="comarcas" 
-                        formControlName="comarcasIds" size="5">
-                  <option *ngFor="let comarca of comarcas" [value]="comarca.id">
-                    {{ comarca.nomeComarca }}
-                  </option>
-                </select>
-                <div class="form-text">Mantenha Ctrl pressionado para selecionar múltiplas comarcas</div>
-                <div class="invalid-feedback" 
-                     *ngIf="agenteForm.get('comarcasIds')?.invalid && agenteForm.get('comarcasIds')?.touched">
-                  Selecione pelo menos uma comarca
-                </div>
+                <app-select label="Comarcas de Interesse *"
+                            formControlName="comarcasIds"
+                            [options]="comarcasOptions"
+                            [multi]="true"
+                            [helperText]="'Selecione uma ou mais comarcas'"
+                            ></app-select>
               </div>
               
               <div class="col-12 col-lg-6">
-                <label for="areasAtuacao" class="form-label">Áreas de Atuação *</label>
-                <select multiple class="form-select" id="areasAtuacao" 
-                        formControlName="areasAtuacaoIds" size="5">
-                  <option *ngFor="let area of areasAtuacao" [value]="area.id">
-                    {{ area.nomeAreaAtuacao }}
-                  </option>
-                </select>
-                <div class="form-text">Mantenha Ctrl pressionado para selecionar múltiplas áreas</div>
-                <div class="invalid-feedback" 
-                     *ngIf="agenteForm.get('areasAtuacaoIds')?.invalid && agenteForm.get('areasAtuacaoIds')?.touched">
-                  Selecione pelo menos uma área de atuação
-                </div>
+                <app-select label="Áreas de Atuação *"
+                            formControlName="areasAtuacaoIds"
+                            [options]="areasOptions"
+                            [multi]="true"
+                            [helperText]="'Selecione uma ou mais áreas'"
+                            ></app-select>
               </div>
               
               <div class="col-12">
-                <label for="disponibilidade" class="form-label">Disponibilidade</label>
-                <textarea class="form-control" id="disponibilidade" rows="3"
-                          formControlName="disponibilidade" 
-                          placeholder="Descreva a disponibilidade do agente (dias da semana, horários, etc.)"></textarea>
+                <app-text-area label="Disponibilidade" rows="3" autoResize="true" formControlName="disponibilidade" placeholder="Descreva a disponibilidade do agente (dias da semana, horários, etc.)"></app-text-area>
               </div>
             </div>
 
             <!-- Alertas -->
-            <div class="alert alert-success" *ngIf="showSuccess">
-              <i class="fas fa-check-circle me-2"></i>
-              {{ successMessage }}
-            </div>
-
-            <div class="alert alert-danger" *ngIf="showError">
-              <i class="fas fa-exclamation-triangle me-2"></i>
-              {{ errorMessage }}
-            </div>
+            <app-alert *ngIf="showSuccess" type="success" [message]="successMessage" [dismissible]="true" (dismissed)="showSuccess=false"></app-alert>
+            <app-alert *ngIf="showError" type="danger" [message]="errorMessage" [dismissible]="true" (dismissed)="showError=false"></app-alert>
 
             <!-- Botões -->
             <div class="row g-3">

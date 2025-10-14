@@ -16,8 +16,7 @@
       [attr.aria-label]="computedAriaLabel"
       [attr.aria-invalid]="showError ? 'true' : null"
       [attr.aria-describedby]="describedBy"
-      [ngModel]="value"
-      (ngModelChange)="value = $event"
+      [value]="value"
       (input)="onInput($event)"
       (focus)="onFocus()"
       (blur)="onBlur()"
@@ -40,4 +39,3 @@
     <div *ngIf="maxLength !== null" class="ti-counter" [id]="counterId">{{ (value || '').length }}/{{ maxLength }}</div>
   </div>
 </div>
-

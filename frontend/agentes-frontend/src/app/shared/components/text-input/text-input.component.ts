@@ -1,6 +1,6 @@
 import { CommonModule, NgClass } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, EventEmitter, Input, Output, forwardRef } from '@angular/core';
+import { FormsModule, ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 let uniqueId = 0;
 
@@ -9,9 +9,14 @@ let uniqueId = 0;
   standalone: true,
   imports: [CommonModule, NgClass, FormsModule],
   templateUrl: './text-input.component.html',
-  styleUrls: ['./text-input.component.scss']
+  styleUrls: ['./text-input.component.scss'],
+  providers: [{
+    provide: NG_VALUE_ACCESSOR,
+    useExisting: forwardRef(() => TextInputComponent),
+    multi: true
+  }]
 })
-export class TextInputComponent {
+export class TextInputComponent implements ControlValueAccessor {
   private _inputId = `app-text-input-${++uniqueId}`;
   private _value = '';
 
@@ -42,9 +47,9 @@ export class TextInputComponent {
   @Input() suffixIcon?: string;
   @Input() maxLength: number | null = null;
 
-  @Input()
+  // CVA value
   get value(): string { return this._value; }
-  set value(val: string | undefined | null) { this._value = val ?? ''; }
+  set value(val: string) { this._value = val ?? ''; }
 
   @Output() valueChange = new EventEmitter<string>();
   @Output() changed = new EventEmitter<string>();
@@ -52,6 +57,9 @@ export class TextInputComponent {
   @Output() blurred = new EventEmitter<void>();
 
   isFocused = false;
+  private onChange: (val: any) => void = () => {};
+  private onTouched: () => void = () => {};
+  private _disabledFromCva = false;
 
   get helperId(): string { return `${this.inputId}-helper`; }
   get errorId(): string { return `${this.inputId}-error`; }
@@ -98,10 +106,11 @@ export class TextInputComponent {
     this._value = target?.value ?? '';
     this.valueChange.emit(this._value);
     this.changed.emit(this._value);
+    this.onChange(this._value);
   }
 
   onFocus(): void { if (!this.skeleton) { this.isFocused = true; this.focused.emit(); } }
-  onBlur(): void { this.isFocused = false; this.blurred.emit(); }
+  onBlur(): void { this.isFocused = false; this.onTouched(); this.blurred.emit(); }
 
   onKeydown(event: KeyboardEvent): void {
     if (event.key === 'Escape' && this.clearable && !this.disabled && !this.readonly && !this.skeleton) {
@@ -112,7 +121,13 @@ export class TextInputComponent {
       if (target) target.value = '';
       this.valueChange.emit(this._value);
       this.changed.emit(this._value);
+      this.onChange(this._value);
     }
   }
-}
 
+  // ControlValueAccessor
+  writeValue(obj: any): void { this._value = obj ?? ''; }
+  registerOnChange(fn: any): void { this.onChange = fn; }
+  registerOnTouched(fn: any): void { this.onTouched = fn; }
+  setDisabledState?(isDisabled: boolean): void { this._disabledFromCva = isDisabled; this.disabled = isDisabled; }
+}

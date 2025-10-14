@@ -1,5 +1,5 @@
 <section class="credencial-emissao">
-  <div *ngIf="erro" class="alert alert-danger">{{ erro }}</div>
+  <app-alert *ngIf="erro" type="danger" [message]="erro" [dismissible]="true" (dismissed)="erro=''" />
 
   <div class="form-group">
     <label for="agente-input">Selecione o agente (ATIVO):</label>
@@ -34,10 +34,10 @@
   </div>
 
   <div class="mt-4" *ngIf="ultimaCredencial">
-    <div class="alert alert-success">
-      Credencial emitida com sucesso para {{ ultimaCredencial?.nomeAgente }}.
-      <div>QR URL: {{ ultimaCredencial?.qrCodeUrl }}</div>
+    <app-alert type="success" [message]="'Credencial emitida com sucesso para ' + (ultimaCredencial?.nomeAgente || '')" [dismissible]="true"></app-alert>
+    <div class="text-muted small">QR URL: {{ ultimaCredencial?.qrCodeUrl }}</div>
+    <div class="mt-2">
+      <app-button type="danger" label="Baixar PDF" iconLeft="fas fa-file-pdf" (clicked)="baixarPDF()"></app-button>
     </div>
-    <app-button type="danger" label="Baixar PDF" (clicked)="baixarPDF()"></app-button>
   </div>
 </section>

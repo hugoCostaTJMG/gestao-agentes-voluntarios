@@ -1,5 +1,6 @@
 import { CommonModule, NgClass } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, forwardRef, OnChanges, SimpleChanges } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { DropdownComponent, DropdownOption } from '../dropdown/dropdown.component';
 
 @Component({
@@ -7,9 +8,14 @@ import { DropdownComponent, DropdownOption } from '../dropdown/dropdown.componen
   standalone: true,
   imports: [CommonModule, NgClass, DropdownComponent],
   templateUrl: './select.component.html',
-  styleUrls: ['./select.component.scss']
+  styleUrls: ['./select.component.scss'],
+  providers: [{
+    provide: NG_VALUE_ACCESSOR,
+    useExisting: forwardRef(() => SelectComponent),
+    multi: true
+  }]
 })
-export class SelectComponent {
+export class SelectComponent implements ControlValueAccessor, OnChanges {
   @Input() label?: string;
   @Input() placeholder = 'Selecione';
   @Input() helperText?: string;
@@ -25,6 +31,10 @@ export class SelectComponent {
 
   @Output() valueChange = new EventEmitter<any | any[]>();
 
+  private onChange: (val: any) => void = () => {};
+  private onTouched: () => void = () => {};
+  private _value: any | any[] = this.multi ? [] : null;
+
   get containerClasses(): Record<string, boolean> {
     return {
       [`size-${this.size}`]: true,
@@ -35,6 +45,35 @@ export class SelectComponent {
     };
   }
 
-  onChanged(v: any): void { this.valueChange.emit(v); }
-}
+  onChanged(v: any): void {
+    this._value = v;
+    this.valueChange.emit(v);
+    this.onChange(v);
+  }
 
+  writeValue(obj: any): void {
+    this._value = obj;
+    this.syncSelectionFromValue();
+  }
+  registerOnChange(fn: any): void { this.onChange = fn; }
+  registerOnTouched(fn: any): void { this.onTouched = fn; }
+  setDisabledState?(isDisabled: boolean): void { this.disabled = isDisabled; }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['options'] && !changes['options'].firstChange) {
+      this.syncSelectionFromValue();
+    }
+  }
+
+  private syncSelectionFromValue(): void {
+    const val = this._value;
+    if (this.options && this.options.length) {
+      if (this.multi) {
+        const set = new Set(Array.isArray(val) ? val : []);
+        this.options.forEach(o => o.selected = set.has(o.value));
+      } else {
+        this.options.forEach(o => o.selected = (o.value === val));
+      }
+    }
+  }
+}

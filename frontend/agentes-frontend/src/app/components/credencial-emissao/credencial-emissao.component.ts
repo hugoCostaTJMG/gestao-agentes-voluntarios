@@ -4,11 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { AgenteVoluntario, Credencial } from '../../models/interfaces';
 import { ButtonComponent } from '../../shared/components/buttons/button/button.component';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
+import { AlertComponent } from '../../shared/components/alert/alert.component';
 
 @Component({
   selector: 'app-credencial-emissao',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgIf, NgFor, ButtonComponent],
+  imports: [CommonModule, FormsModule, NgIf, NgFor, ButtonComponent, PageHeaderComponent, AlertComponent],
   templateUrl: './credencial-emissao.component.html',
   styleUrl: './credencial-emissao.component.scss'
 })

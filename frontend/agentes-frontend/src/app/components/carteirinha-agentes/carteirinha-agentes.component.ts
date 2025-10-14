@@ -5,6 +5,9 @@ import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { AgenteVoluntario, PaginatedResponse } from '../../models/interfaces';
 import { ButtonComponent } from '../../shared/components/buttons/button/button.component';
+import { AlertComponent } from '../../shared/components/alert/alert.component';
+import { BadgeComponent } from '../../shared/components/badge/badge.component';
+import { SearchComponent } from '../../shared/components/search/search.component';
 import { ModalComponent } from '../../shared/components/modal/modal.component';
 import { CarteirinhaPreviewComponent } from '../carteirinha-preview/carteirinha-preview.component';
 
@@ -13,7 +16,7 @@ type AgenteCard = AgenteVoluntario & { podeGerar?: boolean; verificando?: boolea
 @Component({
   selector: 'app-carteirinha-agentes',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgIf, NgFor, ButtonComponent, ModalComponent, CarteirinhaPreviewComponent],
+  imports: [CommonModule, FormsModule, NgIf, NgFor, ButtonComponent, AlertComponent, BadgeComponent, SearchComponent, ModalComponent, CarteirinhaPreviewComponent],
   templateUrl: './carteirinha-agentes.component.html',
   styleUrls: ['./carteirinha-agentes.component.scss']
 })

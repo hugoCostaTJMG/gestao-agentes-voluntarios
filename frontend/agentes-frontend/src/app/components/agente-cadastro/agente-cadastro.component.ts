@@ -3,8 +3,13 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { Comarca, AreaAtuacao, AgenteVoluntarioDTO } from '../../models/interfaces';
+import { DropdownOption } from '../../shared/components/dropdown/dropdown.component';
 import { CommonModule } from '@angular/common';
 import { ButtonComponent } from '../../shared/components/buttons/button/button.component';
+import { TextInputComponent } from '../../shared/components/text-input/text-input.component';
+import { TextAreaComponent } from '../../shared/components/text-area/text-area.component';
+import { SelectComponent } from '../../shared/components/select/select.component';
+import { AlertComponent } from '../../shared/components/alert/alert.component';
 import { CpfMaskDirective } from '../../shared/directives/cpf-mask.directive';
 import { PhoneMaskDirective } from '../../shared/directives/phone-mask.directive';
 import { RgMaskDirective } from '../../shared/directives/rg-mask.directive';
@@ -17,7 +22,7 @@ interface Estado {
 @Component({
   selector: 'app-agente-cadastro',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, ButtonComponent, CpfMaskDirective, PhoneMaskDirective, RgMaskDirective],
+  imports: [ReactiveFormsModule, CommonModule, ButtonComponent, TextInputComponent, TextAreaComponent, SelectComponent, AlertComponent, CpfMaskDirective, PhoneMaskDirective, RgMaskDirective],
   templateUrl: './agente-cadastro.component.html',
   styleUrls: ['./agente-cadastro.component.scss']
 })
@@ -25,6 +30,8 @@ export class AgenteCadastroComponent implements OnInit {
   agenteForm: FormGroup;
   comarcas: Comarca[] = [];
   areasAtuacao: AreaAtuacao[] = [];
+  comarcasOptions: DropdownOption[] = [];
+  areasOptions: DropdownOption[] = [];
   estados: Estado[] = [];
   loading = false;
   isEditMode = false;
@@ -92,6 +99,7 @@ export class AgenteCadastroComponent implements OnInit {
     this.apiService.listarComarcas().subscribe({
       next: (comarcas) => {
         this.comarcas = comarcas;
+        this.comarcasOptions = (comarcas || []).map(c => ({ label: c.nomeComarca, value: c.id }));
       },
       error: (error) => {
         console.error('Erro ao carregar comarcas:', error);
@@ -104,6 +112,7 @@ export class AgenteCadastroComponent implements OnInit {
     this.apiService.listarAreasAtuacao().subscribe({
       next: (areas) => {
         this.areasAtuacao = areas;
+        this.areasOptions = (areas || []).map(a => ({ label: a.nomeAreaAtuacao, value: a.id }));
       },
       error: (error) => {
         console.error('Erro ao carregar áreas de atuação:', error);
