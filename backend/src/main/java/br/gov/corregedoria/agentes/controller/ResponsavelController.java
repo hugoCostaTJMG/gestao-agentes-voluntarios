@@ -1,0 +1,69 @@
+package br.gov.corregedoria.agentes.controller;
+
+import br.gov.corregedoria.agentes.entity.Responsavel;
+import br.gov.corregedoria.agentes.service.ResponsavelService;
+import br.gov.corregedoria.agentes.web.dto.ResponsavelDtos;
+import br.gov.corregedoria.agentes.web.mapper.DomainMappers;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/responsaveis")
+@Tag(name = "Responsáveis")
+@CrossOrigin(origins = "*")
+public class ResponsavelController {
+
+    @Autowired
+    private ResponsavelService service;
+
+    @Operation(summary = "Listar responsáveis")
+    @GetMapping
+    @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('AGENTE')")
+    public ResponseEntity<Page<ResponsavelDtos.ResponsavelResponse>> listar(Pageable pageable) {
+        Page<ResponsavelDtos.ResponsavelResponse> page = service.listar(pageable)
+                .map(DomainMappers::toDto);
+        return ResponseEntity.ok(page);
+    }
+
+    @Operation(summary = "Buscar responsável por ID")
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('AGENTE')")
+    public ResponseEntity<ResponsavelDtos.ResponsavelResponse> buscar(@PathVariable String id) {
+        Responsavel r = service.buscar(id);
+        return ResponseEntity.ok(DomainMappers.toDto(r));
+    }
+
+    @Operation(summary = "Criar responsável")
+    @PostMapping
+    @PreAuthorize("hasRole('CORREGEDORIA')")
+    public ResponseEntity<ResponsavelDtos.ResponsavelResponse> criar(@Valid @RequestBody ResponsavelDtos.ResponsavelRequest dto) {
+        Responsavel salvo = service.criar(DomainMappers.toEntity(dto));
+        return ResponseEntity.status(HttpStatus.CREATED).body(DomainMappers.toDto(salvo));
+    }
+
+    @Operation(summary = "Atualizar responsável")
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('CORREGEDORIA')")
+    public ResponseEntity<ResponsavelDtos.ResponsavelResponse> atualizar(@PathVariable String id,
+                                                  @Valid @RequestBody ResponsavelDtos.ResponsavelRequest dto) {
+        Responsavel atualizado = service.atualizar(id, DomainMappers.toEntity(dto));
+        return ResponseEntity.ok(DomainMappers.toDto(atualizado));
+    }
+
+    @Operation(summary = "Excluir responsável")
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('CORREGEDORIA')")
+    public ResponseEntity<Void> excluir(@PathVariable String id) {
+        service.excluir(id);
+        return ResponseEntity.noContent().build();
+    }
+}
+

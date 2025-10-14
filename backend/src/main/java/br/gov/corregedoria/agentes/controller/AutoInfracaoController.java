@@ -2,6 +2,8 @@ package br.gov.corregedoria.agentes.controller;
 
 import br.gov.corregedoria.agentes.entity.AutoInfracao;
 import br.gov.corregedoria.agentes.entity.StatusAutoInfracao;
+import br.gov.corregedoria.agentes.entity.MenorEnvolvido;
+import br.gov.corregedoria.agentes.web.dto.MenorEnvolvidoDtos;
 import br.gov.corregedoria.agentes.service.AutoInfracaoService;
 import br.gov.corregedoria.agentes.entity.Comarca;
 import br.gov.corregedoria.agentes.repository.ComarcaRepository;
@@ -153,5 +155,39 @@ public class AutoInfracaoController {
                 .findFirst().map(a -> a.getAuthority().replace("ROLE_", "")).orElse("AGENTE");
         AutoInfracao auto = autoService.registrar(id, authentication.getName(), perfil);
         return ResponseEntity.ok(auto);
+    }
+
+    // === Novos endpoints (DER) ===
+    @Operation(summary = "Adicionar menor envolvido ao Auto")
+    @PostMapping("/{id}/menores")
+    @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('AGENTE')")
+    public ResponseEntity<MenorEnvolvido> adicionarMenor(@PathVariable Long id,
+                                                         @Valid @RequestBody MenorEnvolvidoDtos.MenorEnvolvidoRequest dto) {
+        MenorEnvolvido salvo = autoService.adicionarMenor(id, br.gov.corregedoria.agentes.web.mapper.DomainMappers.toEntity(dto));
+        return ResponseEntity.status(HttpStatus.CREATED).body(salvo);
+    }
+
+    @Operation(summary = "Remover menor envolvido do Auto")
+    @DeleteMapping("/{id}/menores/{idMenor}")
+    @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('AGENTE')")
+    public ResponseEntity<Void> removerMenor(@PathVariable Long id, @PathVariable String idMenor) {
+        autoService.removerMenor(id, idMenor);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Associar testemunha ao Auto")
+    @PostMapping("/{id}/testemunhas/{idTestemunha}")
+    @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('AGENTE')")
+    public ResponseEntity<AutoInfracao> associarTestemunha(@PathVariable Long id, @PathVariable String idTestemunha) {
+        AutoInfracao atualizado = autoService.associarTestemunha(id, idTestemunha);
+        return ResponseEntity.ok(atualizado);
+    }
+
+    @Operation(summary = "Desassociar testemunha do Auto")
+    @DeleteMapping("/{id}/testemunhas/{idTestemunha}")
+    @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('AGENTE')")
+    public ResponseEntity<AutoInfracao> desassociarTestemunha(@PathVariable Long id, @PathVariable String idTestemunha) {
+        AutoInfracao atualizado = autoService.desassociarTestemunha(id, idTestemunha);
+        return ResponseEntity.ok(atualizado);
     }
 }

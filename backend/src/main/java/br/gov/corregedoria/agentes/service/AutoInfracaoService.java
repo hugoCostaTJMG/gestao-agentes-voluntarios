@@ -32,6 +32,18 @@ public class AutoInfracaoService {
     private LogAuditoriaAutoInfracaoRepository logRepository;
 
     @Autowired
+    private EstabelecimentoRepository estabelecimentoRepository;
+
+    @Autowired
+    private ResponsavelRepository responsavelRepository;
+
+    @Autowired
+    private TestemunhaRepository testemunhaRepository;
+
+    @Autowired
+    private MenorEnvolvidoRepository menorEnvolvidoRepository;
+
+    @Autowired
     private AuditoriaUtil auditoriaUtil;
 
     /**
@@ -51,6 +63,38 @@ public class AutoInfracaoService {
         auto.setMatriculaAgente(usuarioLogado); // assume login é a matrícula
         auto.setUsuarioCadastro(usuarioLogado);
         auto.setStatus(StatusAutoInfracao.RASCUNHO);
+
+        // Novo identificador DER
+        if (auto.getIdAutoInfracao() == null || auto.getIdAutoInfracao().isBlank()) {
+            auto.setIdAutoInfracao(java.util.UUID.randomUUID().toString());
+        }
+
+        // Preenche campos DER de comissário
+        if (auto.getNomeComissarioAutuante() == null) {
+            auto.setNomeComissarioAutuante(auto.getNomeAgente());
+        }
+        if (auto.getMatriculaAutuante() == null) {
+            auto.setMatriculaAutuante(auto.getMatriculaAgente());
+        }
+
+        // Cria placeholders de relacionamento se necessário
+        if (auto.getEstabelecimento() == null || auto.getEstabelecimento().getIdEstabelecimento() == null) {
+            br.gov.corregedoria.agentes.entity.Estabelecimento est = new br.gov.corregedoria.agentes.entity.Estabelecimento();
+            est.setIdEstabelecimento(java.util.UUID.randomUUID().toString());
+            est.setNomeEstabelecimento(auto.getNomeAutuado());
+            // se for CNPJ
+            String doc = auto.getCpfCnpjAutuado();
+            if (doc != null && doc.length() == 14) { est.setCnpj(doc); }
+            auto.setEstabelecimento(estabelecimentoRepository.save(est));
+        }
+        if (auto.getResponsavel() == null || auto.getResponsavel().getIdResponsavel() == null) {
+            br.gov.corregedoria.agentes.entity.Responsavel resp = new br.gov.corregedoria.agentes.entity.Responsavel();
+            resp.setIdResponsavel(java.util.UUID.randomUUID().toString());
+            resp.setNomeResponsavel(auto.getNomeAutuado());
+            String doc = auto.getCpfCnpjAutuado();
+            if (doc != null && doc.length() == 11) { resp.setCpfResponsavel(doc); }
+            auto.setResponsavel(responsavelRepository.save(resp));
+        }
 
         auto = autoRepository.save(auto);
         logRepository.save(LogAuditoriaAutoInfracao.criarLogCriacao(auto.getId(), usuarioLogado, "AGENTE", null));
@@ -135,6 +179,46 @@ public class AutoInfracaoService {
         logRepository.save(LogAuditoriaAutoInfracao.criarLogCancelamento(id, usuarioLogado, perfilUsuario, null, justificativa));
         auditoriaUtil.registrarLog(usuarioLogado, "CANCELAMENTO_AUTO", "Auto cancelado: " + id);
         return auto;
+    }
+
+    // === Novos métodos (DER) ===
+    public MenorEnvolvido adicionarMenor(Long autoId, @Valid MenorEnvolvido menor) {
+        AutoInfracao auto = autoRepository.findById(autoId)
+                .orElseThrow(() -> new EntityNotFoundException("Auto não encontrado: " + autoId));
+        if (menor.getIdMenor() == null || menor.getIdMenor().isBlank()) {
+            menor.setIdMenor(java.util.UUID.randomUUID().toString());
+        }
+        menor.setAutoInfracao(auto);
+        return menorEnvolvidoRepository.save(menor);
+    }
+
+    public void removerMenor(Long autoId, String idMenor) {
+        AutoInfracao auto = autoRepository.findById(autoId)
+                .orElseThrow(() -> new EntityNotFoundException("Auto não encontrado: " + autoId));
+        MenorEnvolvido menor = menorEnvolvidoRepository.findById(idMenor)
+                .orElseThrow(() -> new EntityNotFoundException("Menor não encontrado: " + idMenor));
+        if (!menor.getAutoInfracao().getId().equals(auto.getId())) {
+            throw new IllegalStateException("Menor não pertence ao auto");
+        }
+        menorEnvolvidoRepository.delete(menor);
+    }
+
+    public AutoInfracao associarTestemunha(Long autoId, String testemunhaId) {
+        AutoInfracao auto = autoRepository.findById(autoId)
+                .orElseThrow(() -> new EntityNotFoundException("Auto não encontrado: " + autoId));
+        Testemunha t = testemunhaRepository.findById(testemunhaId)
+                .orElseThrow(() -> new EntityNotFoundException("Testemunha não encontrada: " + testemunhaId));
+        auto.getTestemunhas().add(t);
+        return autoRepository.save(auto);
+    }
+
+    public AutoInfracao desassociarTestemunha(Long autoId, String testemunhaId) {
+        AutoInfracao auto = autoRepository.findById(autoId)
+                .orElseThrow(() -> new EntityNotFoundException("Auto não encontrado: " + autoId));
+        Testemunha t = testemunhaRepository.findById(testemunhaId)
+                .orElseThrow(() -> new EntityNotFoundException("Testemunha não encontrada: " + testemunhaId));
+        auto.getTestemunhas().remove(t);
+        return autoRepository.save(auto);
     }
 
     /**

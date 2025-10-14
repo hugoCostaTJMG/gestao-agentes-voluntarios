@@ -9,7 +9,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Entidade que representa um Auto de Infração registrado no sistema
@@ -27,6 +29,10 @@ public class AutoInfracao {
     @SequenceGenerator(name = "S_AUTO_INFRACAO", sequenceName = "S_AUTO_INFRACAO", allocationSize = 1)
     @Column(name = "id", updatable = false, nullable = false)
     private Long id;
+
+    // Identificador string adicional (para novas relações do DER)
+    @Column(name = "ID_AUTO_INFRACAO", unique = true, length = 255)
+    private String idAutoInfracao;
 
     @Column(name = "numero_auto", unique = true, length = 30)
     private String numeroAuto;
@@ -76,6 +82,10 @@ public class AutoInfracao {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "comarca_id", nullable = false)
     private Comarca comarca;
+
+    // Campo texto para comarca conforme novo DER
+    @Column(name = "COMARCA", length = 255)
+    private String comarcaTexto;
     
     // === BASE LEGAL (Obrigatória) ===
     
@@ -83,6 +93,19 @@ public class AutoInfracao {
     @Size(max = 1000, message = "Base legal deve ter no máximo 1000 caracteres")
     @Column(name = "base_legal", nullable = false, length = 1000)
     private String baseLegal;
+
+    // Novos campos do DER
+    @Size(max = 500)
+    @Column(name = "FUNDAMENTO_LEGAL", length = 500)
+    private String fundamentoLegal;
+
+    @Size(max = 255)
+    @Column(name = "ARTIGO_ECA", length = 255)
+    private String artigoEca;
+
+    @Size(max = 255)
+    @Column(name = "PORTARIA_N", length = 255)
+    private String portariaN;
     
     // === DADOS DA INFRAÇÃO (Obrigatórios) ===
     
@@ -93,6 +116,10 @@ public class AutoInfracao {
     @NotNull(message = "Hora da infração é obrigatória")
     @Column(name = "hora_infracao", nullable = false)
     private LocalTime horaInfracao;
+
+    // Campo novo (DER): timestamp completo da infração
+    @Column(name = "HORARIO_INFRACAO")
+    private LocalDateTime horarioInfracao;
     
     @NotBlank(message = "Local da infração é obrigatório")
     @Size(max = 500, message = "Local da infração deve ter no máximo 500 caracteres")
@@ -119,6 +146,12 @@ public class AutoInfracao {
     @Pattern(regexp = "[MF]", message = "Sexo deve ser M ou F")
     @Column(name = "sexo_crianca", length = 1)
     private String sexoCrianca;
+
+    @Column(name = "NUMERO_CRIANCAS")
+    private Integer numeroCriancas;
+
+    @Column(name = "NUMERO_ADOLESCENTES")
+    private Integer numeroAdolescentes;
     
     // === DADOS DAS TESTEMUNHAS (Opcionais) ===
     
@@ -134,6 +167,24 @@ public class AutoInfracao {
     
     @Column(name = "assinatura_autuado")
     private Boolean assinaturaAutuado;
+
+    @Size(max = 255)
+    @Column(name = "NOME_COMISSARIO_AUTUANTE", length = 255)
+    private String nomeComissarioAutuante;
+
+    @Size(max = 255)
+    @Column(name = "MATRICULA_AUTUANTE", length = 255)
+    private String matriculaAutuante;
+
+    @Lob
+    @Column(name = "OBSERVACOES")
+    private String observacoes;
+
+    @Column(name = "DATA_INTIMACAO")
+    private LocalDate dataIntimacao;
+
+    @Column(name = "PRAZO_DEFESA")
+    private LocalDate prazoDefesa;
     
     // === CONTROLE DO SISTEMA ===
     
@@ -172,6 +223,26 @@ public class AutoInfracao {
     
     @OneToMany(mappedBy = "autoInfracao", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<AnexoAutoInfracao> anexos = new ArrayList<>();
+
+    // Novos relacionamentos do DER
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "ID_ESTABELECIMENTO", referencedColumnName = "ID_ESTABELECIMENTO")
+    private Estabelecimento estabelecimento;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "ID_RESPONSAVEL", referencedColumnName = "ID_RESPONSAVEL")
+    private Responsavel responsavel;
+
+    @OneToMany(mappedBy = "autoInfracao", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<MenorEnvolvido> menoresEnvolvidos = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+        name = "AUTO_INFRACAO_TESTEMUNHA",
+        joinColumns = @JoinColumn(name = "ID_AUTO_INFRACAO", referencedColumnName = "ID_AUTO_INFRACAO"),
+        inverseJoinColumns = @JoinColumn(name = "ID_TESTEMUNHA", referencedColumnName = "ID_TESTEMUNHA")
+    )
+    private Set<Testemunha> testemunhas = new HashSet<>();
     
     // === CONSTRUTORES ===
     
@@ -470,4 +541,56 @@ public class AutoInfracao {
     public void setAnexos(List<AnexoAutoInfracao> anexos) {
         this.anexos = anexos;
     }
+    
+    // === GETTERS/SETTERS ADICIONAIS (novo DER) ===
+    public String getIdAutoInfracao() { return idAutoInfracao; }
+    public void setIdAutoInfracao(String idAutoInfracao) { this.idAutoInfracao = idAutoInfracao; }
+
+    public LocalDateTime getHorarioInfracao() { return horarioInfracao; }
+    public void setHorarioInfracao(LocalDateTime horarioInfracao) { this.horarioInfracao = horarioInfracao; }
+
+    public String getComarcaTexto() { return comarcaTexto; }
+    public void setComarcaTexto(String comarcaTexto) { this.comarcaTexto = comarcaTexto; }
+
+    public String getFundamentoLegal() { return fundamentoLegal; }
+    public void setFundamentoLegal(String fundamentoLegal) { this.fundamentoLegal = fundamentoLegal; }
+
+    public String getArtigoEca() { return artigoEca; }
+    public void setArtigoEca(String artigoEca) { this.artigoEca = artigoEca; }
+
+    public String getPortariaN() { return portariaN; }
+    public void setPortariaN(String portariaN) { this.portariaN = portariaN; }
+
+    public Integer getNumeroCriancas() { return numeroCriancas; }
+    public void setNumeroCriancas(Integer numeroCriancas) { this.numeroCriancas = numeroCriancas; }
+
+    public Integer getNumeroAdolescentes() { return numeroAdolescentes; }
+    public void setNumeroAdolescentes(Integer numeroAdolescentes) { this.numeroAdolescentes = numeroAdolescentes; }
+
+    public String getNomeComissarioAutuante() { return nomeComissarioAutuante; }
+    public void setNomeComissarioAutuante(String nomeComissarioAutuante) { this.nomeComissarioAutuante = nomeComissarioAutuante; }
+
+    public String getMatriculaAutuante() { return matriculaAutuante; }
+    public void setMatriculaAutuante(String matriculaAutuante) { this.matriculaAutuante = matriculaAutuante; }
+
+    public String getObservacoes() { return observacoes; }
+    public void setObservacoes(String observacoes) { this.observacoes = observacoes; }
+
+    public LocalDate getDataIntimacao() { return dataIntimacao; }
+    public void setDataIntimacao(LocalDate dataIntimacao) { this.dataIntimacao = dataIntimacao; }
+
+    public LocalDate getPrazoDefesa() { return prazoDefesa; }
+    public void setPrazoDefesa(LocalDate prazoDefesa) { this.prazoDefesa = prazoDefesa; }
+
+    public Estabelecimento getEstabelecimento() { return estabelecimento; }
+    public void setEstabelecimento(Estabelecimento estabelecimento) { this.estabelecimento = estabelecimento; }
+
+    public Responsavel getResponsavel() { return responsavel; }
+    public void setResponsavel(Responsavel responsavel) { this.responsavel = responsavel; }
+
+    public Set<MenorEnvolvido> getMenoresEnvolvidos() { return menoresEnvolvidos; }
+    public void setMenoresEnvolvidos(Set<MenorEnvolvido> menoresEnvolvidos) { this.menoresEnvolvidos = menoresEnvolvidos; }
+
+    public Set<Testemunha> getTestemunhas() { return testemunhas; }
+    public void setTestemunhas(Set<Testemunha> testemunhas) { this.testemunhas = testemunhas; }
 }
