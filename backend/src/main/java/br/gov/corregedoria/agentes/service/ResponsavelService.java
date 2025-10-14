@@ -20,8 +20,8 @@ public class ResponsavelService {
     private ResponsavelRepository repository;
 
     public Responsavel criar(@Valid Responsavel r) {
-        if (r.getIdResponsavel() == null || r.getIdResponsavel().isBlank()) {
-            r.setIdResponsavel(UUID.randomUUID().toString());
+        if (r.getIdResponsavelStr() == null || r.getIdResponsavelStr().isBlank()) {
+            r.setIdResponsavelStr(UUID.randomUUID().toString());
         }
         if (r.getCpfResponsavel() != null && !r.getCpfResponsavel().isBlank() && repository.existsByCpfResponsavel(r.getCpfResponsavel())) {
             throw new IllegalStateException("CPF já cadastrado");
@@ -29,7 +29,7 @@ public class ResponsavelService {
         return repository.save(r);
     }
 
-    public Responsavel atualizar(String id, @Valid Responsavel dados) {
+    public Responsavel atualizar(Long id, @Valid Responsavel dados) {
         Responsavel existente = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Responsável não encontrado: " + id));
         if (dados.getCpfResponsavel() != null && !dados.getCpfResponsavel().equals(existente.getCpfResponsavel()) && repository.existsByCpfResponsavel(dados.getCpfResponsavel())) {
@@ -43,11 +43,14 @@ public class ResponsavelService {
         existente.setComplementoResponsavel(dados.getComplementoResponsavel());
         existente.setBairroResponsavel(dados.getBairroResponsavel());
         existente.setCidadeResponsavel(dados.getCidadeResponsavel());
+        if (dados.getIdResponsavelStr() != null && !dados.getIdResponsavelStr().isBlank()) {
+            existente.setIdResponsavelStr(dados.getIdResponsavelStr());
+        }
         return repository.save(existente);
     }
 
     @Transactional(readOnly = true)
-    public Responsavel buscar(String id) {
+    public Responsavel buscar(Long id) {
         return repository.findById(id).orElseThrow(() -> new EntityNotFoundException("Responsável não encontrado: " + id));
     }
 
@@ -56,7 +59,7 @@ public class ResponsavelService {
         return repository.findAll(pageable);
     }
 
-    public void excluir(String id) {
+    public void excluir(Long id) {
         Responsavel r = buscar(id);
         repository.delete(r);
     }

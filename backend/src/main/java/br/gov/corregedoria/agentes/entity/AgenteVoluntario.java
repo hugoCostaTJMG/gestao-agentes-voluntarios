@@ -18,8 +18,11 @@ public class AgenteVoluntario {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_AGENTE_VOLUNTARIO")
     @SequenceGenerator(name = "S_AGENTE_VOLUNTARIO", sequenceName = "S_AGENTE_VOLUNTARIO", allocationSize = 1)
-    @Column(name = "id_agente", updatable = false, nullable = false)
+    @Column(name = "id", updatable = false, nullable = false)
     private Long id;
+
+    @Column(name = "id_agente_negocio", length = 36, unique = true)
+    private String idAgenteNegocio;
 
     @NotBlank(message = "Nome completo é obrigatório")
     @Column(name = "nome_completo", nullable = false, length = 255)
@@ -86,16 +89,16 @@ public class AgenteVoluntario {
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
         name = "agente_comarca",
-        joinColumns = @JoinColumn(name = "id_agente"),
-        inverseJoinColumns = @JoinColumn(name = "id_comarca")
+        joinColumns = @JoinColumn(name = "agente_id"),
+        inverseJoinColumns = @JoinColumn(name = "comarca_id")
     )
     private Set<Comarca> comarcas = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
         name = "agente_area_atuacao",
-        joinColumns = @JoinColumn(name = "id_agente"),
-        inverseJoinColumns = @JoinColumn(name = "id_area_atuacao")
+        joinColumns = @JoinColumn(name = "agente_id"),
+        inverseJoinColumns = @JoinColumn(name = "area_atuacao_id")
     )
     private Set<AreaAtuacao> areasAtuacao = new HashSet<>();
 
@@ -122,6 +125,14 @@ public class AgenteVoluntario {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getIdAgenteNegocio() {
+        return idAgenteNegocio;
+    }
+
+    public void setIdAgenteNegocio(String idAgenteNegocio) {
+        this.idAgenteNegocio = idAgenteNegocio;
     }
 
     public String getNomeCompleto() {

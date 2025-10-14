@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Map;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -38,6 +39,7 @@ class EstabelecimentoControllerTest {
 
         mockMvc.perform(post("/api/estabelecimentos")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .with(csrf())
                         .content(objectMapper.writeValueAsString(payload)))
                 .andExpect(status().isBadRequest());
     }

@@ -13,7 +13,7 @@ public class AreaAtuacao {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_AREA_ATUACAO")
     @SequenceGenerator(name = "S_AREA_ATUACAO", sequenceName = "S_AREA_ATUACAO", allocationSize = 1)
-    @Column(name = "id_area_atuacao", updatable = false, nullable = false)
+    @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
     @NotBlank(message = "Nome da área de atuação é obrigatório")

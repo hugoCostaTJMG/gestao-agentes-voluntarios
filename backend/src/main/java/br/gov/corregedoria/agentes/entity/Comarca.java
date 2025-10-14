@@ -13,7 +13,7 @@ public class Comarca {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_COMARCA")
     @SequenceGenerator(name = "S_COMARCA", sequenceName = "S_COMARCA", allocationSize = 1)
-    @Column(name = "id_comarca", updatable = false, nullable = false)
+    @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
     @NotBlank(message = "Nome da comarca é obrigatório")

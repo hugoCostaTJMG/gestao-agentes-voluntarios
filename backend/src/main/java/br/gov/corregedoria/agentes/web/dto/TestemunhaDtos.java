@@ -11,7 +11,8 @@ public class TestemunhaDtos {
     ) {}
 
     public record TestemunhaResponse(
-            String idTestemunha,
+            Long id,
+            String idTestemunhaStr,
             String nomeTestemunha,
             String residenciaTestemunha,
             String documentoTestemunha

@@ -5,32 +5,47 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 @Entity
-@Table(name = "TESTEMUNHA")
+@Table(name = "testemunha")
 public class Testemunha {
 
     @Id
-    @Column(name = "ID_TESTEMUNHA", length = 255)
-    private String idTestemunha;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_TESTEMUNHA")
+    @SequenceGenerator(name = "S_TESTEMUNHA", sequenceName = "S_TESTEMUNHA", allocationSize = 1)
+    @Column(name = "id", updatable = false, nullable = false)
+    private Long id;
 
     @NotBlank
     @Size(max = 255)
-    @Column(name = "NOME_TESTEMUNHA", nullable = false, length = 255)
+    @Column(name = "id_testemunha_str", nullable = false, unique = true, length = 255)
+    private String idTestemunhaStr;
+
+    @NotBlank
+    @Size(max = 255)
+    @Column(name = "nome_testemunha", nullable = false, length = 255)
     private String nomeTestemunha;
 
     @Size(max = 500)
-    @Column(name = "RESIDENCIA_TESTEMUNHA", length = 500)
+    @Column(name = "residencia_testemunha", length = 500)
     private String residenciaTestemunha;
 
     @Size(max = 255)
-    @Column(name = "DOCUMENTO_TESTEMUNHA", length = 255)
+    @Column(name = "documento_testemunha", length = 255)
     private String documentoTestemunha;
 
-    public String getIdTestemunha() {
-        return idTestemunha;
+    public Long getId() {
+        return id;
     }
 
-    public void setIdTestemunha(String idTestemunha) {
-        this.idTestemunha = idTestemunha;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getIdTestemunhaStr() {
+        return idTestemunhaStr;
+    }
+
+    public void setIdTestemunhaStr(String idTestemunhaStr) {
+        this.idTestemunhaStr = idTestemunhaStr;
     }
 
     public String getNomeTestemunha() {

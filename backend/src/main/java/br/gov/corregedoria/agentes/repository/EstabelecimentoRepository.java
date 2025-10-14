@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface EstabelecimentoRepository extends JpaRepository<Estabelecimento, String> {
+public interface EstabelecimentoRepository extends JpaRepository<Estabelecimento, Long> {
     Optional<Estabelecimento> findByCnpj(String cnpj);
     boolean existsByCnpj(String cnpj);
 }

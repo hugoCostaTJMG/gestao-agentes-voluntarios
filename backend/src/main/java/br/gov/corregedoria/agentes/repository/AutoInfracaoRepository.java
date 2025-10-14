@@ -20,7 +20,7 @@ import java.util.Optional;
  */
 @Repository
 public interface AutoInfracaoRepository extends JpaRepository<AutoInfracao, Long> {
-    Optional<AutoInfracao> findByIdAutoInfracao(String idAutoInfracao);
+    Optional<AutoInfracao> findByIdAutoInfracaoStr(String idAutoInfracaoStr);
     
     /**
      * Busca autos de infração por agente (matrícula)

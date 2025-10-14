@@ -12,11 +12,11 @@ public class Credencial {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_CREDENCIAL")
     @SequenceGenerator(name = "S_CREDENCIAL", sequenceName = "S_CREDENCIAL", allocationSize = 1)
-    @Column(name = "id_credencial", updatable = false, nullable = false)
+    @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "id_agente", nullable = false)
+    @JoinColumn(name = "agente_id", nullable = false)
     private AgenteVoluntario agente;
 
     @CreationTimestamp

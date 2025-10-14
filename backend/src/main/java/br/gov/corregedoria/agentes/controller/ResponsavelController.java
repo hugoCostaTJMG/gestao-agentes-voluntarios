@@ -36,7 +36,7 @@ public class ResponsavelController {
     @Operation(summary = "Buscar responsável por ID")
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('AGENTE')")
-    public ResponseEntity<ResponsavelDtos.ResponsavelResponse> buscar(@PathVariable String id) {
+    public ResponseEntity<ResponsavelDtos.ResponsavelResponse> buscar(@PathVariable Long id) {
         Responsavel r = service.buscar(id);
         return ResponseEntity.ok(DomainMappers.toDto(r));
     }
@@ -52,7 +52,7 @@ public class ResponsavelController {
     @Operation(summary = "Atualizar responsável")
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('CORREGEDORIA')")
-    public ResponseEntity<ResponsavelDtos.ResponsavelResponse> atualizar(@PathVariable String id,
+    public ResponseEntity<ResponsavelDtos.ResponsavelResponse> atualizar(@PathVariable Long id,
                                                   @Valid @RequestBody ResponsavelDtos.ResponsavelRequest dto) {
         Responsavel atualizado = service.atualizar(id, DomainMappers.toEntity(dto));
         return ResponseEntity.ok(DomainMappers.toDto(atualizado));
@@ -61,7 +61,7 @@ public class ResponsavelController {
     @Operation(summary = "Excluir responsável")
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('CORREGEDORIA')")
-    public ResponseEntity<Void> excluir(@PathVariable String id) {
+    public ResponseEntity<Void> excluir(@PathVariable Long id) {
         service.excluir(id);
         return ResponseEntity.noContent().build();
     }
