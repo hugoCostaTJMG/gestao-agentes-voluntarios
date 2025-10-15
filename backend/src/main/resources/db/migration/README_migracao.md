@@ -28,6 +28,15 @@ Observação: não há remoção de colunas nem perda de dados. Trocas de PK oco
 3. `V20251016_6__ajusta_lobs.sql`
    - Ajusta LOBs via `ALTER TABLE ... MOVE LOB ... (DISABLE STORAGE IN ROW INDEX <nome>)`, nomeando os segmentos/índices de LOB (sem trocar tablespace).
 
+4. `V20251016_7__add_numeric_id_big_tables_and_parallel_fks.sql`
+   - Adiciona `ID NUMBER(19)` + `SEQUENCE` + triggers `TR_BIR_*` nas tabelas grandes que ainda possam estar com PK `VARCHAR2(36)` (ESTABELECIMENTO, RESPONSAVEL, TESTEMUNHA, AUTO_INFRACAO, MENOR_ENVOLVIDO).
+   - Garante colunas de negócio `*_ID_STR` e `UNIQUE` correspondentes.
+   - Cria colunas numéricas e FKs paralelas nas tabelas filhas (AUTO_INFRACAO, MENOR_ENVOLVIDO, AUTO_INFRACAO_TESTEMUNHA, ANEXO_AUTO_INFRACAO, LOG_AUDITORIA_AUTO_INFRACAO), com backfill a partir das chaves string quando existirem.
+
+5. `V20251016_8__promote_numeric_pk_and_cleanup_string_fks.sql`
+   - Remove FKs antigas baseadas em colunas string (se existirem) após a criação das FKs numéricas.
+   - Promove `ID` a `PRIMARY KEY` nas tabelas grandes quando não houver mais FKs referenciando a PK antiga, mantendo `*_ID_STR` como `UNIQUE`.
+
 ## Breaking changes
 Vazio (sem perda de dados). As mudanças de PK ocorrem apenas nas tabelas de junção e preservam unicidade pela `UNIQUE` equivalente. Não há impacto em FKs (não existem FKs apontando para estas tabelas).
 
