@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface MenorEnvolvidoRepository extends JpaRepository<MenorEnvolvido, String> {
-    List<MenorEnvolvido> findByAutoInfracao_IdAutoInfracao(String idAutoInfracao);
+public interface MenorEnvolvidoRepository extends JpaRepository<MenorEnvolvido, Long> {
+    List<MenorEnvolvido> findByAutoInfracao_Id(Long autoInfracaoId);
 }
-

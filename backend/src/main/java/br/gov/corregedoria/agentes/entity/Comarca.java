@@ -7,17 +7,17 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "comarca")
+@Table(name = "COMARCA")
 public class Comarca {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_COMARCA")
     @SequenceGenerator(name = "S_COMARCA", sequenceName = "S_COMARCA", allocationSize = 1)
-    @Column(name = "id_comarca", updatable = false, nullable = false)
+    @Column(name = "ID", updatable = false, nullable = false)
     private Long id;
 
     @NotBlank(message = "Nome da comarca é obrigatório")
-    @Column(name = "nome_comarca", nullable = false, unique = true, length = 255)
+    @Column(name = "NOME_COMARCA", nullable = false, unique = true, length = 255)
     private String nomeComarca;
 
     @ManyToMany(mappedBy = "comarcas", fetch = FetchType.LAZY)
@@ -84,4 +84,3 @@ public class Comarca {
                 '}';
     }
 }
-

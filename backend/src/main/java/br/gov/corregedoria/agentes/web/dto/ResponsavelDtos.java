@@ -16,7 +16,7 @@ public class ResponsavelDtos {
     ) {}
 
     public record ResponsavelResponse(
-            String idResponsavel,
+            Long id,
             String nomeResponsavel,
             String rgResponsavel,
             String cpfResponsavel,
@@ -27,4 +27,3 @@ public class ResponsavelDtos {
             String cidadeResponsavel
     ) {}
 }
-

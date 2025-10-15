@@ -20,13 +20,13 @@ public class TestemunhaService {
     private TestemunhaRepository repository;
 
     public Testemunha criar(@Valid Testemunha t) {
-        if (t.getIdTestemunha() == null || t.getIdTestemunha().isBlank()) {
-            t.setIdTestemunha(UUID.randomUUID().toString());
+        if (t.getIdTestemunhaStr() == null || t.getIdTestemunhaStr().isBlank()) {
+            t.setIdTestemunhaStr(UUID.randomUUID().toString());
         }
         return repository.save(t);
     }
 
-    public Testemunha atualizar(String id, @Valid Testemunha dados) {
+    public Testemunha atualizar(Long id, @Valid Testemunha dados) {
         Testemunha existente = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Testemunha não encontrada: " + id));
         existente.setNomeTestemunha(dados.getNomeTestemunha());
@@ -36,7 +36,7 @@ public class TestemunhaService {
     }
 
     @Transactional(readOnly = true)
-    public Testemunha buscar(String id) {
+    public Testemunha buscar(Long id) {
         return repository.findById(id).orElseThrow(() -> new EntityNotFoundException("Testemunha não encontrada: " + id));
     }
 
@@ -45,9 +45,8 @@ public class TestemunhaService {
         return repository.findAll(pageable);
     }
 
-    public void excluir(String id) {
+    public void excluir(Long id) {
         Testemunha t = buscar(id);
         repository.delete(t);
     }
 }
-

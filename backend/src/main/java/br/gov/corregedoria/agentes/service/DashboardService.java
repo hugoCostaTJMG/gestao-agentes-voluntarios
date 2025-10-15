@@ -77,17 +77,17 @@ public class DashboardService {
     private DashboardOverviewDTO overviewForAgente(String usuario) {
         DashboardOverviewDTO dto = new DashboardOverviewDTO();
         // Para AGENTE, mostramos apenas métricas relacionadas ao próprio usuário
-        long meusAutos = autoRepository.countByMatriculaAgente(usuario);
+        long meusAutos = autoRepository.count();
         dto.setTotalAgentes(0); // não exibido no frontend para AGENTE
         dto.setAgentesAtivos(0); // não exibido para AGENTE
         dto.setAutosTotal(meusAutos);
         dto.setComarcasTotal(0); // não exibido para AGENTE
 
         List<StatusSummaryDTO> status = new ArrayList<>();
-        status.add(new StatusSummaryDTO("Rascunho", autoRepository.countByMatriculaAgenteAndStatus(usuario, StatusAutoInfracao.RASCUNHO), "neutral"));
-        status.add(new StatusSummaryDTO("Registrado", autoRepository.countByMatriculaAgenteAndStatus(usuario, StatusAutoInfracao.REGISTRADO), "primary"));
-        status.add(new StatusSummaryDTO("Concluído", autoRepository.countByMatriculaAgenteAndStatus(usuario, StatusAutoInfracao.CONCLUIDO), "success"));
-        status.add(new StatusSummaryDTO("Cancelado", autoRepository.countByMatriculaAgenteAndStatus(usuario, StatusAutoInfracao.CANCELADO), "danger"));
+        status.add(new StatusSummaryDTO("Rascunho", autoRepository.countByStatus(StatusAutoInfracao.RASCUNHO), "neutral"));
+        status.add(new StatusSummaryDTO("Registrado", autoRepository.countByStatus(StatusAutoInfracao.REGISTRADO), "primary"));
+        status.add(new StatusSummaryDTO("Concluído", autoRepository.countByStatus(StatusAutoInfracao.CONCLUIDO), "success"));
+        status.add(new StatusSummaryDTO("Cancelado", autoRepository.countByStatus(StatusAutoInfracao.CANCELADO), "danger"));
         dto.setStatusSummary(status);
 
         try {

@@ -36,7 +36,7 @@ public class TestemunhaController {
     @Operation(summary = "Buscar testemunha por ID")
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('AGENTE')")
-    public ResponseEntity<TestemunhaDtos.TestemunhaResponse> buscar(@PathVariable String id) {
+    public ResponseEntity<TestemunhaDtos.TestemunhaResponse> buscar(@PathVariable Long id) {
         Testemunha t = service.buscar(id);
         return ResponseEntity.ok(DomainMappers.toDto(t));
     }
@@ -52,7 +52,7 @@ public class TestemunhaController {
     @Operation(summary = "Atualizar testemunha")
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('CORREGEDORIA')")
-    public ResponseEntity<TestemunhaDtos.TestemunhaResponse> atualizar(@PathVariable String id,
+    public ResponseEntity<TestemunhaDtos.TestemunhaResponse> atualizar(@PathVariable Long id,
                                                   @Valid @RequestBody TestemunhaDtos.TestemunhaRequest dto) {
         Testemunha atualizado = service.atualizar(id, DomainMappers.toEntity(dto));
         return ResponseEntity.ok(DomainMappers.toDto(atualizado));
@@ -61,9 +61,8 @@ public class TestemunhaController {
     @Operation(summary = "Excluir testemunha")
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('CORREGEDORIA')")
-    public ResponseEntity<Void> excluir(@PathVariable String id) {
+    public ResponseEntity<Void> excluir(@PathVariable Long id) {
         service.excluir(id);
         return ResponseEntity.noContent().build();
     }
 }
-

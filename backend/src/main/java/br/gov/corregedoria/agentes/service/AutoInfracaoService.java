@@ -3,7 +3,6 @@ package br.gov.corregedoria.agentes.service;
 import br.gov.corregedoria.agentes.entity.*;
 import br.gov.corregedoria.agentes.repository.*;
 import br.gov.corregedoria.agentes.util.AuditoriaUtil;
-import br.gov.corregedoria.agentes.util.DocumentoUtil;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +22,6 @@ public class AutoInfracaoService {
 
     @Autowired
     private AutoInfracaoRepository autoRepository;
-
-    @Autowired
-    private AgenteVoluntarioRepository agenteRepository;
-
 
     @Autowired
     private LogAuditoriaAutoInfracaoRepository logRepository;
@@ -53,48 +48,22 @@ public class AutoInfracaoService {
     public AutoInfracao cadastrar(@Valid AutoInfracao auto,
                                   Long agenteId,
                                   String usuarioLogado) {
-        AgenteVoluntario agente = agenteRepository.findById(agenteId)
-                .orElseThrow(() -> new EntityNotFoundException("Agente não encontrado: " + agenteId));
-
-        // Sanitiza e valida CPF/CNPJ e CPF de testemunha (se informado)
-        sanitizeAndValidateDocumentos(auto);
-        auto.setAgente(agente);
-        auto.setNomeAgente(agente.getNomeCompleto());
-        auto.setMatriculaAgente(usuarioLogado); // assume login é a matrícula
+        if (auto.getIdAutoInfracaoStr() == null || auto.getIdAutoInfracaoStr().isBlank()) {
+            auto.setIdAutoInfracaoStr(java.util.UUID.randomUUID().toString());
+        }
         auto.setUsuarioCadastro(usuarioLogado);
         auto.setStatus(StatusAutoInfracao.RASCUNHO);
 
-        // Novo identificador DER
-        if (auto.getIdAutoInfracao() == null || auto.getIdAutoInfracao().isBlank()) {
-            auto.setIdAutoInfracao(java.util.UUID.randomUUID().toString());
+        if (auto.getEstabelecimento() == null || auto.getEstabelecimento().getId() == null) {
+            throw new IllegalArgumentException("ESTABELECIMENTO_ID é obrigatório");
         }
-
-        // Preenche campos DER de comissário
-        if (auto.getNomeComissarioAutuante() == null) {
-            auto.setNomeComissarioAutuante(auto.getNomeAgente());
+        if (auto.getResponsavel() == null || auto.getResponsavel().getId() == null) {
+            throw new IllegalArgumentException("RESPONSAVEL_ID é obrigatório");
         }
-        if (auto.getMatriculaAutuante() == null) {
-            auto.setMatriculaAutuante(auto.getMatriculaAgente());
-        }
-
-        // Cria placeholders de relacionamento se necessário
-        if (auto.getEstabelecimento() == null || auto.getEstabelecimento().getIdEstabelecimento() == null) {
-            br.gov.corregedoria.agentes.entity.Estabelecimento est = new br.gov.corregedoria.agentes.entity.Estabelecimento();
-            est.setIdEstabelecimento(java.util.UUID.randomUUID().toString());
-            est.setNomeEstabelecimento(auto.getNomeAutuado());
-            // se for CNPJ
-            String doc = auto.getCpfCnpjAutuado();
-            if (doc != null && doc.length() == 14) { est.setCnpj(doc); }
-            auto.setEstabelecimento(estabelecimentoRepository.save(est));
-        }
-        if (auto.getResponsavel() == null || auto.getResponsavel().getIdResponsavel() == null) {
-            br.gov.corregedoria.agentes.entity.Responsavel resp = new br.gov.corregedoria.agentes.entity.Responsavel();
-            resp.setIdResponsavel(java.util.UUID.randomUUID().toString());
-            resp.setNomeResponsavel(auto.getNomeAutuado());
-            String doc = auto.getCpfCnpjAutuado();
-            if (doc != null && doc.length() == 11) { resp.setCpfResponsavel(doc); }
-            auto.setResponsavel(responsavelRepository.save(resp));
-        }
+        auto.setEstabelecimento(estabelecimentoRepository.findById(auto.getEstabelecimento().getId())
+                .orElseThrow(() -> new EntityNotFoundException("Estabelecimento não encontrado")));
+        auto.setResponsavel(responsavelRepository.findById(auto.getResponsavel().getId())
+                .orElseThrow(() -> new EntityNotFoundException("Responsável não encontrado")));
 
         auto = autoRepository.save(auto);
         logRepository.save(LogAuditoriaAutoInfracao.criarLogCriacao(auto.getId(), usuarioLogado, "AGENTE", null));
@@ -111,25 +80,25 @@ public class AutoInfracaoService {
                                   Long agenteId,
                                   String perfilUsuario,
                                   String usuarioLogado) {
-        AutoInfracao existente = obterParaEdicao(id, agenteId, perfilUsuario);
+        AutoInfracao existente = autoRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Auto não encontrado: " + id));
 
-        sanitizeAndValidateDocumentos(dadosAtualizados);
-
-        existente.setNomeAutuado(dadosAtualizados.getNomeAutuado());
-        existente.setCpfCnpjAutuado(dadosAtualizados.getCpfCnpjAutuado());
-        existente.setEnderecoAutuado(dadosAtualizados.getEnderecoAutuado());
-        existente.setContatoAutuado(dadosAtualizados.getContatoAutuado());
-        existente.setBaseLegal(dadosAtualizados.getBaseLegal());
+        // Campos do novo DER
         existente.setDataInfracao(dadosAtualizados.getDataInfracao());
-        existente.setHoraInfracao(dadosAtualizados.getHoraInfracao());
+        existente.setHorarioInfracao(dadosAtualizados.getHorarioInfracao());
         existente.setLocalInfracao(dadosAtualizados.getLocalInfracao());
-        existente.setDescricaoConduta(dadosAtualizados.getDescricaoConduta());
-        existente.setIniciaisCrianca(dadosAtualizados.getIniciaisCrianca());
-        existente.setIdadeCrianca(dadosAtualizados.getIdadeCrianca());
-        existente.setSexoCrianca(dadosAtualizados.getSexoCrianca());
-        existente.setNomeTestemunha(dadosAtualizados.getNomeTestemunha());
-        existente.setCpfTestemunha(dadosAtualizados.getCpfTestemunha());
+        existente.setComarcaTexto(dadosAtualizados.getComarcaTexto());
+        existente.setNumeroCriancas(dadosAtualizados.getNumeroCriancas());
+        existente.setNumeroAdolescentes(dadosAtualizados.getNumeroAdolescentes());
         existente.setAssinaturaAutuado(dadosAtualizados.getAssinaturaAutuado());
+        existente.setNomeComissarioAutuante(dadosAtualizados.getNomeComissarioAutuante());
+        existente.setMatriculaAutuante(dadosAtualizados.getMatriculaAutuante());
+        existente.setFundamentoLegal(dadosAtualizados.getFundamentoLegal());
+        existente.setArtigoEca(dadosAtualizados.getArtigoEca());
+        existente.setPortariaN(dadosAtualizados.getPortariaN());
+        existente.setObservacoes(dadosAtualizados.getObservacoes());
+        existente.setDataIntimacao(dadosAtualizados.getDataIntimacao());
+        existente.setPrazoDefesa(dadosAtualizados.getPrazoDefesa());
         existente.setUsuarioAtualizacao(usuarioLogado);
 
         existente = autoRepository.save(existente);
@@ -138,33 +107,7 @@ public class AutoInfracaoService {
         return existente;
     }
 
-    private void sanitizeAndValidateDocumentos(AutoInfracao auto) {
-        // CPF/CNPJ autuado obrigatório
-        String doc = DocumentoUtil.cleanDigits(auto.getCpfCnpjAutuado());
-        if (doc.length() == 11) {
-            if (!DocumentoUtil.isValidCPF(doc)) {
-                throw new IllegalArgumentException("CPF do autuado inválido");
-            }
-        } else if (doc.length() == 14) {
-            if (!DocumentoUtil.isValidCNPJ(doc)) {
-                throw new IllegalArgumentException("CNPJ do autuado inválido");
-            }
-        } else {
-            throw new IllegalArgumentException("Documento do autuado deve ser CPF (11) ou CNPJ (14) válido");
-        }
-        auto.setCpfCnpjAutuado(doc);
-
-        // CPF testemunha opcional
-        if (auto.getCpfTestemunha() != null && !auto.getCpfTestemunha().isBlank()) {
-            String cpfT = DocumentoUtil.cleanDigits(auto.getCpfTestemunha());
-            if (!cpfT.isBlank()) {
-                if (cpfT.length() != 11 || !DocumentoUtil.isValidCPF(cpfT)) {
-                    throw new IllegalArgumentException("CPF da testemunha inválido");
-                }
-                auto.setCpfTestemunha(cpfT);
-            }
-        }
-    }
+    // Documento validations removidas no novo DER (dados de autuado migrados)
 
     /**
      * Cancela um auto de infração.
@@ -185,14 +128,11 @@ public class AutoInfracaoService {
     public MenorEnvolvido adicionarMenor(Long autoId, @Valid MenorEnvolvido menor) {
         AutoInfracao auto = autoRepository.findById(autoId)
                 .orElseThrow(() -> new EntityNotFoundException("Auto não encontrado: " + autoId));
-        if (menor.getIdMenor() == null || menor.getIdMenor().isBlank()) {
-            menor.setIdMenor(java.util.UUID.randomUUID().toString());
-        }
         menor.setAutoInfracao(auto);
         return menorEnvolvidoRepository.save(menor);
     }
 
-    public void removerMenor(Long autoId, String idMenor) {
+    public void removerMenor(Long autoId, Long idMenor) {
         AutoInfracao auto = autoRepository.findById(autoId)
                 .orElseThrow(() -> new EntityNotFoundException("Auto não encontrado: " + autoId));
         MenorEnvolvido menor = menorEnvolvidoRepository.findById(idMenor)
@@ -203,7 +143,7 @@ public class AutoInfracaoService {
         menorEnvolvidoRepository.delete(menor);
     }
 
-    public AutoInfracao associarTestemunha(Long autoId, String testemunhaId) {
+    public AutoInfracao associarTestemunha(Long autoId, Long testemunhaId) {
         AutoInfracao auto = autoRepository.findById(autoId)
                 .orElseThrow(() -> new EntityNotFoundException("Auto não encontrado: " + autoId));
         Testemunha t = testemunhaRepository.findById(testemunhaId)
@@ -212,7 +152,7 @@ public class AutoInfracaoService {
         return autoRepository.save(auto);
     }
 
-    public AutoInfracao desassociarTestemunha(Long autoId, String testemunhaId) {
+    public AutoInfracao desassociarTestemunha(Long autoId, Long testemunhaId) {
         AutoInfracao auto = autoRepository.findById(autoId)
                 .orElseThrow(() -> new EntityNotFoundException("Auto não encontrado: " + autoId));
         Testemunha t = testemunhaRepository.findById(testemunhaId)
@@ -260,10 +200,6 @@ public class AutoInfracaoService {
             throw new IllegalStateException("Auto não pode ser excluído no status atual");
         }
 
-        if (!auto.podeSerEditadoPorAgente(usuarioLogado) && !auto.podeSerEditadoPorSupervisor()) {
-            throw new IllegalStateException("Usuário não autorizado a excluir este auto");
-        }
-
         autoRepository.delete(auto);
         logRepository.save(LogAuditoriaAutoInfracao.criarLogEdicao(id, usuarioLogado, "AGENTE", null, "EXCLUSAO"));
         auditoriaUtil.registrarLog(usuarioLogado, "EXCLUSAO_AUTO", "Auto removido: " + id);
@@ -276,7 +212,10 @@ public class AutoInfracaoService {
     public Page<AutoInfracao> listar(Pageable pageable,
                                      String matriculaAgente,
                                      StatusAutoInfracao status) {
-        return autoRepository.findWithFilters(matriculaAgente, status, null, null, null, null, null, null, pageable);
+        if (status != null) {
+            return autoRepository.findByStatusOrderByDataCadastroDesc(status, pageable);
+        }
+        return autoRepository.findAll(pageable);
     }
 
     /**
@@ -284,27 +223,7 @@ public class AutoInfracaoService {
      */
     @Transactional(readOnly = true)
     public AutoInfracao buscarPorId(Long id, Long agenteId, String perfilUsuario) {
-        return obterParaEdicao(id, agenteId, perfilUsuario);
-    }
-
-    private AutoInfracao obterParaEdicao(Long id, Long agenteId, String perfilUsuario) {
-        AutoInfracao auto = autoRepository.findById(id)
+        return autoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Auto não encontrado: " + id));
-
-        if (auto.getStatus() == StatusAutoInfracao.CANCELADO) {
-            throw new IllegalStateException("Autos cancelados não podem ser editados");
-        }
-
-        // RN011 e RN012
-        if (auto.getStatus() == StatusAutoInfracao.RASCUNHO) {
-            if (agenteId == null || auto.getAgente() == null || auto.getAgente().getId() == null || !auto.getAgente().getId().equals(agenteId)) {
-                throw new IllegalStateException("Acesso negado ao rascunho");
-            }
-        } else {
-            if (!"CORREGEDORIA".equalsIgnoreCase(perfilUsuario)) {
-                throw new IllegalStateException("Somente Corregedoria pode editar este auto neste status");
-            }
-        }
-        return auto;
     }
 }

@@ -18,7 +18,7 @@ public class DomainMappers {
 
     public static EstabelecimentoDtos.EstabelecimentoResponse toDto(Estabelecimento e) {
         return new EstabelecimentoDtos.EstabelecimentoResponse(
-                e.getIdEstabelecimento(),
+                e.getId(),
                 e.getNomeEstabelecimento(),
                 e.getCnpj(),
                 e.getEnderecoEstabelecimento(),
@@ -43,7 +43,7 @@ public class DomainMappers {
 
     public static ResponsavelDtos.ResponsavelResponse toDto(Responsavel r) {
         return new ResponsavelDtos.ResponsavelResponse(
-                r.getIdResponsavel(),
+                r.getId(),
                 r.getNomeResponsavel(),
                 r.getRgResponsavel(),
                 r.getCpfResponsavel(),
@@ -65,7 +65,7 @@ public class DomainMappers {
 
     public static TestemunhaDtos.TestemunhaResponse toDto(Testemunha t) {
         return new TestemunhaDtos.TestemunhaResponse(
-                t.getIdTestemunha(),
+                t.getId(),
                 t.getNomeTestemunha(),
                 t.getResidenciaTestemunha(),
                 t.getDocumentoTestemunha()
@@ -82,4 +82,3 @@ public class DomainMappers {
         return m;
     }
 }
-

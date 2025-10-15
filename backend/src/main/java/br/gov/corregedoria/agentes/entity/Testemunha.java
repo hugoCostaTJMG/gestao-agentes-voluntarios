@@ -9,8 +9,13 @@ import jakarta.validation.constraints.Size;
 public class Testemunha {
 
     @Id
-    @Column(name = "ID_TESTEMUNHA", length = 255)
-    private String idTestemunha;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_TESTEMUNHA")
+    @SequenceGenerator(name = "S_TESTEMUNHA", sequenceName = "S_TESTEMUNHA", allocationSize = 1)
+    @Column(name = "ID", updatable = false, nullable = false)
+    private Long id;
+
+    @Column(name = "ID_TESTEMUNHA_STR", length = 255, nullable = false, unique = true)
+    private String idTestemunhaStr;
 
     @NotBlank
     @Size(max = 255)
@@ -25,13 +30,11 @@ public class Testemunha {
     @Column(name = "DOCUMENTO_TESTEMUNHA", length = 255)
     private String documentoTestemunha;
 
-    public String getIdTestemunha() {
-        return idTestemunha;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setIdTestemunha(String idTestemunha) {
-        this.idTestemunha = idTestemunha;
-    }
+    public String getIdTestemunhaStr() { return idTestemunhaStr; }
+    public void setIdTestemunhaStr(String idTestemunhaStr) { this.idTestemunhaStr = idTestemunhaStr; }
 
     public String getNomeTestemunha() {
         return nomeTestemunha;
@@ -57,4 +60,3 @@ public class Testemunha {
         this.documentoTestemunha = documentoTestemunha;
     }
 }
-

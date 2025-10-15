@@ -15,13 +15,13 @@ class EstabelecimentoRepositoryTest {
     @Test
     void shouldEnforceUniqueCnpj() {
         Estabelecimento a = new Estabelecimento();
-        a.setIdEstabelecimento("id-1");
+        a.setIdEstabelecimentoStr("id-1");
         a.setNomeEstabelecimento("A");
         a.setCnpj("12345678901234");
         repository.saveAndFlush(a);
 
         Estabelecimento b = new Estabelecimento();
-        b.setIdEstabelecimento("id-2");
+        b.setIdEstabelecimentoStr("id-2");
         b.setNomeEstabelecimento("B");
         b.setCnpj("12345678901234");
 
@@ -30,4 +30,3 @@ class EstabelecimentoRepositoryTest {
         });
     }
 }
-

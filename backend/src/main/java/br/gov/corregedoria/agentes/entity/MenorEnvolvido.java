@@ -11,8 +11,13 @@ import java.time.LocalDate;
 public class MenorEnvolvido {
 
     @Id
-    @Column(name = "ID_MENOR", length = 255)
-    private String idMenor;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_MENOR_ENVOLVIDO")
+    @SequenceGenerator(name = "S_MENOR_ENVOLVIDO", sequenceName = "S_MENOR_ENVOLVIDO", allocationSize = 1)
+    @Column(name = "ID", updatable = false, nullable = false)
+    private Long id;
+
+    @Column(name = "ID_MENOR_STR", length = 255, nullable = false, unique = true)
+    private String idMenorStr;
 
     @Size(max = 255)
     @Column(name = "NOME_MENOR", length = 255, nullable = false)
@@ -34,18 +39,15 @@ public class MenorEnvolvido {
     @Column(name = "RESIDENCIA_MENOR", length = 500)
     private String residenciaMenor;
 
-    // Join uses the string key in AUTO_INFRACAO.ID_AUTO_INFRACAO
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ID_AUTO_INFRACAO", referencedColumnName = "ID_AUTO_INFRACAO", nullable = false)
+    @JoinColumn(name = "AUTO_INFRACAO_ID", referencedColumnName = "ID", nullable = false)
     private AutoInfracao autoInfracao;
 
-    public String getIdMenor() {
-        return idMenor;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setIdMenor(String idMenor) {
-        this.idMenor = idMenor;
-    }
+    public String getIdMenorStr() { return idMenorStr; }
+    public void setIdMenorStr(String idMenorStr) { this.idMenorStr = idMenorStr; }
 
     public String getNomeMenor() {
         return nomeMenor;
@@ -95,4 +97,3 @@ public class MenorEnvolvido {
         this.autoInfracao = autoInfracao;
     }
 }
-

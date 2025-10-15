@@ -7,8 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface ResponsavelRepository extends JpaRepository<Responsavel, String> {
+public interface ResponsavelRepository extends JpaRepository<Responsavel, Long> {
     Optional<Responsavel> findByCpfResponsavel(String cpfResponsavel);
     boolean existsByCpfResponsavel(String cpfResponsavel);
 }
-

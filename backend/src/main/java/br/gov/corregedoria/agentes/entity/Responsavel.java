@@ -9,8 +9,13 @@ import jakarta.validation.constraints.Size;
 public class Responsavel {
 
     @Id
-    @Column(name = "ID_RESPONSAVEL", length = 255)
-    private String idResponsavel;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_RESPONSAVEL")
+    @SequenceGenerator(name = "S_RESPONSAVEL", sequenceName = "S_RESPONSAVEL", allocationSize = 1)
+    @Column(name = "ID", updatable = false, nullable = false)
+    private Long id;
+
+    @Column(name = "ID_RESPONSAVEL_STR", length = 255, nullable = false, unique = true)
+    private String idResponsavelStr;
 
     @NotBlank
     @Size(max = 255)
@@ -45,13 +50,11 @@ public class Responsavel {
     @Column(name = "CIDADE_RESPONSAVEL", length = 255)
     private String cidadeResponsavel;
 
-    public String getIdResponsavel() {
-        return idResponsavel;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setIdResponsavel(String idResponsavel) {
-        this.idResponsavel = idResponsavel;
-    }
+    public String getIdResponsavelStr() { return idResponsavelStr; }
+    public void setIdResponsavelStr(String idResponsavelStr) { this.idResponsavelStr = idResponsavelStr; }
 
     public String getNomeResponsavel() {
         return nomeResponsavel;
@@ -117,4 +120,3 @@ public class Responsavel {
         this.cidadeResponsavel = cidadeResponsavel;
     }
 }
-

@@ -1,0 +1,13 @@
+-- Add optional business identifier column on AGENTE_VOLUNTARIO
+-- Idempotent: only adds if column is missing
+DECLARE
+  v_count INTEGER;
+BEGIN
+  SELECT COUNT(*) INTO v_count FROM USER_TAB_COLS
+   WHERE TABLE_NAME = 'AGENTE_VOLUNTARIO' AND COLUMN_NAME = 'ID_AGENTE_NEGOCIO';
+  IF v_count = 0 THEN
+    EXECUTE IMMEDIATE 'ALTER TABLE AGENTE_VOLUNTARIO ADD (ID_AGENTE_NEGOCIO VARCHAR2(255))';
+  END IF;
+END;
+/
+

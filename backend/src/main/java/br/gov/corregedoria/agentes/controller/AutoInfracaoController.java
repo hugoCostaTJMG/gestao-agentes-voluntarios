@@ -5,8 +5,6 @@ import br.gov.corregedoria.agentes.entity.StatusAutoInfracao;
 import br.gov.corregedoria.agentes.entity.MenorEnvolvido;
 import br.gov.corregedoria.agentes.web.dto.MenorEnvolvidoDtos;
 import br.gov.corregedoria.agentes.service.AutoInfracaoService;
-import br.gov.corregedoria.agentes.entity.Comarca;
-import br.gov.corregedoria.agentes.repository.ComarcaRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -29,8 +27,7 @@ public class AutoInfracaoController {
     @Autowired
     private AutoInfracaoService autoService;
 
-    @Autowired
-    private ComarcaRepository comarcaRepository;
+    // Comarca agora é campo texto no DER corrigido
 
     @Operation(summary = "Listar autos de infração")
     @GetMapping
@@ -88,37 +85,39 @@ public class AutoInfracaoController {
 
     private AutoInfracao mapearAuto(java.util.Map<String, Object> payload) {
         AutoInfracao auto = new AutoInfracao();
-        auto.setNomeAutuado((String) payload.get("nomeAutuado"));
-        auto.setCpfCnpjAutuado((String) payload.get("cpfCnpjAutuado"));
-        auto.setEnderecoAutuado((String) payload.get("enderecoAutuado"));
-        auto.setContatoAutuado((String) payload.get("contatoAutuado"));
-        auto.setBaseLegal((String) payload.get("baseLegal"));
         auto.setLocalInfracao((String) payload.get("localInfracao"));
-        auto.setDescricaoConduta((String) payload.get("descricaoConduta"));
-        Object iniciais = payload.get("iniciaisCrianca");
-        if (iniciais instanceof String s) auto.setIniciaisCrianca(s);
-        Object idade = payload.get("idadeCrianca");
-        if (idade instanceof Number n) auto.setIdadeCrianca(n.intValue());
-        Object sexo = payload.get("sexoCrianca");
-        if (sexo instanceof String s) auto.setSexoCrianca(s);
+        auto.setComarcaTexto((String) payload.get("comarca"));
+        auto.setFundamentoLegal((String) payload.get("fundamentoLegal"));
+        auto.setArtigoEca((String) payload.get("artigoEca"));
+        auto.setPortariaN((String) payload.get("portariaN"));
+        Object nC = payload.get("numeroCriancas");
+        if (nC instanceof Number n) auto.setNumeroCriancas(n.intValue());
+        Object nA = payload.get("numeroAdolescentes");
+        if (nA instanceof Number n) auto.setNumeroAdolescentes(n.intValue());
+        auto.setNomeComissarioAutuante((String) payload.get("nomeComissarioAutuante"));
+        auto.setMatriculaAutuante((String) payload.get("matriculaAutuante"));
+        auto.setObservacoes((String) payload.get("observacoes"));
+        Object dataInf = payload.get("dataInfracao");
+        if (dataInf instanceof String ds && !ds.isBlank()) auto.setDataInfracao(java.time.LocalDate.parse(ds));
+        Object horario = payload.get("horarioInfracao");
+        if (horario instanceof String hs && !hs.isBlank()) auto.setHorarioInfracao(java.time.LocalDateTime.parse(hs));
+        Object dataInt = payload.get("dataIntimacao");
+        if (dataInt instanceof String ds && !ds.isBlank()) auto.setDataIntimacao(java.time.LocalDate.parse(ds));
+        Object prazo = payload.get("prazoDefesa");
+        if (prazo instanceof String ds && !ds.isBlank()) auto.setPrazoDefesa(java.time.LocalDate.parse(ds));
 
-        // Datas e horas
-        Object dataInfracao = payload.get("dataInfracao");
-        if (dataInfracao instanceof String ds && !ds.isBlank()) {
-            auto.setDataInfracao(java.time.LocalDate.parse(ds));
+        // Relacionamentos obrigatórios
+        Object estId = payload.get("estabelecimentoId");
+        if (estId instanceof Number n) {
+            br.gov.corregedoria.agentes.entity.Estabelecimento e = new br.gov.corregedoria.agentes.entity.Estabelecimento();
+            e.setId(n.longValue());
+            auto.setEstabelecimento(e);
         }
-        Object horaInfracao = payload.get("horaInfracao");
-        if (horaInfracao instanceof String hs && !hs.isBlank()) {
-            auto.setHoraInfracao(java.time.LocalTime.parse(hs));
-        }
-
-        // Comarca
-        Object comarcaIdObj = payload.get("comarcaId");
-        if (comarcaIdObj instanceof Number n) {
-            Long comarcaId = n.longValue();
-            Comarca c = comarcaRepository.findById(comarcaId)
-                    .orElseThrow(() -> new IllegalArgumentException("Comarca inválida: " + comarcaId));
-            auto.setComarca(c);
+        Object respId = payload.get("responsavelId");
+        if (respId instanceof Number n) {
+            br.gov.corregedoria.agentes.entity.Responsavel r = new br.gov.corregedoria.agentes.entity.Responsavel();
+            r.setId(n.longValue());
+            auto.setResponsavel(r);
         }
         return auto;
     }
@@ -170,7 +169,7 @@ public class AutoInfracaoController {
     @Operation(summary = "Remover menor envolvido do Auto")
     @DeleteMapping("/{id}/menores/{idMenor}")
     @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('AGENTE')")
-    public ResponseEntity<Void> removerMenor(@PathVariable Long id, @PathVariable String idMenor) {
+    public ResponseEntity<Void> removerMenor(@PathVariable Long id, @PathVariable Long idMenor) {
         autoService.removerMenor(id, idMenor);
         return ResponseEntity.noContent().build();
     }
@@ -178,7 +177,7 @@ public class AutoInfracaoController {
     @Operation(summary = "Associar testemunha ao Auto")
     @PostMapping("/{id}/testemunhas/{idTestemunha}")
     @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('AGENTE')")
-    public ResponseEntity<AutoInfracao> associarTestemunha(@PathVariable Long id, @PathVariable String idTestemunha) {
+    public ResponseEntity<AutoInfracao> associarTestemunha(@PathVariable Long id, @PathVariable Long idTestemunha) {
         AutoInfracao atualizado = autoService.associarTestemunha(id, idTestemunha);
         return ResponseEntity.ok(atualizado);
     }
@@ -186,7 +185,7 @@ public class AutoInfracaoController {
     @Operation(summary = "Desassociar testemunha do Auto")
     @DeleteMapping("/{id}/testemunhas/{idTestemunha}")
     @PreAuthorize("hasRole('CORREGEDORIA') or hasRole('AGENTE')")
-    public ResponseEntity<AutoInfracao> desassociarTestemunha(@PathVariable Long id, @PathVariable String idTestemunha) {
+    public ResponseEntity<AutoInfracao> desassociarTestemunha(@PathVariable Long id, @PathVariable Long idTestemunha) {
         AutoInfracao atualizado = autoService.desassociarTestemunha(id, idTestemunha);
         return ResponseEntity.ok(atualizado);
     }

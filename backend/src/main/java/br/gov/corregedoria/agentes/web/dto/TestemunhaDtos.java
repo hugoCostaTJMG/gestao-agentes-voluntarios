@@ -11,10 +11,9 @@ public class TestemunhaDtos {
     ) {}
 
     public record TestemunhaResponse(
-            String idTestemunha,
+            Long id,
             String nomeTestemunha,
             String residenciaTestemunha,
             String documentoTestemunha
     ) {}
 }
-
