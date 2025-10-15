@@ -33,6 +33,7 @@
 /home/hugoguilhermecosta/Documentos/gestao-agentes-voluntarios/backend/src/main/java/br/gov/corregedoria/agentes/web/dto/EstabelecimentoDtos.java
 /home/hugoguilhermecosta/Documentos/gestao-agentes-voluntarios/backend/src/main/java/br/gov/corregedoria/agentes/service/AutoInfracaoService.java
 /home/hugoguilhermecosta/Documentos/gestao-agentes-voluntarios/backend/src/main/java/br/gov/corregedoria/agentes/util/AuditoriaUtil.java
+/home/hugoguilhermecosta/Documentos/gestao-agentes-voluntarios/backend/src/main/java/br/gov/corregedoria/agentes/config/db/FlywayRepairConfig.java
 /home/hugoguilhermecosta/Documentos/gestao-agentes-voluntarios/backend/src/main/java/br/gov/corregedoria/agentes/entity/Estabelecimento.java
 /home/hugoguilhermecosta/Documentos/gestao-agentes-voluntarios/backend/src/main/java/br/gov/corregedoria/agentes/entity/AgenteVoluntario.java
 /home/hugoguilhermecosta/Documentos/gestao-agentes-voluntarios/backend/src/main/java/br/gov/corregedoria/agentes/entity/LogAuditoriaAutoInfracao.java
