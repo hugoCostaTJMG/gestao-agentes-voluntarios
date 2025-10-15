@@ -6,12 +6,12 @@ Este pacote adiciona migrações Flyway idempotentes para alinhar o schema às d
 - AGENTE_VOLUNTARIO, AREA_ATUACAO, AGENTE_AREA_ATUACAO, AGENTE_COMARCA, COMARCA, CREDENCIAL, AUTO_INFRACAO, ANEXO_AUTO_INFRACAO, LOG_AUDITORIA, LOG_AUDITORIA_AUTO_INFRACAO, MENOR_ENVOLVIDO, RESPONSAVEL, TESTEMUNHA, AUTO_INFRACAO_TESTEMUNHA.
 
 ## Estratégia aplicada
-1) Surrogate key em tabelas com PK composta: adição de `ID NUMBER(19)` + `S_<TABELA>` + trigger `TR_BIR_<ALIAS>01`, backfill de IDs e promoção de `ID` como PK, preservando unicidade de pares de negócio via `UNIQUE`.
+1) Surrogate key em tabelas com PK composta (apenas tabelas de junção): adição de `ID NUMBER(19)` + `S_<TABELA>` + trigger `TR_BIR_<ALIAS>01`, backfill de IDs e promoção de `ID` como PK, preservando unicidade de pares de negócio via `UNIQUE`.
 2) Índices para FKs nomeados como `I_FK_<ALIAS>_<REF>nn`.
-3) Triggers de sequência padronizadas `TR_BIR_<ALIAS>01` para todas as tabelas com sequência.
-4) LOBs: `DISABLE STORAGE IN ROW` e padronização do nome dos índices de LOB.
+3) Triggers padronizadas foram criadas somente nas tabelas de junção. Não mexemos nas tabelas “grandes” que ainda usam PK `VARCHAR2`, para evitar colisão com o modelo atual.
+4) LOBs: `DISABLE STORAGE IN ROW` (via MOVE LOB) e nomes padronizados de índice de LOB. Não alteramos tablespace.
 
-Observação: não há remoção de colunas nem perda de dados. Trocas de PK nas tabelas de junção não possuem FKs dependentes, minimizando risco. Não há definição de tablespace.
+Observação: não há remoção de colunas nem perda de dados. Trocas de PK ocorrem apenas nas tabelas de junção e não possuem FKs dependentes, minimizando risco. Não há definição de tablespace.
 
 ## Ordem de execução
 1. `V20251016_4__add_id_number_and_sequences_join_tables.sql`
@@ -22,11 +22,11 @@ Observação: não há remoção de colunas nem perda de dados. Trocas de PK nas
    - Índices básicos de FK (serão reforçados no passo 2).
 
 2. `V20251016_5__fk_indexes_and_trigger_renames.sql`
-   - Cria índices de FK explícitos seguindo `I_FK_<ALIAS>_<REF>nn` em todas as FKs principais.
-   - Substitui triggers antigas (`TR_BI_*` ou `TR_*_BI`) por `TR_BIR_<ALIAS>01`.
+   - Cria índices de FK explícitos seguindo `I_FK_<ALIAS>_<REF>nn` em FKs principais.
+   - Não altera triggers das tabelas grandes; padronização de triggers ficou restrita às join tables no passo 1.
 
 3. `V20251016_6__ajusta_lobs.sql`
-   - Ajusta armazenamento dos LOBs (desabilita storage in row quando aplicável) e padroniza nomes de índices de LOB.
+   - Ajusta LOBs via `ALTER TABLE ... MOVE LOB ... (DISABLE STORAGE IN ROW INDEX <nome>)`, nomeando os segmentos/índices de LOB (sem trocar tablespace).
 
 ## Breaking changes
 Vazio (sem perda de dados). As mudanças de PK ocorrem apenas nas tabelas de junção e preservam unicidade pela `UNIQUE` equivalente. Não há impacto em FKs (não existem FKs apontando para estas tabelas).
@@ -90,3 +90,7 @@ SELECT table_name, column_name, index_name FROM user_lobs WHERE (table_name, col
 - Não alteram tablespace nem criam `flyway_schema_history` manualmente.
 - Em ambientes com validação de schema pelo Hibernate, não há impacto em entidades mapeadas diretamente (as alterações de PK são restritas às tabelas de junção, tipicamente não mapeadas como entidades independentes em JPA).
 
+## Como usar
+- Salve os arquivos exatamente com esses nomes na pasta do Flyway (`src/main/resources/db/migration/`).
+- Faça um build e suba a aplicação; o Flyway aplicará as 3 migrações.
+- Rode as consultas de verificação acima para confirmar PK/FK/UK/índices/LOBs.

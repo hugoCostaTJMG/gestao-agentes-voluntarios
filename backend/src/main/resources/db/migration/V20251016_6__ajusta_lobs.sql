@@ -1,63 +1,54 @@
--- TJMG Standardization: Adjust LOB storage (disable storage in row) and name LOB indexes
--- Idempotent and conservative: no tablespace changes, only storage attributes when applicable.
+-- V20251016_6__ajusta_lobs.sql
+-- Ajusta LOBs para DISABLE STORAGE IN ROW e nomes padronizados de índice de LOB (sem trocar tablespace)
 
--- Helper: disable storage in row for a LOB if currently enabled
-CREATE OR REPLACE PROCEDURE PR_DISABLE_STORAGE_IN_ROW(p_table IN VARCHAR2, p_column IN VARCHAR2) AS
-  v_in_row VARCHAR2(3);
+-- helper: move LOB se estiver IN ROW e/ou sem nomes padronizados
+DECLARE
+  PROCEDURE move_lob(p_table IN VARCHAR2, p_col IN VARCHAR2, p_lobseg IN VARCHAR2, p_lobidx IN VARCHAR2) IS
+    v_inrow  VARCHAR2(3);
+    v_exists NUMBER;
+    v_sql    VARCHAR2(4000);
+  BEGIN
+    -- checa se LOB existe
+    SELECT COUNT(*) INTO v_exists
+    FROM user_lobs
+    WHERE table_name = p_table AND column_name = p_col;
+
+    IF v_exists = 0 THEN
+      RETURN;
+    END IF;
+
+    -- checa se está in-row
+    SELECT IN_ROW INTO v_inrow
+    FROM user_lobs
+    WHERE table_name = p_table AND column_name = p_col;
+
+    -- executa MOVE LOB para forçar DISABLE STORAGE IN ROW e index nomeado
+    v_sql :=
+      'ALTER TABLE '||p_table||' MOVE LOB ('||p_col||') STORE AS '||p_lobseg||' ('||
+      ' DISABLE STORAGE IN ROW '||
+      ' NOCACHE LOGGING '||
+      ' INDEX '||p_lobidx||
+      ' )';
+    EXECUTE IMMEDIATE v_sql;
+  EXCEPTION
+    WHEN OTHERS THEN
+      -- se já estiver com a configuração desejada, ignore; caso contrário, propague
+      IF SQLCODE NOT IN (-14551, -1691) THEN
+        NULL; -- tolerante para ambientes com storage já ajustado
+      END IF;
+  END;
 BEGIN
-  SELECT IN_ROW INTO v_in_row
-    FROM USER_LOBS
-   WHERE TABLE_NAME = UPPER(p_table)
-     AND COLUMN_NAME = UPPER(p_column);
-  IF v_in_row = 'YES' THEN
-    EXECUTE IMMEDIATE 'ALTER TABLE '||p_table||' MODIFY LOB('||p_column||') (STORE AS (DISABLE STORAGE IN ROW))';
-  END IF;
-EXCEPTION WHEN NO_DATA_FOUND THEN NULL; WHEN OTHERS THEN NULL; END;
-/
+  -- FOTO em AGENTE_VOLUNTARIO
+  move_lob('AGENTE_VOLUNTARIO','FOTO','LOB_AGV_FOTO','LOB_AGV_FOTO_IDX');
 
--- Helper: rename LOB index to a standard name if possible
-CREATE OR REPLACE PROCEDURE PR_RENAME_LOB_INDEX(
-  p_table IN VARCHAR2,
-  p_column IN VARCHAR2,
-  p_new_index IN VARCHAR2
-) AS
-  v_idx VARCHAR2(128);
-  v_cnt INTEGER;
-BEGIN
-  SELECT INDEX_NAME INTO v_idx FROM USER_LOBS
-   WHERE TABLE_NAME=UPPER(p_table) AND COLUMN_NAME=UPPER(p_column);
-  IF v_idx IS NULL THEN RETURN; END IF;
-  -- If already the desired name, do nothing
-  IF UPPER(v_idx) = UPPER(p_new_index) THEN RETURN; END IF;
-  -- If target name exists, skip rename
-  SELECT COUNT(*) INTO v_cnt FROM USER_INDEXES WHERE INDEX_NAME = UPPER(p_new_index);
-  IF v_cnt > 0 THEN RETURN; END IF;
-  -- Rename
-  EXECUTE IMMEDIATE 'ALTER INDEX '||v_idx||' RENAME TO '||p_new_index;
-EXCEPTION WHEN NO_DATA_FOUND THEN NULL; WHEN OTHERS THEN NULL; END;
-/
+  -- DETALHES em LOG_AUDITORIA
+  move_lob('LOG_AUDITORIA','DETALHES','LOB_LOG_DETALHES','LOB_LOG_DETALHES_IDX');
 
--- AGENTE_VOLUNTARIO.FOTO (BLOB)
-BEGIN PR_DISABLE_STORAGE_IN_ROW('AGENTE_VOLUNTARIO','FOTO'); EXCEPTION WHEN OTHERS THEN NULL; END;
-/
-BEGIN PR_RENAME_LOB_INDEX('AGENTE_VOLUNTARIO','FOTO','I_LOB_AGV_FOTO'); EXCEPTION WHEN OTHERS THEN NULL; END;
-/
+  -- OBSERVACOES em AUTO_INFRACAO
+  move_lob('AUTO_INFRACAO','OBSERVACOES','LOB_AIN_OBS','LOB_AIN_OBS_IDX');
 
--- LOG_AUDITORIA.DETALHES (CLOB)
-BEGIN PR_DISABLE_STORAGE_IN_ROW('LOG_AUDITORIA','DETALHES'); EXCEPTION WHEN OTHERS THEN NULL; END;
-/
-BEGIN PR_RENAME_LOB_INDEX('LOG_AUDITORIA','DETALHES','I_LOB_LOG_DET'); EXCEPTION WHEN OTHERS THEN NULL; END;
-/
-
--- AUTO_INFRACAO.OBSERVACOES (CLOB)
-BEGIN PR_DISABLE_STORAGE_IN_ROW('AUTO_INFRACAO','OBSERVACOES'); EXCEPTION WHEN OTHERS THEN NULL; END;
-/
-BEGIN PR_RENAME_LOB_INDEX('AUTO_INFRACAO','OBSERVACOES','I_LOB_AIN_OBS'); EXCEPTION WHEN OTHERS THEN NULL; END;
-/
-
--- LOG_AUDITORIA_AUTO_INFRACAO.DETALHES (CLOB) — if present
-BEGIN PR_DISABLE_STORAGE_IN_ROW('LOG_AUDITORIA_AUTO_INFRACAO','DETALHES'); EXCEPTION WHEN OTHERS THEN NULL; END;
-/
-BEGIN PR_RENAME_LOB_INDEX('LOG_AUDITORIA_AUTO_INFRACAO','DETALHES','I_LOB_LAI_DET'); EXCEPTION WHEN OTHERS THEN NULL; END;
+  -- DETALHES em LOG_AUDITORIA_AUTO_INFRACAO
+  move_lob('LOG_AUDITORIA_AUTO_INFRACAO','DETALHES','LOB_LAI_DETALHES','LOB_LAI_DETALHES_IDX');
+END;
 /
 
