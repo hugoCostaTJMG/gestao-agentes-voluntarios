@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
-import { AutoInfracao, Comarca } from '../../models/interfaces';
+import { AutoInfracao, Comarca, Estabelecimento, Responsavel } from '../../models/interfaces';
 
 @Component({
   selector: 'app-auto-infracao-cadastro',
@@ -15,26 +15,41 @@ import { AutoInfracao, Comarca } from '../../models/interfaces';
 export class AutoInfracaoCadastroComponent implements OnInit {
   form: FormGroup;
   comarcas: Comarca[] = [];
+  estabelecimentos: Estabelecimento[] = [];
+  responsaveis: Responsavel[] = [];
   selectedFile: File | null = null;
   loading = false;
 
   constructor(private fb: FormBuilder, private apiService: ApiService, private router: Router) {
     this.form = this.fb.group({
-      nomeAutuado: ['', Validators.required],
-      cpfCnpjAutuado: ['', [Validators.required, this.cpfCnpjValidator()]],
-      enderecoAutuado: ['', Validators.required],
-      contatoAutuado: ['', Validators.required],
-      comarcaId: ['', Validators.required],
-      baseLegal: ['', Validators.required],
       dataInfracao: ['', Validators.required],
-      horaInfracao: ['', Validators.required],
+      horarioInfracao: [''],
       localInfracao: ['', Validators.required],
-      descricaoConduta: ['', Validators.required]
+      comarcaTexto: [''],
+      fundamentoLegal: [''],
+      artigoEca: [''],
+      portariaN: [''],
+      numeroCriancas: [null],
+      numeroAdolescentes: [null],
+      assinaturaAutuado: [false],
+      nomeComissarioAutuante: [''],
+      matriculaAutuante: [''],
+      observacoes: [''],
+      dataIntimacao: [''],
+      prazoDefesa: [''],
+      estabelecimentoId: ['', Validators.required],
+      responsavelId: ['', Validators.required]
     });
   }
 
   ngOnInit(): void {
     this.apiService.listarComarcas().subscribe(comarcas => this.comarcas = comarcas);
+    this.apiService.listarEstabelecimentos(0, 100).subscribe(resp => {
+      this.estabelecimentos = resp.content ?? [];
+    });
+    this.apiService.listarResponsaveis(0, 100).subscribe(resp => {
+      this.responsaveis = resp.content ?? [];
+    });
   }
 
   onFileChange(event: any): void {
@@ -50,20 +65,28 @@ export class AutoInfracaoCadastroComponent implements OnInit {
       return;
     }
 
-    const auto: AutoInfracao = {
-      ...this.form.value,
-      comarcaId: Number(this.form.value.comarcaId)
-    } as AutoInfracao;
-
-    // Sanitiza CPF/CNPJ antes do envio
-    auto.cpfCnpjAutuado = String(this.form.value.cpfCnpjAutuado || '').replace(/\D/g, '');
-    if (!this.isValidCpfCnpj(auto.cpfCnpjAutuado)) {
-      this.form.get('cpfCnpjAutuado')?.setErrors({ cpfCnpjInvalido: true });
-      return;
-    }
+    const payload: Partial<AutoInfracao> & Record<string, unknown> = {
+      dataInfracao: this.form.value.dataInfracao,
+      horarioInfracao: this.form.value.horarioInfracao || null,
+      localInfracao: this.form.value.localInfracao,
+      comarca: this.form.value.comarcaTexto,
+      fundamentoLegal: this.form.value.fundamentoLegal,
+      artigoEca: this.form.value.artigoEca,
+      portariaN: this.form.value.portariaN,
+      numeroCriancas: this.form.value.numeroCriancas != null ? Number(this.form.value.numeroCriancas) : null,
+      numeroAdolescentes: this.form.value.numeroAdolescentes != null ? Number(this.form.value.numeroAdolescentes) : null,
+      assinaturaAutuado: !!this.form.value.assinaturaAutuado,
+      nomeComissarioAutuante: this.form.value.nomeComissarioAutuante,
+      matriculaAutuante: this.form.value.matriculaAutuante,
+      observacoes: this.form.value.observacoes,
+      dataIntimacao: this.form.value.dataIntimacao || null,
+      prazoDefesa: this.form.value.prazoDefesa || null,
+      estabelecimentoId: Number(this.form.value.estabelecimentoId),
+      responsavelId: Number(this.form.value.responsavelId)
+    };
 
     this.loading = true;
-    this.apiService.cadastrarAuto(auto).subscribe({
+    this.apiService.cadastrarAuto(payload as AutoInfracao).subscribe({
       next: autoCriado => {
         if (this.selectedFile) {
           this.apiService.uploadAnexo(autoCriado.id!, this.selectedFile!).subscribe({
@@ -76,53 +99,6 @@ export class AutoInfracaoCadastroComponent implements OnInit {
       },
       error: () => this.loading = false
     });
-  }
-
-  // ===== Validações CPF/CNPJ =====
-  private cpfCnpjValidator() {
-    return (control: any) => {
-      const v = (control?.value || '').toString();
-      const digits = v.replace(/\D/g, '');
-      if (!digits) return { cpfCnpjInvalido: true };
-      return this.isValidCpfCnpj(digits) ? null : { cpfCnpjInvalido: true };
-    };
-  }
-
-  private isValidCpfCnpj(doc: string): boolean {
-    const digits = (doc || '').replace(/\D/g, '');
-    if (digits.length === 11) return this.isValidCPF(digits);
-    if (digits.length === 14) return this.isValidCNPJ(digits);
-    return false;
-  }
-
-  private isValidCPF(cpf: string): boolean {
-    const s = (cpf || '').replace(/\D/g, '');
-    if (s.length !== 11) return false;
-    if (/^(\d)\1{10}$/.test(s)) return false;
-    const calc = (base: string, start: number) => {
-      let sum = 0; for (let i = 0; i < base.length; i++) sum += parseInt(base[i], 10) * (start - i);
-      const mod = sum % 11; return mod < 2 ? 0 : 11 - mod;
-    };
-    const d1 = calc(s.substring(0, 9), 10);
-    const d2 = calc(s.substring(0, 9) + String(d1), 11);
-    return s === s.substring(0, 9) + String(d1) + String(d2);
-  }
-
-  private isValidCNPJ(cnpj: string): boolean {
-    const s = (cnpj || '').replace(/\D/g, '');
-    if (s.length !== 14) return false;
-    if (/^(\d)\1{13}$/.test(s)) return false;
-    const calc = (base: string) => {
-      const weights = [6,5,4,3,2,9,8,7,6,5,4,3,2];
-      let sum = 0;
-      for (let i = 0; i < base.length; i++) {
-        sum += parseInt(base[i], 10) * weights[weights.length - base.length + i];
-      }
-      const mod = sum % 11; return mod < 2 ? 0 : 11 - mod;
-    };
-    const d1 = calc(s.substring(0, 12));
-    const d2 = calc(s.substring(0, 12) + String(d1));
-    return s === s.substring(0, 12) + String(d1) + String(d2);
   }
 
   cancelar(): void {

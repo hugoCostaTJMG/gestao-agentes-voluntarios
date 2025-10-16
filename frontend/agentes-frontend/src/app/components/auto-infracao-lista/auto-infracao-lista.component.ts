@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
-import { AutoInfracao, PaginatedResponse, StatusAutoInfracao } from '../../models/interfaces';
+import { AutoInfracao, PaginatedResponse } from '../../models/interfaces';
 
 @Component({
   selector: 'app-auto-infracao-lista',

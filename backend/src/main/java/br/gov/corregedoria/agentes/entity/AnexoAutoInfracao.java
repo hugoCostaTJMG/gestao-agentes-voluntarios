@@ -1,5 +1,6 @@
 package br.gov.corregedoria.agentes.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -12,56 +13,57 @@ import java.time.LocalDateTime;
  * RN009 - Anexos: Sistema deve permitir upload de arquivos tipo documentos e imagens
  */
 @Entity
-@Table(name = "anexo_auto_infracao")
+@Table(name = "ANEXO_AUTO_INFRACAO")
 public class AnexoAutoInfracao {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_ANEXO_AUTO")
     @SequenceGenerator(name = "S_ANEXO_AUTO", sequenceName = "S_ANEXO_AUTO", allocationSize = 1)
     private Long id;
-    
+
     @NotNull(message = "Auto de infração é obrigatório")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "auto_infracao_id", nullable = false)
+    @JoinColumn(name = "AUTO_INFRACAO_ID", referencedColumnName = "ID", nullable = false)
+    @JsonIgnore
     private AutoInfracao autoInfracao;
-    
+
     @NotBlank(message = "Nome do arquivo é obrigatório")
     @Size(max = 255, message = "Nome do arquivo deve ter no máximo 255 caracteres")
-    @Column(name = "nome_arquivo", nullable = false, length = 255)
+    @Column(name = "NOME_ARQUIVO", nullable = false, length = 255)
     private String nomeArquivo;
-    
+
     @NotBlank(message = "Nome original do arquivo é obrigatório")
     @Size(max = 255, message = "Nome original deve ter no máximo 255 caracteres")
-    @Column(name = "nome_original", nullable = false, length = 255)
+    @Column(name = "NOME_ORIGINAL", nullable = false, length = 255)
     private String nomeOriginal;
-    
+
     @NotBlank(message = "Tipo do arquivo é obrigatório")
     @Size(max = 100, message = "Tipo do arquivo deve ter no máximo 100 caracteres")
-    @Column(name = "tipo_arquivo", nullable = false, length = 100)
+    @Column(name = "TIPO_ARQUIVO", nullable = false, length = 100)
     private String tipoArquivo;
-    
+
     @NotNull(message = "Tamanho do arquivo é obrigatório")
     @Min(value = 1, message = "Tamanho do arquivo deve ser maior que 0")
     @Max(value = 10485760, message = "Tamanho do arquivo deve ser menor que 10MB")
-    @Column(name = "tamanho_arquivo", nullable = false)
+    @Column(name = "TAMANHO_ARQUIVO", nullable = false)
     private Long tamanhoArquivo;
-    
+
     @NotBlank(message = "Caminho do arquivo é obrigatório")
     @Size(max = 500, message = "Caminho deve ter no máximo 500 caracteres")
-    @Column(name = "caminho_arquivo", nullable = false, length = 500)
+    @Column(name = "CAMINHO_ARQUIVO", nullable = false, length = 500)
     private String caminhoArquivo;
-    
+
     @Size(max = 500, message = "Descrição deve ter no máximo 500 caracteres")
-    @Column(name = "descricao", length = 500)
+    @Column(name = "DESCRICAO", length = 500)
     private String descricao;
-    
+
     @CreationTimestamp
-    @Column(name = "data_upload", nullable = false, updatable = false)
+    @Column(name = "DATA_UPLOAD", nullable = false, updatable = false)
     private LocalDateTime dataUpload;
-    
+
     @NotBlank(message = "Usuário do upload é obrigatório")
     @Size(max = 100, message = "Usuário deve ter no máximo 100 caracteres")
-    @Column(name = "usuario_upload", nullable = false, updatable = false, length = 100)
+    @Column(name = "USUARIO_UPLOAD", nullable = false, updatable = false, length = 100)
     private String usuarioUpload;
     
     // === CONSTRUTORES ===

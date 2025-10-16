@@ -25,65 +25,65 @@ public class AgenteVoluntario {
     private String idAgenteNegocio;
 
     @NotBlank(message = "Nome completo é obrigatório")
-    @Column(name = "nome_completo", nullable = false, length = 255)
+    @Column(name = "NOME_COMPLETO", nullable = false, length = 255)
     private String nomeCompleto;
 
     @NotBlank(message = "CPF é obrigatório")
     @Pattern(regexp = "\\d{11}", message = "CPF deve conter 11 dígitos")
-    @Column(name = "cpf", nullable = false, unique = true, length = 11)
+    @Column(name = "CPF", nullable = false, unique = true, length = 11)
     private String cpf;
 
     @NotBlank(message = "Telefone é obrigatório")
-    @Column(name = "telefone", nullable = false, length = 20)
+    @Column(name = "TELEFONE", nullable = false, length = 20)
     private String telefone;
 
     @NotBlank(message = "E-mail é obrigatório")
     @Email(message = "E-mail deve ter formato válido")
-    @Column(name = "email", nullable = false, length = 255)
+    @Column(name = "EMAIL", nullable = false, length = 255)
     private String email;
 
     // Novos campos adicionados
     @Lob
-    @Column(name = "foto")
+    @Column(name = "FOTO")
     private byte[] foto;
 
-    @Column(name = "numero_carteira_identidade", length = 20)
+    @Column(name = "NUMERO_CARTEIRA_IDENTIDADE", length = 20)
     private String numeroCarteiraIdentidade;
 
-    @Column(name = "data_expedicao_ci")
+    @Column(name = "DATA_EXPEDICAO_CI")
     private LocalDate dataExpedicaoCI;
 
-    @Column(name = "nacionalidade", length = 50)
+    @Column(name = "NACIONALIDADE", length = 50)
     private String nacionalidade;
 
-    @Column(name = "naturalidade", length = 100)
+    @Column(name = "NATURALIDADE", length = 100)
     private String naturalidade;
 
-    @Column(name = "uf", length = 2)
+    @Column(name = "UF", length = 2)
     private String uf;
 
-    @Column(name = "data_nascimento")
+    @Column(name = "DATA_NASCIMENTO")
     private LocalDate dataNascimento;
 
-    @Column(name = "filiacao_pai", length = 255)
+    @Column(name = "FILIACAO_PAI", length = 255)
     private String filiacaoPai;
 
-    @Column(name = "filiacao_mae", length = 255)
+    @Column(name = "FILIACAO_MAE", length = 255)
     private String filiacaoMae;
 
     @CreationTimestamp
-    @Column(name = "data_cadastro", nullable = false)
+    @Column(name = "DATA_CADASTRO", nullable = false)
     private LocalDateTime dataCadastro;
 
     @NotBlank(message = "Usuário de cadastro é obrigatório")
-    @Column(name = "usuario_cadastro", nullable = false, length = 100)
+    @Column(name = "USUARIO_CADASTRO", nullable = false, length = 100)
     private String usuarioCadastro;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 20)
+    @Column(name = "STATUS", nullable = false, length = 20)
     private StatusAgente status = StatusAgente.EM_ANALISE;
 
-    @Column(name = "disponibilidade", length = 500)
+    @Column(name = "DISPONIBILIDADE", length = 500)
     private String disponibilidade;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
@@ -96,9 +96,9 @@ public class AgenteVoluntario {
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
-        name = "agente_area_atuacao",
-        joinColumns = @JoinColumn(name = "id_agente"),
-        inverseJoinColumns = @JoinColumn(name = "id_area_atuacao")
+        name = "AGENTE_AREA_ATUACAO",
+        joinColumns = @JoinColumn(name = "AGENTE_ID"),
+        inverseJoinColumns = @JoinColumn(name = "AREA_ATUACAO_ID")
     )
     private Set<AreaAtuacao> areasAtuacao = new HashSet<>();
 

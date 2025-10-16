@@ -13,11 +13,13 @@ import {
   AreaAtuacao,
   Credencial,
   ConsultaPublica,
- 
+
   Usuario,
   PaginatedResponse,
   AutoInfracao,
-  AnexoAutoInfracao
+  AnexoAutoInfracao,
+  Estabelecimento,
+  Responsavel
 } from '../models/interfaces';
 
 @Injectable({
@@ -275,6 +277,28 @@ verificarStatusCarteirinha(agenteId: number): Observable<{ podeGerar: boolean, m
     });
   }
 
+  listarEstabelecimentos(page: number = 0, size: number = 50): Observable<PaginatedResponse<Estabelecimento>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    return this.http.get<PaginatedResponse<Estabelecimento>>(`${this.baseUrl}/api/estabelecimentos`, {
+      headers: this.getAuthHeaders(),
+      params
+    });
+  }
+
+  listarResponsaveis(page: number = 0, size: number = 50): Observable<PaginatedResponse<Responsavel>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    return this.http.get<PaginatedResponse<Responsavel>>(`${this.baseUrl}/api/responsaveis`, {
+      headers: this.getAuthHeaders(),
+      params
+    });
+  }
+
   cadastrarComarca(comarca: Comarca): Observable<Comarca> {
     return this.http.post<Comarca>(`${this.baseUrl}/api/comarcas`, comarca, {
       headers: this.getAuthHeaders()
@@ -302,12 +326,8 @@ verificarStatusCarteirinha(agenteId: number): Observable<{ podeGerar: boolean, m
       .set('page', page.toString())
       .set('size', size.toString());
 
-    if (filtros) {
-      Object.keys(filtros).forEach(key => {
-        if (filtros[key] !== undefined && filtros[key] !== '') {
-          params = params.set(key, filtros[key]);
-        }
-      });
+    if (filtros && filtros.status) {
+      params = params.set('status', filtros.status);
     }
 
     return this.http.get<PaginatedResponse<AutoInfracao>>(`${this.baseUrl}/api/autos`, {

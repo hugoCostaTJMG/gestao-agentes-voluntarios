@@ -6,27 +6,27 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "credencial")
+@Table(name = "CREDENCIAL")
 public class Credencial {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_CREDENCIAL")
     @SequenceGenerator(name = "S_CREDENCIAL", sequenceName = "S_CREDENCIAL", allocationSize = 1)
-    @Column(name = "id_credencial", updatable = false, nullable = false)
+    @Column(name = "ID", updatable = false, nullable = false)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "id_agente", nullable = false)
+    @JoinColumn(name = "AGENTE_ID", nullable = false)
     private AgenteVoluntario agente;
 
     @CreationTimestamp
-    @Column(name = "data_emissao", nullable = false)
+    @Column(name = "DATA_EMISSAO", nullable = false)
     private LocalDateTime dataEmissao;
 
-    @Column(name = "qr_code_url", nullable = false, length = 500)
+    @Column(name = "QR_CODE_URL", nullable = false, length = 500)
     private String qrCodeUrl;
 
-    @Column(name = "usuario_emissao", nullable = false, length = 100)
+    @Column(name = "USUARIO_EMISSAO", nullable = false, length = 100)
     private String usuarioEmissao;
 
     // Construtores
