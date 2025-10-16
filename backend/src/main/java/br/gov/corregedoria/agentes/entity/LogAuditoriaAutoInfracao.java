@@ -56,7 +56,7 @@ public class LogAuditoriaAutoInfracao {
     @Column(name = "justificativa", length = 500)
     private String justificativa;
     
-    @Column(name = "sucesso", nullable = false)
+    @Column(name = "IND_SUCESSO", nullable = false)
     private Boolean sucesso = true;
     
     @Size(max = 500, message = "Mensagem de erro deve ter no máximo 500 caracteres")

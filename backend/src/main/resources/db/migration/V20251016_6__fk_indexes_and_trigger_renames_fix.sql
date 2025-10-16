@@ -38,32 +38,92 @@ DECLARE
   END;
 BEGIN
   -- AGENTE_COMARCA
-  ensure_fk_idx('AGENTE_COMARCA', 'I_FK_AGC_AGV01', 'AGENTE_ID');
-  ensure_fk_idx('AGENTE_COMARCA', 'I_FK_AGC_COM01', 'COMARCA_ID');
+  ensure_fk_idx('AGENTE_COMARCA', 'I_FK_AGCO_AGVO01', 'AGENTE_ID');
+  ensure_fk_idx('AGENTE_COMARCA', 'I_FK_AGCO_COMA01', 'COMARCA_ID');
 
   -- AGENTE_AREA_ATUACAO
-  ensure_fk_idx('AGENTE_AREA_ATUACAO', 'I_FK_AAA_AGV01', 'ID_AGENTE');
-  ensure_fk_idx('AGENTE_AREA_ATUACAO', 'I_FK_AAA_AAT01', 'ID_AREA_ATUACAO');
+  ensure_fk_idx('AGENTE_AREA_ATUACAO', 'I_FK_AGAA_AGVO01', 'AGENTE_ID');
+  ensure_fk_idx('AGENTE_AREA_ATUACAO', 'I_FK_AGAA_ARAT01', 'AREA_ATUACAO_ID');
 
   -- CREDENCIAL
-  ensure_fk_idx('CREDENCIAL', 'I_FK_CRE_AGV01', 'ID_AGENTE');
+  ensure_fk_idx('CREDENCIAL', 'I_FK_CRED_AGVO01', 'AGENTE_ID');
 
   -- AUTO_INFRACAO
-  ensure_fk_idx('AUTO_INFRACAO', 'I_FK_AIN_EST01', 'ID_ESTABELECIMENTO');
-  ensure_fk_idx('AUTO_INFRACAO', 'I_FK_AIN_RES01', 'ID_RESPONSAVEL');
+  ensure_fk_idx('AUTO_INFRACAO', 'I_FK_AIN_EST01', 'ESTABELECIMENTO_ID');
+  ensure_fk_idx('AUTO_INFRACAO', 'I_FK_AIN_RES01', 'RESPONSAVEL_ID');
 
   -- MENOR_ENVOLVIDO
   ensure_fk_idx('MENOR_ENVOLVIDO', 'I_FK_MEN_AIN01', 'AUTO_INFRACAO_ID');
 
   -- AUTO_INFRACAO_TESTEMUNHA
-  ensure_fk_idx('AUTO_INFRACAO_TESTEMUNHA', 'I_FK_AIT_AIN01', 'AUTO_ID');
-  ensure_fk_idx('AUTO_INFRACAO_TESTEMUNHA', 'I_FK_AIT_TES01', 'TESTEMUNHA_ID');
+  ensure_fk_idx('AUTO_INFRACAO_TESTEMUNHA', 'I_FK_AIT_AUTO01', 'AUTO_INFRACAO_ID');
+  ensure_fk_idx('AUTO_INFRACAO_TESTEMUNHA', 'I_FK_AIT_TEST01', 'TESTEMUNHA_ID');
 
   -- ANEXO_AUTO_INFRACAO
   ensure_fk_idx('ANEXO_AUTO_INFRACAO', 'I_FK_ANX_AIN01', 'AUTO_INFRACAO_ID');
 
   -- LOG_AUDITORIA_AUTO_INFRACAO
   ensure_fk_idx('LOG_AUDITORIA_AUTO_INFRACAO', 'I_FK_LAI_AIN01', 'AUTO_INFRACAO_ID');
+END;
+/
+
+DECLARE
+  PROCEDURE recreate_bir_trigger(p_table IN VARCHAR2, p_sequence IN VARCHAR2, p_trigger IN VARCHAR2) IS
+    v_cnt NUMBER;
+    v_sql VARCHAR2(32767);
+  BEGIN
+    -- Se a tabela não possuir coluna ID, nada a fazer.
+    SELECT COUNT(*) INTO v_cnt
+      FROM user_tab_cols
+     WHERE table_name = UPPER(p_table)
+       AND column_name = 'ID';
+    IF v_cnt = 0 THEN
+      RETURN;
+    END IF;
+
+    -- Remove qualquer trigger BEFORE INSERT ROW existente para evitar colisões.
+    FOR trg IN (
+      SELECT trigger_name
+        FROM user_triggers
+       WHERE table_name = UPPER(p_table)
+         AND trigger_type = 'BEFORE EACH ROW'
+         AND triggering_event LIKE '%INSERT%'
+    ) LOOP
+      EXECUTE IMMEDIATE 'DROP TRIGGER '||trg.trigger_name;
+    END LOOP;
+
+    -- Só recria a trigger caso a sequence exista.
+    SELECT COUNT(*) INTO v_cnt FROM user_sequences WHERE sequence_name = UPPER(p_sequence);
+    IF v_cnt = 0 THEN
+      RETURN;
+    END IF;
+
+    v_sql := 'CREATE OR REPLACE TRIGGER '||UPPER(p_trigger)||CHR(10)||
+             'BEFORE INSERT ON '||UPPER(p_table)||CHR(10)||
+             'FOR EACH ROW'||CHR(10)||
+             'BEGIN'||CHR(10)||
+             '  IF :NEW.ID IS NULL THEN'||CHR(10)||
+             '    :NEW.ID := '||UPPER(p_sequence)||'.NEXTVAL;'||CHR(10)||
+             '  END IF;'||CHR(10)||
+             'END;';
+    EXECUTE IMMEDIATE v_sql;
+  END;
+BEGIN
+  recreate_bir_trigger('AGENTE_VOLUNTARIO','S_AGENTE_VOLUNTARIO','TR_BIR_AGV01');
+  recreate_bir_trigger('COMARCA','S_COMARCA','TR_BIR_COM01');
+  recreate_bir_trigger('AREA_ATUACAO','S_AREA_ATUACAO','TR_BIR_AAT01');
+  recreate_bir_trigger('AGENTE_COMARCA','S_AGENTE_COMARCA','TR_BIR_AGC01');
+  recreate_bir_trigger('AGENTE_AREA_ATUACAO','S_AGENTE_AREA_ATUACAO','TR_BIR_AAA01');
+  recreate_bir_trigger('CREDENCIAL','S_CREDENCIAL','TR_BIR_CRE01');
+  recreate_bir_trigger('LOG_AUDITORIA','S_LOG_AUDITORIA','TR_BIR_LOG01');
+  recreate_bir_trigger('AUTO_INFRACAO','S_AUTO_INFRACAO','TR_BIR_AIN01');
+  recreate_bir_trigger('ANEXO_AUTO_INFRACAO','S_ANEXO_AUTO','TR_BIR_ANX01');
+  recreate_bir_trigger('ESTABELECIMENTO','S_ESTABELECIMENTO','TR_BIR_EST01');
+  recreate_bir_trigger('RESPONSAVEL','S_RESPONSAVEL','TR_BIR_RES01');
+  recreate_bir_trigger('MENOR_ENVOLVIDO','S_MENOR_ENVOLVIDO','TR_BIR_MEN01');
+  recreate_bir_trigger('TESTEMUNHA','S_TESTEMUNHA','TR_BIR_TES01');
+  recreate_bir_trigger('LOG_AUDITORIA_AUTO_INFRACAO','S_LOG_AUDITORIA_AUTO_INFRACAO','TR_BIR_LAI01');
+  recreate_bir_trigger('AUTO_INFRACAO_TESTEMUNHA','S_AUTO_INFRACAO_TESTEMUNHA','TR_BIR_AIT01');
 END;
 /
 
