@@ -97,8 +97,8 @@ public class AgenteVoluntario {
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
         name = "agente_area_atuacao",
-        joinColumns = @JoinColumn(name = "id_agente"),
-        inverseJoinColumns = @JoinColumn(name = "id_area_atuacao")
+        joinColumns = @JoinColumn(name = "AGENTE_ID"),
+        inverseJoinColumns = @JoinColumn(name = "AREA_ATUACAO_ID")
     )
     private Set<AreaAtuacao> areasAtuacao = new HashSet<>();
 

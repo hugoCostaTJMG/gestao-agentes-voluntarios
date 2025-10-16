@@ -17,8 +17,8 @@ Observação: não há remoção de colunas nem perda de dados. Trocas de PK oco
 1. `V20251016_4__add_id_number_and_sequences_join_tables.sql`
    - Adiciona `ID` + `SEQUENCE` + triggers e promove `ID` a PK em:
      - `AGENTE_COMARCA` (UNIQUE em `AGENTE_ID, COMARCA_ID`)
-     - `AGENTE_AREA_ATUACAO` (UNIQUE em `ID_AGENTE, ID_AREA_ATUACAO`)
-     - `AUTO_INFRACAO_TESTEMUNHA` (UNIQUE em `AUTO_ID, TESTEMUNHA_ID`)
+     - `AGENTE_AREA_ATUACAO` (UNIQUE em `AGENTE_ID, AREA_ATUACAO_ID`)
+     - `AUTO_INFRACAO_TESTEMUNHA` (UNIQUE em `AUTO_INFRACAO_ID, TESTEMUNHA_ID`)
    - Índices básicos de FK (serão reforçados no passo 2).
 
 2. `V20251016_5__fk_indexes_and_trigger_renames.sql`
@@ -38,7 +38,7 @@ Observação: não há remoção de colunas nem perda de dados. Trocas de PK oco
 
 6. `V20251016_8__promote_numeric_pk_and_cleanup_string_fks.sql`
 7. `V20251016_9__enforce_join_tables_notnull_and_missing_fk.sql`
-   - Garante `ID NOT NULL` nas tabelas de junção e cria, se ausente, a FK `AUTO_INFRACAO_TESTEMUNHA.AUTO_ID -> AUTO_INFRACAO(ID)` (nome `FK_AIT_AIN01`).
+   - Garante `ID NOT NULL` nas tabelas de junção e cria, se ausente, a FK `AUTO_INFRACAO_TESTEMUNHA.AUTO_INFRACAO_ID -> AUTO_INFRACAO(ID)` (nome `FK_AIT_AUTO01`).
    - Remove FKs antigas baseadas em colunas string (se existirem) após a criação das FKs numéricas.
    - Promove `ID` a `PRIMARY KEY` nas tabelas grandes quando não houver mais FKs referenciando a PK antiga, mantendo `*_ID_STR` como `UNIQUE`.
 
@@ -78,9 +78,9 @@ SELECT trigger_name, table_name FROM user_triggers WHERE trigger_name IN (
 
 -- Índices de FK
 SELECT index_name, table_name FROM user_indexes WHERE index_name IN (
-  'I_FK_AGC_AGV01','I_FK_AGC_COM01','I_FK_AAA_AGV01','I_FK_AAA_AAT01',
-  'I_FK_CRE_AGV01','I_FK_AIN_EST01','I_FK_AIN_RES01','I_FK_MEN_AIN01',
-  'I_FK_AIT_AIN01','I_FK_AIT_TES01','I_FK_ANX_AIN01','I_FK_LAI_AIN01'
+  'I_FK_AGCO_AGVO01','I_FK_AGCO_COMA01','I_FK_AGAA_AGVO01','I_FK_AGAA_ARAT01',
+  'I_FK_CRED_AGVO01','I_FK_AIN_EST01','I_FK_AIN_RES01','I_FK_MEN_AIN01',
+  'I_FK_AIT_AUTO01','I_FK_AIT_TEST01','I_FK_ANX_AIN01','I_FK_LAI_AIN01'
 );
 
 -- LOBs com DISABLE STORAGE IN ROW
