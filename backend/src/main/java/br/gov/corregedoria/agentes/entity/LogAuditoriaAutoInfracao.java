@@ -14,53 +14,53 @@ import java.time.LocalDateTime;
  * UC006 - Logs de Auditoria de Alteração/Cancelamento
  */
 @Entity
-@Table(name = "log_auditoria_auto_infracao")
+@Table(name = "LOG_AUDITORIA_AUTO_INFRACAO")
 public class LogAuditoriaAutoInfracao {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_LOG_AUDITORIA_AUTO_INFRACAO")
     @SequenceGenerator(name = "S_LOG_AUDITORIA_AUTO_INFRACAO", sequenceName = "S_LOG_AUDITORIA_AUTO_INFRACAO", allocationSize = 1)
     private Long id;
 
     @NotNull(message = "ID do auto de infração é obrigatório")
-    @Column(name = "auto_infracao_id", nullable = false)
+    @Column(name = "AUTO_INFRACAO_ID", nullable = false)
     private Long autoInfracaoId;
-    
+
     @NotBlank(message = "Tipo de operação é obrigatório")
     @Size(max = 50, message = "Tipo de operação deve ter no máximo 50 caracteres")
-    @Column(name = "tipo_operacao", nullable = false, length = 50)
+    @Column(name = "TIPO_OPERACAO", nullable = false, length = 50)
     private String tipoOperacao;
-    
+
     @NotBlank(message = "Usuário é obrigatório")
     @Size(max = 100, message = "Usuário deve ter no máximo 100 caracteres")
-    @Column(name = "usuario", nullable = false, length = 100)
+    @Column(name = "USUARIO", nullable = false, length = 100)
     private String usuario;
-    
+
     @Size(max = 50, message = "Perfil do usuário deve ter no máximo 50 caracteres")
-    @Column(name = "perfil_usuario", length = 50)
+    @Column(name = "PERFIL_USUARIO", length = 50)
     private String perfilUsuario;
-    
+
     @CreationTimestamp
-    @Column(name = "data_operacao", nullable = false, updatable = false)
+    @Column(name = "DATA_OPERACAO", nullable = false, updatable = false)
     private LocalDateTime dataOperacao;
-    
+
     @Size(max = 100, message = "Endereço IP deve ter no máximo 100 caracteres")
-    @Column(name = "endereco_ip", length = 100)
+    @Column(name = "ENDERECO_IP", length = 100)
     private String enderecoIp;
-    
+
     @Lob
-    @Column(name = "detalhes")
+    @Column(name = "DETALHES")
     private String detalhes;
-    
+
     @Size(max = 500, message = "Justificativa deve ter no máximo 500 caracteres")
-    @Column(name = "justificativa", length = 500)
+    @Column(name = "JUSTIFICATIVA", length = 500)
     private String justificativa;
-    
-    @Column(name = "sucesso", nullable = false)
+
+    @Column(name = "IND_SUCESSO", nullable = false)
     private Boolean sucesso = true;
-    
+
     @Size(max = 500, message = "Mensagem de erro deve ter no máximo 500 caracteres")
-    @Column(name = "mensagem_erro", length = 500)
+    @Column(name = "MENSAGEM_ERRO", length = 500)
     private String mensagemErro;
     
     // === CONSTRUTORES ===

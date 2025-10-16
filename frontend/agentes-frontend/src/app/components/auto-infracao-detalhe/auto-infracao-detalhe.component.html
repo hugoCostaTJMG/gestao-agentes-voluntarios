@@ -10,22 +10,42 @@
         </div>
         <div class="card-body">
           <dl class="row">
-            <dt class="col-sm-3">Autuado</dt>
-            <dd class="col-sm-9">{{auto?.nomeAutuado}}</dd>
+            <dt class="col-sm-3">Número</dt>
+            <dd class="col-sm-9">{{ auto.numeroAuto || auto.idAutoInfracaoStr || ('#' + auto.id) }}</dd>
+
             <dt class="col-sm-3">Status</dt>
-            <dd class="col-sm-9">{{auto?.status}}</dd>
-            <dt class="col-sm-3">Data</dt>
-            <dd class="col-sm-9">{{auto?.dataInfracao | date}}</dd>
+            <dd class="col-sm-9">{{ auto.status }}</dd>
+
+            <dt class="col-sm-3">Data da Infração</dt>
+            <dd class="col-sm-9">{{ auto.dataInfracao | date:'short' }}</dd>
+
+            <dt class="col-sm-3">Estabelecimento</dt>
+            <dd class="col-sm-9">{{ auto.estabelecimento?.nomeEstabelecimento || '-' }}</dd>
+
+            <dt class="col-sm-3">Responsável</dt>
+            <dd class="col-sm-9">{{ auto.responsavel?.nomeResponsavel || '-' }}</dd>
+
+            <dt class="col-sm-3">Local</dt>
+            <dd class="col-sm-9">{{ auto.localInfracao }}</dd>
+
+            <dt class="col-sm-3">Fundamento Legal</dt>
+            <dd class="col-sm-9">{{ auto.fundamentoLegal || '-' }}</dd>
+
+            <dt class="col-sm-3">Observações</dt>
+            <dd class="col-sm-9">{{ auto.observacoes || '-' }}</dd>
           </dl>
+
           <h6>Anexos</h6>
           <ul class="list-unstyled">
             <li *ngFor="let a of anexos" class="mb-1">
               {{a.nomeOriginal}}
               <button class="btn btn-link btn-sm" (click)="download(a.id!)">Download</button>
             </li>
+            <li *ngIf="(anexos?.length || 0) === 0" class="text-muted">Nenhum anexo cadastrado.</li>
           </ul>
+
           <div class="mt-3" *ngIf="auto.status !== 'CANCELADO'">
-            <label class="form-label">Justificativa Cancelamento</label>
+            <label class="form-label">Justificativa de Cancelamento</label>
             <textarea class="form-control" [(ngModel)]="justificativa"></textarea>
             <button class="btn btn-danger mt-2" (click)="cancelarAuto()">Cancelar Auto</button>
           </div>

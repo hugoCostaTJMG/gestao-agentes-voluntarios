@@ -7,17 +7,17 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "area_atuacao")
+@Table(name = "AREA_ATUACAO")
 public class AreaAtuacao {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_AREA_ATUACAO")
     @SequenceGenerator(name = "S_AREA_ATUACAO", sequenceName = "S_AREA_ATUACAO", allocationSize = 1)
-    @Column(name = "id_area_atuacao", updatable = false, nullable = false)
+    @Column(name = "ID", updatable = false, nullable = false)
     private Long id;
 
     @NotBlank(message = "Nome da área de atuação é obrigatório")
-    @Column(name = "nome_area_atuacao", nullable = false, unique = true, length = 255)
+    @Column(name = "NOME_AREA_ATUACAO", nullable = false, unique = true, length = 255)
     private String nomeAreaAtuacao;
 
     @ManyToMany(mappedBy = "areasAtuacao", fetch = FetchType.LAZY)

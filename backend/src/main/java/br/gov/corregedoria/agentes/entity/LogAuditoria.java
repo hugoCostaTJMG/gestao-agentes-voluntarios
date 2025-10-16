@@ -6,30 +6,30 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "log_auditoria")
+@Table(name = "LOG_AUDITORIA")
 public class LogAuditoria {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_LOG_AUDITORIA")
     @SequenceGenerator(name = "S_LOG_AUDITORIA", sequenceName = "S_LOG_AUDITORIA", allocationSize = 1)
-    @Column(name = "id_log", updatable = false, nullable = false)
+    @Column(name = "ID", updatable = false, nullable = false)
     private Long id;
 
     @CreationTimestamp
-    @Column(name = "data_hora", nullable = false)
+    @Column(name = "DATA_HORA", nullable = false)
     private LocalDateTime dataHora;
 
-    @Column(name = "usuario", nullable = false, length = 100)
+    @Column(name = "USUARIO", nullable = false, length = 100)
     private String usuario;
 
-    @Column(name = "tipo_operacao", nullable = false, length = 50)
+    @Column(name = "TIPO_OPERACAO", nullable = false, length = 50)
     private String tipoOperacao;
 
     @Lob
-    @Column(name = "detalhes")
+    @Column(name = "DETALHES")
     private String detalhes;
 
-    @Column(name = "ip_origem", length = 45)
+    @Column(name = "IP_ORIGEM", length = 45)
     private String ipOrigem;
 
     // Construtores

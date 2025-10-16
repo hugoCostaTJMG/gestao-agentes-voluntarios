@@ -94,6 +94,12 @@ public class AutoInfracaoController {
         if (nC instanceof Number n) auto.setNumeroCriancas(n.intValue());
         Object nA = payload.get("numeroAdolescentes");
         if (nA instanceof Number n) auto.setNumeroAdolescentes(n.intValue());
+        Object assinatura = payload.get("assinaturaAutuado");
+        if (assinatura instanceof Boolean b) {
+            auto.setAssinaturaAutuado(b);
+        } else if (assinatura instanceof String s && !s.isBlank()) {
+            auto.setAssinaturaAutuado(Boolean.parseBoolean(s));
+        }
         auto.setNomeComissarioAutuante((String) payload.get("nomeComissarioAutuante"));
         auto.setMatriculaAutuante((String) payload.get("matriculaAutuante"));
         auto.setObservacoes((String) payload.get("observacoes"));

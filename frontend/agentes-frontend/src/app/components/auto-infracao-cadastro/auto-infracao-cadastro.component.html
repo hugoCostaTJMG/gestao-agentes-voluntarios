@@ -9,62 +9,112 @@
           </h5>
         </div>
         <div class="card-body">
-          <form [formGroup]="form" (ngSubmit)="salvar()" novalidate>
+          <form [formGroup]="form" (ngSubmit)="salvar()">
             <div class="row g-3">
               <div class="col-md-6">
-                <label class="form-label">Nome do Autuado</label>
-                <input class="form-control" formControlName="nomeAutuado">
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">CPF/CNPJ</label>
-                <input class="form-control" formControlName="cpfCnpjAutuado">
-                <div class="invalid-feedback" *ngIf="form.get('cpfCnpjAutuado')?.invalid && form.get('cpfCnpjAutuado')?.touched">
-                  <span *ngIf="form.get('cpfCnpjAutuado')?.errors?.['required']">Documento é obrigatório</span>
-                  <span *ngIf="form.get('cpfCnpjAutuado')?.errors?.['cpfCnpjInvalido']">CPF/CNPJ inválido</span>
+                <label class="form-label">Estabelecimento *</label>
+                <select class="form-select" formControlName="estabelecimentoId">
+                  <option value="">Selecione</option>
+                  <option *ngFor="let est of estabelecimentos" [value]="est.id">{{est.nomeEstabelecimento}}</option>
+                </select>
+                <div class="text-danger" *ngIf="form.get('estabelecimentoId')?.touched && form.get('estabelecimentoId')?.invalid">
+                  Estabelecimento é obrigatório.
                 </div>
               </div>
               <div class="col-md-6">
-                <label class="form-label">Endereço</label>
-                <input class="form-control" formControlName="enderecoAutuado">
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Contato</label>
-                <input class="form-control" formControlName="contatoAutuado">
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">Comarca</label>
-                <select class="form-select" formControlName="comarcaId">
-                  <option value="" disabled selected>Selecione</option>
-                  <option *ngFor="let c of comarcas" [value]="c.id">{{c.nomeComarca}}</option>
+                <label class="form-label">Responsável *</label>
+                <select class="form-select" formControlName="responsavelId">
+                  <option value="">Selecione</option>
+                  <option *ngFor="let resp of responsaveis" [value]="resp.id">{{resp.nomeResponsavel}}</option>
                 </select>
+                <div class="text-danger" *ngIf="form.get('responsavelId')?.touched && form.get('responsavelId')?.invalid">
+                  Responsável é obrigatório.
+                </div>
               </div>
-              <div class="col-md-8">
-                <label class="form-label">Base Legal</label>
-                <input class="form-control" formControlName="baseLegal">
-              </div>
-              <div class="col-md-3">
-                <label class="form-label">Data</label>
+
+              <div class="col-md-4">
+                <label class="form-label">Data da Infração *</label>
                 <input type="date" class="form-control" formControlName="dataInfracao">
               </div>
-              <div class="col-md-3">
-                <label class="form-label">Hora</label>
-                <input type="time" class="form-control" formControlName="horaInfracao">
+              <div class="col-md-4">
+                <label class="form-label">Data/Hora do Registro</label>
+                <input type="datetime-local" class="form-control" formControlName="horarioInfracao">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Local da Infração *</label>
+                <input type="text" class="form-control" formControlName="localInfracao">
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Comarca</label>
+                <select class="form-select" formControlName="comarcaTexto">
+                  <option value="">Selecione</option>
+                  <option *ngFor="let c of comarcas" [value]="c.nomeComarca">{{c.nomeComarca}}</option>
+                </select>
               </div>
               <div class="col-md-6">
-                <label class="form-label">Local</label>
-                <input class="form-control" formControlName="localInfracao">
+                <label class="form-label">Fundamento Legal</label>
+                <input type="text" class="form-control" formControlName="fundamentoLegal">
               </div>
-              <div class="col-12">
-                <label class="form-label">Descrição da Conduta</label>
-                <textarea class="form-control" rows="3" formControlName="descricaoConduta"></textarea>
+
+              <div class="col-md-4">
+                <label class="form-label">Artigo ECA</label>
+                <input type="text" class="form-control" formControlName="artigoEca">
               </div>
+              <div class="col-md-4">
+                <label class="form-label">Portaria Nº</label>
+                <input type="text" class="form-control" formControlName="portariaN">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Assinatura do Autuado</label>
+                <div class="form-check form-switch mt-2">
+                  <input class="form-check-input" type="checkbox" role="switch" formControlName="assinaturaAutuado">
+                  <label class="form-check-label">Assinou</label>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Número de Crianças</label>
+                <input type="number" min="0" class="form-control" formControlName="numeroCriancas">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Número de Adolescentes</label>
+                <input type="number" min="0" class="form-control" formControlName="numeroAdolescentes">
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Nome do Comissário Autuante</label>
+                <input type="text" class="form-control" formControlName="nomeComissarioAutuante">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Matrícula do Autuante</label>
+                <input type="text" class="form-control" formControlName="matriculaAutuante">
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Data da Intimação</label>
+                <input type="date" class="form-control" formControlName="dataIntimacao">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Prazo para Defesa</label>
+                <input type="date" class="form-control" formControlName="prazoDefesa">
+              </div>
+
               <div class="col-12">
-                <label class="form-label">Anexo</label>
+                <label class="form-label">Observações</label>
+                <textarea class="form-control" rows="4" formControlName="observacoes"></textarea>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Anexo (opcional)</label>
                 <input type="file" class="form-control" (change)="onFileChange($event)">
               </div>
             </div>
-            <div class="mt-4 d-flex justify-content-end">
-              <button type="submit" class="btn btn-primary" [disabled]="loading">
+
+            <div class="d-flex justify-content-end mt-4">
+              <button class="btn btn-secondary me-2" type="button" (click)="cancelar()">Cancelar</button>
+              <button class="btn btn-primary" type="submit" [disabled]="loading">
+                <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
                 Salvar
               </button>
             </div>

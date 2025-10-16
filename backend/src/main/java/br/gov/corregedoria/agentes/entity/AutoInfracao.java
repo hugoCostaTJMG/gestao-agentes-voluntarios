@@ -1,5 +1,6 @@
 package br.gov.corregedoria.agentes.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -112,10 +113,12 @@ public class AutoInfracao {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "ESTABELECIMENTO_ID", referencedColumnName = "ID", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Estabelecimento estabelecimento;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "RESPONSAVEL_ID", referencedColumnName = "ID", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Responsavel responsavel;
 
     @OneToMany(mappedBy = "autoInfracao", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -124,7 +127,7 @@ public class AutoInfracao {
     @ManyToMany
     @JoinTable(
         name = "AUTO_INFRACAO_TESTEMUNHA",
-        joinColumns = @JoinColumn(name = "AUTO_ID", referencedColumnName = "ID"),
+        joinColumns = @JoinColumn(name = "AUTO_INFRACAO_ID", referencedColumnName = "ID"),
         inverseJoinColumns = @JoinColumn(name = "TESTEMUNHA_ID", referencedColumnName = "ID")
     )
     private Set<Testemunha> testemunhas = new HashSet<>();

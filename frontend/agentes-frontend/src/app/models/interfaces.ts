@@ -59,6 +59,28 @@ export interface AreaAtuacao {
   nomeAreaAtuacao: string;
 }
 
+export interface Estabelecimento {
+  id: number;
+  nomeEstabelecimento: string;
+  cnpj?: string;
+  enderecoEstabelecimento?: string;
+  complementoEstabelecimento?: string;
+  bairroEstabelecimento?: string;
+  cidadeEstabelecimento?: string;
+}
+
+export interface Responsavel {
+  id: number;
+  nomeResponsavel: string;
+  rgResponsavel?: string;
+  cpfResponsavel?: string;
+  condicaoResponsavel?: string;
+  enderecoResponsavel?: string;
+  complementoResponsavel?: string;
+  bairroResponsavel?: string;
+  cidadeResponsavel?: string;
+}
+
 export interface Credencial {
   id: number;
   agenteId: number;
@@ -119,9 +141,20 @@ export enum StatusAutoInfracao {
   CANCELADO = 'CANCELADO'
 }
 
+export interface MenorEnvolvido {
+  id?: number;
+  idMenorStr?: string;
+  nomeMenor: string;
+  dataNascimentoMenor?: string;
+  documentoMenor?: string;
+  filiacaoMenor?: string;
+  residenciaMenor?: string;
+}
+
 export interface AnexoAutoInfracao {
   id?: number;
-  autoInfracaoId: number;
+  autoInfracaoId?: number;
+  autoInfracao?: { id: number } | null;
   nomeArquivo: string;
   nomeOriginal: string;
   tipoArquivo: string;
@@ -134,25 +167,23 @@ export interface AnexoAutoInfracao {
 
 export interface AutoInfracao {
   id?: number;
-  nomeAutuado: string;
-  cpfCnpjAutuado: string;
-  enderecoAutuado: string;
-  contatoAutuado: string;
-  agenteId?: number;
-  nomeAgente?: string;
-  matriculaAgente?: string;
-  comarcaId: number;
-  baseLegal: string;
+  idAutoInfracaoStr?: string;
+  numeroAuto?: string;
   dataInfracao: string;
-  horaInfracao: string;
+  horarioInfracao?: string;
   localInfracao: string;
-  descricaoConduta: string;
-  iniciaisCrianca?: string;
-  idadeCrianca?: number;
-  sexoCrianca?: string;
-  nomeTestemunha?: string;
-  cpfTestemunha?: string;
+  comarcaTexto?: string;
+  fundamentoLegal?: string;
+  artigoEca?: string;
+  portariaN?: string;
+  numeroCriancas?: number;
+  numeroAdolescentes?: number;
   assinaturaAutuado?: boolean;
+  nomeComissarioAutuante?: string;
+  matriculaAutuante?: string;
+  observacoes?: string;
+  dataIntimacao?: string;
+  prazoDefesa?: string;
   status?: StatusAutoInfracao;
   dataCadastro?: string;
   dataAtualizacao?: string;
@@ -161,7 +192,12 @@ export interface AutoInfracao {
   dataCancelamento?: string;
   usuarioCancelamento?: string;
   justificativaCancelamento?: string;
+  estabelecimentoId?: number;
+  responsavelId?: number;
+  estabelecimento?: Pick<Estabelecimento, 'id' | 'nomeEstabelecimento'> | null;
+  responsavel?: Pick<Responsavel, 'id' | 'nomeResponsavel'> | null;
   anexos?: AnexoAutoInfracao[];
+  menoresEnvolvidos?: MenorEnvolvido[];
 }
 
 // ===== DASHBOARD =====
