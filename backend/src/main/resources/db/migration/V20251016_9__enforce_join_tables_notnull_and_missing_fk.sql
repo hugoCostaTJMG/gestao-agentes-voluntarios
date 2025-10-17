@@ -13,11 +13,16 @@ BEGIN
     UNION ALL SELECT 'AGENTE_AREA_ATUACAO' FROM dual
     UNION ALL SELECT 'AUTO_INFRACAO_TESTEMUNHA' FROM dual
   ) LOOP
-    BEGIN
-      EXECUTE IMMEDIATE 'ALTER TABLE '||t.tn||' MODIFY (ID NOT NULL)';
-    EXCEPTION WHEN OTHERS THEN
-      -- ORA-01442: column to be modified to NOT NULL is already NOT NULL
-      IF SQLCODE != -1442 THEN RAISE; END IF;
+    DECLARE v_tbl NUMBER; BEGIN
+      SELECT COUNT(*) INTO v_tbl FROM user_tables WHERE table_name = t.tn;
+      IF v_tbl > 0 THEN
+        BEGIN
+          EXECUTE IMMEDIATE 'ALTER TABLE '||t.tn||' MODIFY (ID NOT NULL)';
+        EXCEPTION WHEN OTHERS THEN
+          -- ORA-01442: column to be modified to NOT NULL is already NOT NULL
+          IF SQLCODE != -1442 THEN RAISE; END IF;
+        END;
+      END IF;
     END;
   END LOOP;
 END;
@@ -31,14 +36,23 @@ DECLARE
   v_cnt NUMBER := 0;
   v_ref_type VARCHAR2(30);
   v_col_type VARCHAR2(30);
+  v_tbl_auto NUMBER;
+  v_tbl_ait  NUMBER;
 BEGIN
+  -- Guard: only proceed if both tables exist
+  SELECT COUNT(*) INTO v_tbl_auto FROM user_tables WHERE table_name = 'AUTO_INFRACAO';
+  SELECT COUNT(*) INTO v_tbl_ait  FROM user_tables WHERE table_name = 'AUTO_INFRACAO_TESTEMUNHA';
+  IF v_tbl_auto = 0 OR v_tbl_ait = 0 THEN RETURN; END IF;
+
   -- Only create FK if both columns are NUMBER-typed and no existing equivalent FK
-  SELECT data_type INTO v_ref_type
-    FROM user_tab_cols
-   WHERE table_name = 'AUTO_INFRACAO' AND column_name = 'ID';
-  SELECT data_type INTO v_col_type
-    FROM user_tab_cols
-   WHERE table_name = 'AUTO_INFRACAO_TESTEMUNHA' AND column_name = 'AUTO_ID';
+  BEGIN
+    SELECT data_type INTO v_ref_type
+      FROM user_tab_cols
+     WHERE table_name = 'AUTO_INFRACAO' AND column_name = 'ID';
+    SELECT data_type INTO v_col_type
+      FROM user_tab_cols
+     WHERE table_name = 'AUTO_INFRACAO_TESTEMUNHA' AND column_name = 'AUTO_ID';
+  EXCEPTION WHEN NO_DATA_FOUND THEN RETURN; WHEN OTHERS THEN RETURN; END;
 
   IF v_ref_type = 'NUMBER' AND v_col_type = 'NUMBER' THEN
     SELECT COUNT(*) INTO v_cnt

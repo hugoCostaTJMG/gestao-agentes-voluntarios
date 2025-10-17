@@ -23,12 +23,35 @@ DECLARE
     v_equiv NUMBER;
     v_name  NUMBER;
     v_sql   VARCHAR2(4000);
+    v_tbl   NUMBER;
+    v_col   NUMBER;
+    v_cols_to_use VARCHAR2(400);
   BEGIN
-    v_equiv := has_index_on(p_table, p_cols);
+    -- Guard: if table doesn't exist, skip to avoid ORA-00942
+    SELECT COUNT(*) INTO v_tbl FROM user_tables WHERE table_name = UPPER(p_table);
+    IF v_tbl = 0 THEN RETURN; END IF;
+
+    -- Choose the actual column(s) present. Handles known renames.
+    v_cols_to_use := UPPER(TRIM(p_cols));
+    SELECT COUNT(*) INTO v_col FROM user_tab_cols WHERE table_name = UPPER(p_table) AND column_name = v_cols_to_use;
+    IF v_col = 0 THEN
+      -- Known alternates
+      IF UPPER(p_table) = 'AUTO_INFRACAO_TESTEMUNHA' AND v_cols_to_use = 'AUTO_INFRACAO_ID' THEN
+        SELECT COUNT(*) INTO v_col FROM user_tab_cols WHERE table_name = 'AUTO_INFRACAO_TESTEMUNHA' AND column_name = 'AUTO_ID';
+        IF v_col > 0 THEN v_cols_to_use := 'AUTO_ID'; ELSE RETURN; END IF;
+      ELSIF UPPER(p_table) = 'CREDENCIAL' AND v_cols_to_use = 'AGENTE_ID' THEN
+        SELECT COUNT(*) INTO v_col FROM user_tab_cols WHERE table_name = 'CREDENCIAL' AND column_name = 'ID_AGENTE';
+        IF v_col > 0 THEN v_cols_to_use := 'ID_AGENTE'; ELSE RETURN; END IF;
+      ELSE
+        RETURN; -- Column(s) not found; skip
+      END IF;
+    END IF;
+
+    v_equiv := has_index_on(p_table, v_cols_to_use);
     IF v_equiv = 0 THEN
       SELECT COUNT(*) INTO v_name FROM user_indexes WHERE index_name = UPPER(p_idx);
       IF v_name = 0 THEN
-        v_sql := 'CREATE INDEX '||UPPER(p_idx)||' ON '||UPPER(p_table)||'('||p_cols||')';
+        v_sql := 'CREATE INDEX '||UPPER(p_idx)||' ON '||UPPER(p_table)||'('||v_cols_to_use||')';
         EXECUTE IMMEDIATE v_sql;
       END IF;
     END IF;

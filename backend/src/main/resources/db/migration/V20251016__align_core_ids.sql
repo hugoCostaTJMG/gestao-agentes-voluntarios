@@ -20,12 +20,18 @@ DECLARE v_id INTEGER; v_old INTEGER; BEGIN
 END;
 /
 
--- Recreate trigger to populate ID from sequence
+-- Recreate trigger to populate ID from sequence (guarded if table exists)
+DECLARE v_tbl INTEGER; BEGIN
+  SELECT COUNT(*) INTO v_tbl FROM USER_TABLES WHERE TABLE_NAME='AGENTE_VOLUNTARIO';
+  IF v_tbl > 0 THEN
+    EXECUTE IMMEDIATE q'[
 CREATE OR REPLACE TRIGGER TR_AGENTE_VOLUNTARIO_BI
 BEFORE INSERT ON AGENTE_VOLUNTARIO
 FOR EACH ROW
 BEGIN
   IF :NEW.ID IS NULL THEN :NEW.ID := S_AGENTE_VOLUNTARIO.NEXTVAL; END IF;
+END;]';
+  END IF;
 END;
 /
 
@@ -39,12 +45,18 @@ DECLARE v_id INTEGER; v_old INTEGER; BEGIN
 END;
 /
 
--- Recreate trigger to populate ID from sequence
+-- Recreate trigger to populate ID from sequence (guarded if table exists)
+DECLARE v_tbl2 INTEGER; BEGIN
+  SELECT COUNT(*) INTO v_tbl2 FROM USER_TABLES WHERE TABLE_NAME='COMARCA';
+  IF v_tbl2 > 0 THEN
+    EXECUTE IMMEDIATE q'[
 CREATE OR REPLACE TRIGGER TR_COMARCA_BI
 BEFORE INSERT ON COMARCA
 FOR EACH ROW
 BEGIN
   IF :NEW.ID IS NULL THEN :NEW.ID := S_COMARCA.NEXTVAL; END IF;
+END;]';
+  END IF;
 END;
 /
 
@@ -85,4 +97,3 @@ DECLARE v_cnt INTEGER; BEGIN
   END IF;
 END;
 /
-
