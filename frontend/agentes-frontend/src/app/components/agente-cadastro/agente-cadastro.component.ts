@@ -81,8 +81,10 @@ export class AgenteCadastroComponent implements OnInit {
       filiacaoPai: [''],
       filiacaoMae: [''],
       disponibilidade: [''],
-      comarcasIds: [[], [Validators.required, this.minLengthArray(1)]],
-      areasAtuacaoIds: [[], [Validators.required, this.minLengthArray(1)]]
+      // Agora cada select permite apenas 1 opção; mantemos os nomes para compatibilidade,
+      // mas o valor do form é escalar (number) e convertemos para array no envio.
+      comarcasIds: [null, [Validators.required]],
+      areasAtuacaoIds: [null, [Validators.required]]
     });
   }
 
@@ -219,8 +221,9 @@ export class AgenteCadastroComponent implements OnInit {
       filiacaoPai: String(formValue.filiacaoPai || '').trim() || undefined,
       filiacaoMae: String(formValue.filiacaoMae || '').trim() || undefined,
       disponibilidade: String(formValue.disponibilidade || '').trim() || undefined,
-      comarcasIds: (formValue.comarcasIds || []).map((id: any) => Number(id)),
-      areasAtuacaoIds: (formValue.areasAtuacaoIds || []).map((id: any) => Number(id))
+      // Wrap em array para atender o backend
+      comarcasIds: (formValue.comarcasIds != null && formValue.comarcasIds !== '') ? [Number(formValue.comarcasIds)] : [],
+      areasAtuacaoIds: (formValue.areasAtuacaoIds != null && formValue.areasAtuacaoIds !== '') ? [Number(formValue.areasAtuacaoIds)] : []
     } as AgenteVoluntarioDTO;
 
     // Converter foto para base64 se selecionada
@@ -358,8 +361,9 @@ export class AgenteCadastroComponent implements OnInit {
           filiacaoPai: (agente as any).filiacaoPai || (agente as any).filiacao_pai || '',
           filiacaoMae: (agente as any).filiacaoMae || (agente as any).filiacao_mae || '',
           disponibilidade: agente.disponibilidade || '',
-          comarcasIds,
-          areasAtuacaoIds: areasIds
+          // Seleciona o primeiro item (single-select)
+          comarcasIds: comarcasIds.length ? comarcasIds[0] : null,
+          areasAtuacaoIds: areasIds.length ? areasIds[0] : null
         });
         // Em modo edição, impedir alteração do CPF
         this.agenteForm.get('cpf')?.disable();
@@ -374,8 +378,8 @@ export class AgenteCadastroComponent implements OnInit {
   limparFormulario(): void {
     this.agenteForm.reset();
     this.agenteForm.patchValue({
-      comarcasIds: [],
-      areasAtuacaoIds: []
+      comarcasIds: null,
+      areasAtuacaoIds: null
     });
     this.selectedFile = null;
     this.hideMessages();

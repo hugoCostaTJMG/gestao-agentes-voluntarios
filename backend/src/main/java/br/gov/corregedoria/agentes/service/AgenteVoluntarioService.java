@@ -34,6 +34,9 @@ public class AgenteVoluntarioService {
     @Autowired
     private AuditoriaUtil auditoriaUtil;
 
+    @Autowired
+    private CredencialRepository credencialRepository;
+
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     /**
@@ -256,7 +259,12 @@ public class AgenteVoluntarioService {
     public boolean podeEmitirCredencial(Long agenteId) {
         AgenteVoluntario agente = agenteRepository.findById(agenteId)
                 .orElseThrow(() -> new EntityNotFoundException("Agente não encontrado: " + agenteId));
-        return agente.podeEmitirCredencial();
+        // Só pode emitir se estiver ATIVO e não houver credencial emitida anteriormente
+        boolean ativo = agente.getStatus() == StatusAgente.ATIVO;
+        boolean semCredencial = credencialRepository
+                .findFirstByAgenteIdOrderByDataEmissaoDescIdDesc(agenteId)
+                .isEmpty();
+        return ativo && semCredencial;
     }
 
     /**

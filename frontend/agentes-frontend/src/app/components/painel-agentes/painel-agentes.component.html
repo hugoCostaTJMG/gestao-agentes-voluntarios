@@ -144,7 +144,7 @@
                         class="btn btn-outline-success"
                         (click)="emitirCredencial(agente.id)"
                         [disabled]="!isAgenteAtivo(agente)"
-                        title="Emitir Credencial"
+                        title="Emitir Carteirinha"
                       >
                         <i class="fas fa-id-card"></i>
                       </button>
@@ -193,3 +193,20 @@
     </div>
   </div>
 </div>
+
+<!-- Modal de Pré-visualização da Carteirinha -->
+<app-modal
+  [open]="previewOpen"
+  (openChange)="previewOpen = $event"
+  [busy]="previewBusy"
+  [busyMessage]="'Carregando prévia...'"
+  [title]="'Prévia da Carteirinha'"
+  [actions]="previewActions"
+  (action)="onPreviewAction($event)"
+  [showClose]="true"
+  size="lg"
+>
+  <div modal-body>
+    <app-carteirinha-preview [agente]="agenteSelecionado"></app-carteirinha-preview>
+  </div>
+</app-modal>

@@ -46,9 +46,12 @@ export class SelectComponent implements ControlValueAccessor, OnChanges {
   }
 
   onChanged(v: any): void {
-    this._value = v;
-    this.valueChange.emit(v);
-    this.onChange(v);
+    // Dropdown sempre retorna array de valores selecionados.
+    // Para single-select (multi=false), converte para escalar (primeiro item ou null).
+    const out = this.multi ? v : (Array.isArray(v) ? (v.length ? v[0] : null) : v);
+    this._value = out;
+    this.valueChange.emit(out);
+    this.onChange(out);
   }
 
   writeValue(obj: any): void {
@@ -66,7 +69,11 @@ export class SelectComponent implements ControlValueAccessor, OnChanges {
   }
 
   private syncSelectionFromValue(): void {
-    const val = this._value;
+    let val = this._value;
+    // Se vier array mas o componente está em modo single, usa o primeiro valor
+    if (!this.multi && Array.isArray(val)) {
+      val = val.length ? val[0] : null;
+    }
     if (this.options && this.options.length) {
       if (this.multi) {
         const set = new Set(Array.isArray(val) ? val : []);

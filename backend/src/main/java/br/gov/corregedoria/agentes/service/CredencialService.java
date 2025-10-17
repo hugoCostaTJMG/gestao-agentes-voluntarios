@@ -65,6 +65,14 @@ public class CredencialService {
             throw new IllegalStateException("Apenas agentes com status 'Ativo' podem ter credenciais emitidas");
         }
 
+        // Nova regra: emitir credencial apenas se o agente não tiver nenhuma emitida
+        boolean jaPossuiCredencial = credencialRepository
+                .findFirstByAgenteIdOrderByDataEmissaoDescIdDesc(agenteId)
+                .isPresent();
+        if (jaPossuiCredencial) {
+            throw new IllegalStateException("Agente já possui credencial emitida");
+        }
+
         // Pré-aloca ID pela sequência Oracle para compor a URL antes do insert (qr_code_url é NOT NULL)
         Long nextId = ((Number) entityManager.createNativeQuery("SELECT S_CREDENCIAL.NEXTVAL FROM dual").getSingleResult()).longValue();
 

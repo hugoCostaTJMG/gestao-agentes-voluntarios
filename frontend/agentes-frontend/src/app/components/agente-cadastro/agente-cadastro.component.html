@@ -137,20 +137,20 @@
               </div>
               
               <div class="col-12 col-lg-6">
-                <app-select label="Comarcas de Interesse *"
+                <app-select label="Comarca de Interesse *"
                             formControlName="comarcasIds"
                             [options]="comarcasOptions"
-                            [multi]="true"
-                            [helperText]="'Selecione uma ou mais comarcas'"
+                            [multi]="false"
+                            [helperText]="'Selecione uma comarca'"
                             ></app-select>
               </div>
               
               <div class="col-12 col-lg-6">
-                <app-select label="Áreas de Atuação *"
+                <app-select label="Área de Atuação *"
                             formControlName="areasAtuacaoIds"
                             [options]="areasOptions"
-                            [multi]="true"
-                            [helperText]="'Selecione uma ou mais áreas'"
+                            [multi]="false"
+                            [helperText]="'Selecione uma área'"
                             ></app-select>
               </div>
               

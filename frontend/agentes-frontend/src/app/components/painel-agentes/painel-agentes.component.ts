@@ -4,12 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { AgenteVoluntario } from '../../models/interfaces';
 import { AlertComponent } from '../../shared/components/alert/alert.component';
+import { ModalComponent, ModalAction } from '../../shared/components/modal/modal.component';
+import { CarteirinhaPreviewComponent } from '../carteirinha-preview/carteirinha-preview.component';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-painel-agentes',
   standalone: true,
-  imports: [CommonModule, FormsModule, AlertComponent],
+  imports: [CommonModule, FormsModule, AlertComponent, ModalComponent, CarteirinhaPreviewComponent],
   templateUrl: './painel-agentes.component.html',
   styleUrls: ['./painel-agentes.component.scss']
 })
@@ -18,6 +20,15 @@ export class PainelAgentesComponent implements OnInit {
   agentesFiltrados: AgenteVoluntario[] = [];
   comarcasUnicas: string[] = [];
   loading = false;
+
+  // Preview carteirinha
+  previewOpen = false;
+  previewBusy = false;
+  previewActions: ModalAction[] = [
+    { id: 'fechar', label: 'Fechar', kind: 'secondary', align: 'left' },
+    { id: 'gerar', label: 'Gerar PDF', kind: 'primary' }
+  ];
+  agenteSelecionado: AgenteVoluntario | null = null;
 
   filtros = {
     nome: '',
@@ -197,16 +208,112 @@ export class PainelAgentesComponent implements OnInit {
   }
 
   emitirCredencial(id: number): void {
-    this.alertMessage = `Credencial emitida para o agente ${id}`;
-    this.alertType = 'primary';
-    this.showAlert = true;
+    // Verifica se pode gerar a carteirinha e, se sim, baixa o PDF
+    this.apiService.verificarStatusCarteirinha(id).subscribe({
+      next: (ver) => {
+        if (!ver?.podeGerar) {
+          this.alertMessage = ver?.mensagem || 'Não é possível gerar a carteirinha para este agente.';
+          this.alertType = 'danger';
+          this.showAlert = true;
+          return;
+        }
+        this.apiService.download(`/carteirinha/gerar/${id}`).subscribe({
+          next: (blob) => {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `carteirinha_${id}.pdf`;
+            a.click();
+            URL.revokeObjectURL(a.href);
+
+            this.alertMessage = `Carteirinha gerada para o agente ${id}.`;
+            this.alertType = 'primary';
+            this.showAlert = true;
+          },
+          error: (error) => {
+            console.error('Erro ao gerar carteirinha:', error);
+            this.alertMessage = 'Não foi possível gerar a carteirinha.';
+            this.alertType = 'danger';
+            this.showAlert = true;
+          }
+        });
+      },
+      error: (error) => {
+        console.error('Erro ao verificar status da carteirinha:', error);
+        this.alertMessage = 'Falha ao verificar se é possível gerar a carteirinha.';
+        this.alertType = 'danger';
+        this.showAlert = true;
+      }
+    });
   }
 
   visualizarAgente(id: number): void {
-    this.alertMessage = `Visualizando agente ${id}`;
-    this.alertType = 'secondary';
-    this.showAlert = true;
+    this.previewBusy = true;
+    this.previewOpen = true;
+    this.agenteSelecionado = null;
+    this.apiService.buscarAgentePorId(id).subscribe({
+      next: (ag) => {
+        this.agenteSelecionado = ag;
+        this.previewBusy = false;
+      },
+      error: (error) => {
+        console.error('Erro ao carregar agente para preview:', error);
+        this.previewBusy = false;
+        this.previewOpen = false;
+        this.alertMessage = 'Não foi possível abrir a prévia da carteirinha.';
+        this.alertType = 'danger';
+        this.showAlert = true;
+      }
+    });
   }
+
+  onPreviewAction(actionId: string): void {
+    if (actionId === 'fechar') {
+      this.previewOpen = false;
+      return;
+    }
+    if (actionId === 'gerar') {
+      const id = this.agenteSelecionado?.id;
+      if (!id) return;
+      // Opcional: verificar regra antes de gerar
+      this.previewBusy = true;
+      this.apiService.verificarStatusCarteirinha(id).subscribe({
+        next: (ver) => {
+          if (!ver?.podeGerar) {
+            this.previewBusy = false;
+            this.alertMessage = ver?.mensagem || 'Não é possível gerar a carteirinha para este agente.';
+            this.alertType = 'danger';
+            this.showAlert = true;
+            return;
+          }
+          this.apiService.download(`/carteirinha/gerar/${id}`).subscribe({
+            next: (blob) => {
+              const url = window.URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `carteirinha_${(this.agenteSelecionado?.nomeCompleto || 'agente').replace(/\s+/g, '_')}.pdf`;
+              a.click();
+              window.URL.revokeObjectURL(url);
+              this.previewBusy = false;
+            },
+            error: (e) => {
+              console.error('Erro ao gerar carteirinha:', e);
+              this.previewBusy = false;
+              this.alertMessage = 'Não foi possível gerar a carteirinha.';
+              this.alertType = 'danger';
+              this.showAlert = true;
+            }
+          });
+        },
+        error: () => {
+          this.previewBusy = false;
+          this.alertMessage = 'Falha ao verificar se é possível gerar a carteirinha.';
+          this.alertType = 'danger';
+          this.showAlert = true;
+        }
+      });
+    }
+  }
+
 
   exportarCSV(): void {
     const headers = ['Nome', 'CPF', 'Status', 'Comarca', 'Data Cadastro'];
