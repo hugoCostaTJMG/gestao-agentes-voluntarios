@@ -11,6 +11,7 @@ import br.gov.corregedoria.agentes.repository.AutoInfracaoRepository;
 import br.gov.corregedoria.agentes.repository.ComarcaRepository;
 import br.gov.corregedoria.agentes.repository.LogAuditoriaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.security.core.Authentication;
@@ -20,6 +21,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 import br.gov.corregedoria.agentes.util.DocumentoUtil;
 
 @Service
@@ -53,15 +55,16 @@ public class DashboardService {
 
     private DashboardOverviewDTO overviewForAdmin() {
         DashboardOverviewDTO dto = new DashboardOverviewDTO();
-        dto.setTotalAgentes(agenteRepository.count());
-        dto.setAgentesAtivos(agenteRepository.countByStatus(StatusAgente.ATIVO));
-        dto.setAutosTotal(autoRepository.count());
-        dto.setComarcasTotal(comarcaRepository.count());
+        // Tolerância a schema ausente/indisponível: retorna zeros ao invés de 500
+        dto.setTotalAgentes(safe(() -> agenteRepository.count(), 0L));
+        dto.setAgentesAtivos(safe(() -> agenteRepository.countByStatus(StatusAgente.ATIVO), 0L));
+        dto.setAutosTotal(safe(() -> autoRepository.count(), 0L));
+        dto.setComarcasTotal(safe(() -> comarcaRepository.count(), 0L));
 
         List<StatusSummaryDTO> status = new ArrayList<>();
-        status.add(new StatusSummaryDTO("Ativos", agenteRepository.countByStatus(StatusAgente.ATIVO), "success"));
-        status.add(new StatusSummaryDTO("Em Análise", agenteRepository.countByStatus(StatusAgente.EM_ANALISE), "warning"));
-        status.add(new StatusSummaryDTO("Inativos", agenteRepository.countByStatus(StatusAgente.INATIVO), "danger"));
+        status.add(new StatusSummaryDTO("Ativos", safe(() -> agenteRepository.countByStatus(StatusAgente.ATIVO), 0L), "success"));
+        status.add(new StatusSummaryDTO("Em Análise", safe(() -> agenteRepository.countByStatus(StatusAgente.EM_ANALISE), 0L), "warning"));
+        status.add(new StatusSummaryDTO("Inativos", safe(() -> agenteRepository.countByStatus(StatusAgente.INATIVO), 0L), "danger"));
         dto.setStatusSummary(status);
 
         try {
@@ -77,17 +80,17 @@ public class DashboardService {
     private DashboardOverviewDTO overviewForAgente(String usuario) {
         DashboardOverviewDTO dto = new DashboardOverviewDTO();
         // Para AGENTE, mostramos apenas métricas relacionadas ao próprio usuário
-        long meusAutos = autoRepository.count();
+        long meusAutos = safe(() -> autoRepository.count(), 0L);
         dto.setTotalAgentes(0); // não exibido no frontend para AGENTE
         dto.setAgentesAtivos(0); // não exibido para AGENTE
         dto.setAutosTotal(meusAutos);
         dto.setComarcasTotal(0); // não exibido para AGENTE
 
         List<StatusSummaryDTO> status = new ArrayList<>();
-        status.add(new StatusSummaryDTO("Rascunho", autoRepository.countByStatus(StatusAutoInfracao.RASCUNHO), "neutral"));
-        status.add(new StatusSummaryDTO("Registrado", autoRepository.countByStatus(StatusAutoInfracao.REGISTRADO), "primary"));
-        status.add(new StatusSummaryDTO("Concluído", autoRepository.countByStatus(StatusAutoInfracao.CONCLUIDO), "success"));
-        status.add(new StatusSummaryDTO("Cancelado", autoRepository.countByStatus(StatusAutoInfracao.CANCELADO), "danger"));
+        status.add(new StatusSummaryDTO("Rascunho", safe(() -> autoRepository.countByStatus(StatusAutoInfracao.RASCUNHO), 0L), "neutral"));
+        status.add(new StatusSummaryDTO("Registrado", safe(() -> autoRepository.countByStatus(StatusAutoInfracao.REGISTRADO), 0L), "primary"));
+        status.add(new StatusSummaryDTO("Concluído", safe(() -> autoRepository.countByStatus(StatusAutoInfracao.CONCLUIDO), 0L), "success"));
+        status.add(new StatusSummaryDTO("Cancelado", safe(() -> autoRepository.countByStatus(StatusAutoInfracao.CANCELADO), 0L), "danger"));
         dto.setStatusSummary(status);
 
         try {
@@ -103,6 +106,16 @@ public class DashboardService {
             dto.setActivities(List.of());
         }
         return dto;
+    }
+
+    private <T> T safe(Supplier<T> supplier, T fallback) {
+        try {
+            return supplier.get();
+        } catch (DataAccessException ex) {
+            return fallback;
+        } catch (RuntimeException ex) {
+            return fallback;
+        }
     }
 
     private boolean hasRole(Authentication auth, String role) {
