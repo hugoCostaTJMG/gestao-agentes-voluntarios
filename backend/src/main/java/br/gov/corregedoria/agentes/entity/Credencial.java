@@ -10,8 +10,8 @@ import java.time.LocalDateTime;
 public class Credencial {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_CREDENCIAL")
-    @SequenceGenerator(name = "S_CREDENCIAL", sequenceName = "S_CREDENCIAL", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_CRED")
+    @SequenceGenerator(name = "S_CRED", sequenceName = "S_CRED", allocationSize = 1)
     @Column(name = "ID", updatable = false, nullable = false)
     private Long id;
 
@@ -101,4 +101,3 @@ public class Credencial {
                 '}';
     }
 }
-

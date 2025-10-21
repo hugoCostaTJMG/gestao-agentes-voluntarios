@@ -10,8 +10,8 @@ import java.time.LocalDateTime;
 public class LogAuditoria {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_LOG_AUDITORIA")
-    @SequenceGenerator(name = "S_LOG_AUDITORIA", sequenceName = "S_LOG_AUDITORIA", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_LOGA")
+    @SequenceGenerator(name = "S_LOGA", sequenceName = "S_LOGA", allocationSize = 1)
     @Column(name = "ID", updatable = false, nullable = false)
     private Long id;
 

@@ -77,15 +77,7 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Flyway for DB migrations (Oracle) -->
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-database-oracle</artifactId>
-        </dependency>
+        <!-- (Flyway removido) -->
 
         <!-- H2 Database (para testes) -->
         <dependency>

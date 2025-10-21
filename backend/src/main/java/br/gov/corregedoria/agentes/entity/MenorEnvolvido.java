@@ -11,8 +11,8 @@ import java.time.LocalDate;
 public class MenorEnvolvido {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_MENOR_ENVOLVIDO")
-    @SequenceGenerator(name = "S_MENOR_ENVOLVIDO", sequenceName = "S_MENOR_ENVOLVIDO", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_MENV")
+    @SequenceGenerator(name = "S_MENV", sequenceName = "S_MENV", allocationSize = 1)
     @Column(name = "ID", updatable = false, nullable = false)
     private Long id;
 

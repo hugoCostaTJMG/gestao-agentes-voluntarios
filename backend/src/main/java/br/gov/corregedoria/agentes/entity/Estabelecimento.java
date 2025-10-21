@@ -9,8 +9,8 @@ import jakarta.validation.constraints.Size;
 public class Estabelecimento {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_ESTABELECIMENTO")
-    @SequenceGenerator(name = "S_ESTABELECIMENTO", sequenceName = "S_ESTABELECIMENTO", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_ESTA")
+    @SequenceGenerator(name = "S_ESTA", sequenceName = "S_ESTA", allocationSize = 1)
     @Column(name = "ID", updatable = false, nullable = false)
     private Long id;
 

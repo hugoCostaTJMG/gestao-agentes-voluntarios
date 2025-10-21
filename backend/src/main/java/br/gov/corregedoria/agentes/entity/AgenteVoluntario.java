@@ -16,12 +16,12 @@ import java.util.Set;
 public class AgenteVoluntario {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_AGENTE_VOLUNTARIO")
-    @SequenceGenerator(name = "S_AGENTE_VOLUNTARIO", sequenceName = "S_AGENTE_VOLUNTARIO", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_AGVO")
+    @SequenceGenerator(name = "S_AGVO", sequenceName = "S_AGVO", allocationSize = 1)
     @Column(name = "ID", updatable = false, nullable = false)
     private Long id;
 
-    @Column(name = "ID_AGENTE_NEGOCIO", length = 255)
+    @Column(name = "ID_AGENTE_NEGOCIO", length = 36)
     private String idAgenteNegocio;
 
     @NotBlank(message = "Nome completo é obrigatório")

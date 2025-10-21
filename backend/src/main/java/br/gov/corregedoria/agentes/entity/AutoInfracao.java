@@ -16,8 +16,8 @@ import java.util.*;
 public class AutoInfracao {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_AUTO_INFRACAO")
-    @SequenceGenerator(name = "S_AUTO_INFRACAO", sequenceName = "S_AUTO_INFRACAO", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_AIN")
+    @SequenceGenerator(name = "S_AIN", sequenceName = "S_AIN", allocationSize = 1)
     @Column(name = "ID", updatable = false, nullable = false)
     private Long id;
 
@@ -127,7 +127,7 @@ public class AutoInfracao {
     @ManyToMany
     @JoinTable(
         name = "AUTO_INFRACAO_TESTEMUNHA",
-        joinColumns = @JoinColumn(name = "AUTO_INFRACAO_ID", referencedColumnName = "ID"),
+        joinColumns = @JoinColumn(name = "AUTO_ID", referencedColumnName = "ID"),
         inverseJoinColumns = @JoinColumn(name = "TESTEMUNHA_ID", referencedColumnName = "ID")
     )
     private Set<Testemunha> testemunhas = new HashSet<>();

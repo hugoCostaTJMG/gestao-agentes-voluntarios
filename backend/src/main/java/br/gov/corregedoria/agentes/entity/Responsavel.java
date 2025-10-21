@@ -9,8 +9,8 @@ import jakarta.validation.constraints.Size;
 public class Responsavel {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_RESPONSAVEL")
-    @SequenceGenerator(name = "S_RESPONSAVEL", sequenceName = "S_RESPONSAVEL", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_RESP")
+    @SequenceGenerator(name = "S_RESP", sequenceName = "S_RESP", allocationSize = 1)
     @Column(name = "ID", updatable = false, nullable = false)
     private Long id;
 

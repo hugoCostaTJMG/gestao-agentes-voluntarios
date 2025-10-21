@@ -18,8 +18,8 @@ import java.time.LocalDateTime;
 public class LogAuditoriaAutoInfracao {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_LOG_AUDITORIA_AUTO_INFRACAO")
-    @SequenceGenerator(name = "S_LOG_AUDITORIA_AUTO_INFRACAO", sequenceName = "S_LOG_AUDITORIA_AUTO_INFRACAO", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "S_LOGAI")
+    @SequenceGenerator(name = "S_LOGAI", sequenceName = "S_LOGAI", allocationSize = 1)
     private Long id;
 
     @NotNull(message = "ID do auto de infração é obrigatório")
